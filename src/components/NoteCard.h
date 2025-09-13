@@ -1,0 +1,32 @@
+#ifndef NOTECARD_H
+#define NOTECARD_H
+
+#include "../models/Note.h"
+#include <QFrame>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QPushButton>
+
+class NoteCard : public QFrame
+{
+    Q_OBJECT
+
+  public:
+    explicit NoteCard(const Note& note, QWidget* parent = nullptr);
+
+  signals:
+    void clicked(const Note& note);
+    void deleteClicked(const Note& note);
+
+  protected:
+    void mousePressEvent(QMouseEvent* event) override;
+
+  private:
+    Note note;
+    QLabel* titleLabel;
+    QLabel* descLabel;
+    QVBoxLayout* layout;
+    QPushButton* deleteBtn;
+};
+
+#endif // NOTECARD_H

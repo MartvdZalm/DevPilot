@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/Images">
+        <file alias="Add">assets/images/add.png</file>
+        <file alias="Folder">assets/images/folder.png</file>
+        <file alias="FolderOpen">assets/images/folder_open.png</file>
+        <file alias="Bin">assets/images/bin.png</file>
+        <file alias="ArrowDropDown">assets/images/arrow_drop_down.png</file>
+        <file alias="ArrowDropUp">assets/images/arrow_drop_up.png</file>
+        <file alias="Edit">assets/images/edit.png</file>
+    </qresource>
+</RCC>

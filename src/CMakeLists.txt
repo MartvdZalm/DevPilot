@@ -1,0 +1,95 @@
+
+set(PROJECT_SOURCES
+    main.cpp
+)
+
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(DevPilot
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+        resources.qrc
+
+        # Components
+        components/dialogs/ProjectDialog.h
+        components/dialogs/ProjectDialog.cpp
+        components/dialogs/ModuleEditDialog.h
+        components/dialogs/ModuleEditDialog.cpp
+        components/dialogs/NoteDialog.h
+        components/dialogs/NoteDialog.cpp
+        components/ModuleListItem.h
+        components/ModuleListItem.cpp
+        components/NoteCard.cpp
+        components/NoteCard.h
+        components/FlowLayout.h
+        components/FlowLayout.cpp
+
+        # Database Layer
+        database/Container.h
+        database/Container.cpp
+        database/Database.h
+        database/Database.cpp
+
+        # Core
+        core/Logger.cpp
+        core/Logger.h
+
+        # Models
+        models/Model.h
+        models/Project.h
+        models/Module.h
+        models/Note.h
+
+        # Repositories
+        repositories/IProjectRepository.h
+        repositories/ProjectRepository.h
+        repositories/ProjectRepository.cpp
+        repositories/IModuleRepository.h
+        repositories/ModuleRepository.h
+        repositories/ModuleRepository.cpp
+        repositories/INoteRepository.h
+        repositories/NoteRepository.h
+        repositories/NoteRepository.cpp
+
+        # Styles
+        styles/AppStyle.h
+        styles/AppStyle.cpp
+        styles/ButtonStyle.h
+        styles/ButtonStyle.cpp
+        styles/InputStyle.h
+        styles/InputStyle.cpp
+        styles/GroupBoxStyle.h
+        styles/GroupBoxStyle.cpp
+        styles/ListStyle.h
+        styles/ListStyle.cpp
+
+        # Windows
+        windows/BaseWindow.h
+        windows/BaseWindow.cpp
+        windows/HomeWindow.h
+        windows/HomeWindow.cpp
+        windows/MainWindow.h
+        windows/MainWindow.cpp
+    )
+else()
+    add_executable(DevPilot
+        ${PROJECT_SOURCES}
+    )
+endif()
+
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)
+
+target_link_libraries(DevPilot PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Sql
+)
+
+set_target_properties(DevPilot PROPERTIES
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(DevPilot)
+endif()
