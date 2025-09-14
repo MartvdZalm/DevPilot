@@ -333,14 +333,16 @@ void HomeWindow::onOpenInTerminalClicked()
         return;
     }
 
-    if (path.contains("wsl", Qt::CaseInsensitive)) {
+    if (path.contains("wsl", Qt::CaseInsensitive))
+    {
         QRegularExpression regex(R"(\\\\wsl\.localhost\\[^\\]+\\home\\[^\\]+)");
         QString cleanedPath = path.replace(regex, "~");
         cleanedPath.replace("\\", "/");
 
-        QString command = QString("wsl -e bash -c \"cd %1 && exec bash\"").arg(cleanedPath);
+        QStringList arguments;
+        arguments << "wsl" << "--cd" << cleanedPath;
 
-        QProcess::startDetached(command);
+        QProcess::startDetached("wt.exe", arguments);
     } else {
         QString windowsPath = QDir::toNativeSeparators(path).trimmed();
         if (windowsPath.endsWith('\\'))
