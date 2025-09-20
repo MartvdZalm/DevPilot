@@ -3,6 +3,7 @@
 #include "../repositories/ModuleRepository.h"
 #include "../repositories/NoteRepository.h"
 #include "../repositories/ProjectRepository.h"
+#include "../repositories/SettingRepository.h"
 
 Container& Container::instance()
 {
@@ -40,4 +41,13 @@ std::shared_ptr<INoteRepository> Container::getNoteRepository()
         noteRepository = std::make_shared<NoteRepository>(*database);
     }
     return noteRepository;
+}
+
+std::shared_ptr<ISettingRepository> Container::getSettingRepository()
+{
+    if (!settingRepository && database)
+    {
+        settingRepository = std::make_shared<SettingRepository>(*database);
+    }
+    return settingRepository;
 }

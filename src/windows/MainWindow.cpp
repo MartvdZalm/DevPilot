@@ -1,7 +1,8 @@
-#include "MainWindow.h"
+﻿#include "MainWindow.h"
 #include "HomeWindow.h"
+#include "SettingsWindow.h"
+#include "../components/TitleBar.h"
 #include <QVBoxLayout>
-#include <iostream>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
 {
@@ -10,8 +11,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
-    stackedWidget = new QStackedWidget(container);
+    TitleBar* titleBar = new TitleBar(this);
+    mainLayout->addWidget(titleBar);
 
+    stackedWidget = new QStackedWidget(container);
     mainLayout->addWidget(stackedWidget);
 
     setCentralWidget(container);
@@ -43,4 +46,9 @@ void MainWindow::setPage(BaseWindow* newPage, bool addToHistory)
 void MainWindow::showHomePage()
 {
     setPage(new HomeWindow(this), false);
+}
+
+void MainWindow::showSettingsPage()
+{
+    new SettingsWindow(this);
 }

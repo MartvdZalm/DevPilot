@@ -22,6 +22,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         components/NoteCard.h
         components/FlowLayout.h
         components/FlowLayout.cpp
+        components/TitleBar.h
+        components/TitleBar.cpp
 
         # Database Layer
         database/Container.h
@@ -38,6 +40,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         models/Project.h
         models/Module.h
         models/Note.h
+        models/Setting.h
 
         # Repositories
         repositories/IProjectRepository.h
@@ -49,6 +52,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         repositories/INoteRepository.h
         repositories/NoteRepository.h
         repositories/NoteRepository.cpp
+        repositories/ISettingRepository.h
+        repositories/SettingRepository.h
+        repositories/SettingRepository.cpp
+        repositories/SettingRepository.h
+        repositories/ISettingRepository.h
+        repositories/SettingRepository.cpp
 
         # Styles
         styles/AppStyle.h
@@ -61,6 +70,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         styles/GroupBoxStyle.cpp
         styles/ListStyle.h
         styles/ListStyle.cpp
+        styles/MenuStyle.h
+        styles/MenuStyle.cpp
 
         # Windows
         windows/BaseWindow.h
@@ -69,6 +80,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         windows/HomeWindow.cpp
         windows/MainWindow.h
         windows/MainWindow.cpp
+        windows/SettingsWindow.h
+        windows/SettingsWindow.cpp
     )
 else()
     add_executable(DevPilot

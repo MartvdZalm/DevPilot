@@ -16,6 +16,7 @@ class MainWindow : public QMainWindow
 
   private:
     void showHomePage();
+    void showSettingsPage();
     void setPage(BaseWindow* newPage, bool addToHistory = true);
 
     QStackedWidget* stackedWidget;

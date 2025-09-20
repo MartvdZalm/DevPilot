@@ -8,6 +8,7 @@
 #include "../core/Logger.h"
 #include "../styles/ButtonStyle.h"
 #include "../styles/ListStyle.h"
+#include "../database/Container.h"
 #include <QEvent>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -29,6 +30,7 @@
 #include <QTextEdit>
 #include <QTreeWidget>
 #include <QVBoxLayout>
+#include <QDesktopServices>
 #include <windows.h>
 
 HomeWindow::HomeWindow(QWidget* parent) : BaseWindow(parent)
@@ -138,15 +140,22 @@ void HomeWindow::setupUI()
     projectInfoLayout->addWidget(projectPathLabel);
     projectInfoLayout->addWidget(addModuleButton);
 
-    QPushButton* openButton = new QPushButton("Open");
-    openButton->setStyleSheet(ButtonStyle::primary());
-    connect(openButton, &QPushButton::clicked, this, &HomeWindow::onOpenInTerminalClicked);
+    QPushButton* openFolderButton = new QPushButton("Open");
+    openFolderButton->setStyleSheet(ButtonStyle::primary());
+    connect(openFolderButton, &QPushButton::clicked, this, &HomeWindow::onOpenInFolderClicked);
+
+    QPushButton* openTerminalButton = new QPushButton("Open in Terminal");
+    openTerminalButton->setStyleSheet(ButtonStyle::primary());
+    connect(openTerminalButton, &QPushButton::clicked, this, &HomeWindow::onOpenInTerminalClicked);
+
     QPushButton* openIDEButton = new QPushButton("Open in IDE");
     openIDEButton->setStyleSheet(ButtonStyle::primary());
+    connect(openIDEButton, &QPushButton::clicked, this, &HomeWindow::onOpenInIDEClicked);
 
     projectHeaderLayout->addLayout(projectInfoLayout);
     projectHeaderLayout->addStretch();
-    projectHeaderLayout->addWidget(openButton);
+    projectHeaderLayout->addWidget(openFolderButton);
+    projectHeaderLayout->addWidget(openTerminalButton);
     projectHeaderLayout->addWidget(openIDEButton);
 
     projectDetailsLayout->addLayout(projectHeaderLayout);
@@ -317,6 +326,27 @@ void HomeWindow::onEditProjectClicked()
     }
 }
 
+void HomeWindow::onOpenInFolderClicked()
+{
+    if (currentProject.getDirectoryPath().isEmpty())
+    {
+        QMessageBox::information(this, "No Project Path",
+                                 "Please set a project directory path first. "
+                                 "You can do this by editing the project.");
+        return;
+    }
+
+    QString path = currentProject.getDirectoryPath();
+    if (!QDir(path).exists())
+    {
+        QMessageBox::warning(this, "Invalid Path",
+                             QString("The directory '%1' does not exist.").arg(path));
+        return;
+    }
+
+    QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+}
+
 void HomeWindow::onOpenInTerminalClicked()
 {
     if (currentProject.getDirectoryPath().isEmpty())
@@ -355,6 +385,29 @@ void HomeWindow::onOpenInTerminalClicked()
 
     }
 #endif
+}
+
+void HomeWindow::onOpenInIDEClicked()
+{
+    qDebug() << "Open IDE";
+
+    if (currentProject.getDirectoryPath().isEmpty())
+    {
+        QMessageBox::information(this, "No Project Path",
+                                 "Please set a project directory path first. "
+                                 "You can do this by editing the project.");
+        return;
+    }
+
+    QString path = currentProject.getDirectoryPath();
+    if (!QDir(path).exists())
+    {
+        QMessageBox::warning(this, "Invalid Path",
+                             QString("The directory '%1' does not exist.").arg(path));
+        return;
+    }
+
+    QProcess::startDetached("code", QStringList() << path);
 }
 
 void HomeWindow::onProjectSelected(QListWidgetItem* item)

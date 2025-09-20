@@ -1,13 +1,15 @@
 #ifndef HOMEWINDOW_H
 #define HOMEWINDOW_H
 
-#include "../database/Container.h"
 #include "../models/Module.h"
 #include "../models/Project.h"
+#include "../models/Note.h"
+#include "../repositories/INoteRepository.h"
+#include "../repositories/IModuleRepository.h"
+#include "../repositories/IProjectRepository.h"
 #include "BaseWindow.h"
 #include <QGridLayout>
 #include <QScrollArea>
-#include "../models/Note.h"
 #include <QLabel>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -28,7 +30,9 @@ class HomeWindow : public BaseWindow
   private slots:
     void onAddProjectClicked();
     void onEditProjectClicked();
+    void onOpenInFolderClicked();
     void onOpenInTerminalClicked();
+    void onOpenInIDEClicked();
     void onProjectSelected(QListWidgetItem* item);
 
     void onModuleStartClicked(int moduleId);

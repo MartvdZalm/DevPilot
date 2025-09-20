@@ -42,5 +42,9 @@ QString ButtonStyle::icon()
             background-color: rgba(255, 255, 255, 0.15); /* stronger press */
             border-radius: 6px;
         }
+
+        QToolButton::menu-indicator {
+            image: none;
+        }
     )");
 }

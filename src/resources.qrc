@@ -7,5 +7,10 @@
         <file alias="ArrowDropDown">assets/images/arrow_drop_down.png</file>
         <file alias="ArrowDropUp">assets/images/arrow_drop_up.png</file>
         <file alias="Edit">assets/images/edit.png</file>
+        <file alias="Close">assets/images/close.png</file>
+        <file alias="Menu">assets/images/menu.png</file>
+        <file alias="Minimize">assets/images/minimize.png</file>
+        <file alias="Maximize">assets/images/maximize.png</file>
+        <file alias="Restore">assets/images/restore.png</file>
     </qresource>
 </RCC>
