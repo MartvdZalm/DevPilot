@@ -14,6 +14,7 @@ class ModuleListItem : public QGroupBox
 
   public:
     explicit ModuleListItem(const Module& module, const QString& iconEmoji, QWidget* parent = nullptr);
+
     QString cleanAnsi(const QString& text);
     void setLogs(const QString& text);
     void appendLog(const QString& line);
@@ -26,11 +27,11 @@ class ModuleListItem : public QGroupBox
     QTextEdit* getLogs();
 
   private:
-    QLabel* portLabel;
-    QPushButton* startButton;
-    QPushButton* stopButton;
-    QTextEdit* logs;
     Module module;
+    QLabel* portLabel = nullptr;
+    QPushButton* startButton = nullptr;
+    QPushButton* stopButton = nullptr;
+    QTextEdit* logs = nullptr;
     QProcess* process = nullptr;
 };
 

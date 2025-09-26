@@ -6,12 +6,9 @@
 #include <QTextStream>
 
 QString Logger::logFilePath;
-QMutex Logger::logMutex;
 
 void Logger::initialize(const QString& appName)
 {
-    QMutexLocker locker(&logMutex);
-
     QString logDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(logDir);
 
@@ -28,8 +25,6 @@ void Logger::initialize(const QString& appName)
 
 void Logger::log(Level level, const QString& message, const char* file, const char* function, int line)
 {
-    QMutexLocker locker(&logMutex);
-
     QFile logFile(logFilePath);
     if (logFile.open(QIODevice::WriteOnly | QIODevice::Append))
     {

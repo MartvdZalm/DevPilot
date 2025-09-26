@@ -24,9 +24,9 @@ class NoteDialog : public QDialog
     void setupUI();
     void loadNote(const Note& note);
 
+  private:
     QLineEdit* titleEdit;
     QTextEdit* contentEdit;
-
     Note currentNote;
 };
 

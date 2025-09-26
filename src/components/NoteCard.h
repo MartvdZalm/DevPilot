@@ -23,10 +23,10 @@ class NoteCard : public QFrame
 
   private:
     Note note;
-    QLabel* titleLabel;
-    QLabel* descLabel;
-    QVBoxLayout* layout;
-    QPushButton* deleteBtn;
+    QLabel* titleLabel = nullptr;
+    QLabel* descLabel = nullptr;
+    QVBoxLayout* layout = nullptr;
+    QPushButton* deleteBtn = nullptr;
 };
 
 #endif // NOTECARD_H

@@ -8,7 +8,6 @@
 #include "../core/Logger.h"
 #include "../styles/ButtonStyle.h"
 #include "../styles/ListStyle.h"
-#include "../database/Container.h"
 #include <QEvent>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -33,11 +32,12 @@
 #include <QDesktopServices>
 #include <windows.h>
 
-HomeWindow::HomeWindow(QWidget* parent) : BaseWindow(parent)
+HomeWindow::HomeWindow(std::shared_ptr<RepositoryProvider> repoProvider, QWidget* parent)
+    : repositoryProvider(std::move(repoProvider)), BaseWindow(parent)
 {
-    projectRepository = Container::instance().getProjectRepository();
-    moduleRepository = Container::instance().getModuleRepository();
-    noteRepository = Container::instance().getNoteRepository();
+    projectRepository = repositoryProvider->getProjectRepository();
+    moduleRepository = repositoryProvider->getModuleRepository();
+    noteRepository = repositoryProvider->getNoteRepository();
 
     setupUI();
     setupConnections();
@@ -389,8 +389,6 @@ void HomeWindow::onOpenInTerminalClicked()
 
 void HomeWindow::onOpenInIDEClicked()
 {
-    qDebug() << "Open IDE";
-
     if (currentProject.getDirectoryPath().isEmpty())
     {
         QMessageBox::information(this, "No Project Path",

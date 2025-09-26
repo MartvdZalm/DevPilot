@@ -7,6 +7,7 @@
 #include "../repositories/INoteRepository.h"
 #include "../repositories/IModuleRepository.h"
 #include "../repositories/IProjectRepository.h"
+#include "../repositories/RepositoryProvider.h"
 #include "BaseWindow.h"
 #include <QGridLayout>
 #include <QScrollArea>
@@ -22,10 +23,7 @@ class HomeWindow : public BaseWindow
     Q_OBJECT
 
   public:
-    explicit HomeWindow(QWidget* parent = nullptr);
-
-    void setupUI() override;
-    void setupConnections() override;
+    explicit HomeWindow(std::shared_ptr<RepositoryProvider> repositoryProvider, QWidget* parent = nullptr);
 
   private slots:
     void onAddProjectClicked();
@@ -34,11 +32,12 @@ class HomeWindow : public BaseWindow
     void onOpenInTerminalClicked();
     void onOpenInIDEClicked();
     void onProjectSelected(QListWidgetItem* item);
-
     void onModuleStartClicked(int moduleId);
     void onModuleStopClicked(int moduleId);
 
   private:
+    void setupUI() override;
+    void setupConnections() override;
     void loadProjects();
     void loadProjectModules(int projectId);
     void loadProjectNotes(int projectId);
@@ -46,19 +45,17 @@ class HomeWindow : public BaseWindow
     void refreshModuleDisplay();
     void onAddNoteClicked();
     void openNoteDialog(const Note& note);
-
     QString statusIconForModule(const Module& m) const;
 
   protected:
+    std::shared_ptr<RepositoryProvider> repositoryProvider;
     std::shared_ptr<IProjectRepository> projectRepository;
     std::shared_ptr<IModuleRepository> moduleRepository;
     std::shared_ptr<INoteRepository> noteRepository;
     Project currentProject;
     QList<Module> currentModules;
-
     QListWidget* projectList = nullptr;
     QListWidgetItem* openedProjectItem = nullptr;
-
     QLabel* projectPathLabel = nullptr;
     QLabel* projectNameLabel = nullptr;
     QPushButton* addProjectButton = nullptr;

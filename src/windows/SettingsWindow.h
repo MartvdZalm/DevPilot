@@ -2,6 +2,7 @@
 #define SETTINGSWINDOW_H
 
 #include "BaseWindow.h"
+#include "../repositories/RepositoryProvider.h"
 #include <QHBoxLayout>
 #include <QListWidget>
 #include <QFrame>
@@ -15,10 +16,7 @@ class SettingsWindow : public BaseWindow
     Q_OBJECT
 
   public:
-    explicit SettingsWindow(QWidget* parent = nullptr);
-
-    void setupUI() override;
-    void setupConnections() override;
+    explicit SettingsWindow(std::shared_ptr<RepositoryProvider> repoRepository, QWidget* parent = nullptr);
 
   private slots:
     void onSidebarItemChanged(int index);
@@ -26,20 +24,18 @@ class SettingsWindow : public BaseWindow
     void onApplyClicked();
     
   private:
+    void setupUI() override;
+    void setupConnections() override;
     void setupSidebar();
     void setupContentArea();
     void setupButtonArea();
     void loadSettings();
     void saveSettings();
-
     QWidget* createGeneralPage();
-    QWidget* createAudioPage();
-    QWidget* createLibraryPage();
-    QWidget* createPlaybackPage();
-    QWidget* createInterfacePage();
-    QWidget* createHotkeysPage();
-    QWidget* createAdvancedPage();
     QWidget* createAboutPage();
+
+  private:
+    std::shared_ptr<RepositoryProvider> repositoryRepository;
 
     QHBoxLayout* mainLayout;
     QVBoxLayout* leftLayout;
@@ -59,12 +55,6 @@ class SettingsWindow : public BaseWindow
     QPushButton* applyButton;
 
     QWidget* generalPage;
-    QWidget* audioPage;
-    QWidget* libraryPage;
-    QWidget* playbackPage;
-    QWidget* interfacePage;
-    QWidget* hotkeysPage;
-    QWidget* advancedPage;
     QWidget* aboutPage;
 };
 

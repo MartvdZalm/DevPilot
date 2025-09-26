@@ -9,8 +9,6 @@
 ModuleListItem::ModuleListItem(const Module& module, const QString& iconEmoji, QWidget* parent)
     : QGroupBox(module.getName(), parent), module(module)
 {
-    qDebug() << module.serialize();
-
     setStyleSheet(GroupBoxStyle::primary());
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);

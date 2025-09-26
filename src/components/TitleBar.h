@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QPoint>
+#include <QToolButton>
+#include <QAction>
 
 class TitleBar : public QWidget
 {
@@ -10,6 +12,17 @@ class TitleBar : public QWidget
 
   public:
     explicit TitleBar(QWidget* parent = nullptr);
+
+  private:
+    void setupUI();
+    void setupMenu();
+    void setupConnections();
+
+  private:
+    QToolButton* burgerButton = nullptr;
+    QMenu* menu = nullptr;
+    QAction* settingsAction = nullptr;
+    QAction* exitAction = nullptr;
 };
 
 #endif // TITLEBAR_H

@@ -26,10 +26,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         components/TitleBar.cpp
 
         # Database Layer
-        database/Container.h
-        database/Container.cpp
         database/Database.h
         database/Database.cpp
+
+        # Events
+        events/AppEvents.cpp
+        events/AppEvents.h
 
         # Core
         core/Logger.cpp
@@ -58,6 +60,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         repositories/SettingRepository.h
         repositories/ISettingRepository.h
         repositories/SettingRepository.cpp
+        repositories/RepositoryProvider.h
+        repositories/RepositoryProvider.cpp
 
         # Styles
         styles/AppStyle.h

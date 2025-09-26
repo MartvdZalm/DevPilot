@@ -28,12 +28,8 @@ class Logger
 #define LOG_ERROR(msg) Logger::log(Logger::Level::Error, msg, __FILE__, __func__, __LINE__)
 #define LOG_CRITICAL(msg) Logger::log(Logger::Level::Critical, msg, __FILE__, __func__, __LINE__)
 
-    Logger() = delete;
-    ~Logger() = delete;
-
   private:
     static QString logFilePath;
-    static QMutex logMutex;
     static QString formatMessage(Level level, const QString& message, const char* file, const char* function, int line);
 };
 

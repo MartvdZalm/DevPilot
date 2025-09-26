@@ -1,44 +1,38 @@
 #include "Database.h"
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QStandardPaths>
 
-QMutex Database::s_instanceMutex;
-
 Database& Database::instance()
 {
-    QMutexLocker locker(&s_instanceMutex);
     static Database instance;
     return instance;
 }
 
 Database::~Database()
 {
-    if (m_db.isOpen())
+    if (db.isOpen())
     {
-        m_db.close();
+        db.close();
     }
 }
 
 bool Database::initialize()
 {
-    QMutexLocker locker(&m_mutex);
-
-    if (m_initialized)
+    if (initialized)
         return true;
 
     QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/DevPilot.db";
     QDir().mkpath(QFileInfo(dbPath).absolutePath());
 
-    m_db = QSqlDatabase::addDatabase("QSQLITE");
-    m_db.setDatabaseName(dbPath);
+    db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(dbPath);
 
-    if (!m_db.open())
+    if (!db.open())
     {
-        qCritical() << "Database error:" << m_db.lastError();
+        qCritical() << "Database error:" << db.lastError();
         return false;
     }
 
@@ -60,20 +54,20 @@ bool Database::initialize()
         return false;
     }
 
-    m_initialized = true;
+    initialized = true;
     return true;
 }
 
 bool Database::applyPragmas()
 {
-    QSqlQuery query(m_db);
+    QSqlQuery query(db);
     return query.exec("PRAGMA foreign_keys = ON") && query.exec("PRAGMA journal_mode = WAL") &&
            query.exec("PRAGMA synchronous = NORMAL") && query.exec("PRAGMA temp_store = MEMORY");
 }
 
 bool Database::createTables()
 {
-    QSqlQuery query(m_db);
+    QSqlQuery query(db);
 
     if (!query.exec("BEGIN IMMEDIATE TRANSACTION"))
     {
@@ -146,14 +140,13 @@ bool Database::createTables()
 
 bool Database::verifyDatabase()
 {
-    QSqlQuery query(m_db);
+    QSqlQuery query(db);
     return query.exec("PRAGMA quick_check");
 }
 
 bool Database::execute(const QString& query, const QVariantMap& params)
 {
-    QMutexLocker locker(&m_mutex);
-    QSqlQuery q(m_db);
+    QSqlQuery q(db);
 
     q.prepare(query);
     for (auto it = params.constBegin(); it != params.constEnd(); ++it)

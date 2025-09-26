@@ -78,12 +78,6 @@ void NoteDialog::onOkClicked()
         return;
     }
 
-    if (contentEdit->toPlainText().trimmed().isEmpty())
-    {
-        QMessageBox::warning(this, "Validation Error", "Content is required!");
-        return;
-    }
-
     currentNote.setTitle(titleEdit->text().trimmed());
     currentNote.setContent(contentEdit->toPlainText().trimmed());
 

@@ -29,13 +29,12 @@ class ProjectDialog : public QDialog
     void setupConnections();
     void populateFields();
 
+  private:
     Project project;
     bool editing = false;
-
     QLineEdit* nameEdit;
     QLineEdit* pathEdit;
     QTextEdit* descriptionEdit;
-
     QPushButton* okButton;
     QPushButton* cancelButton;
     QPushButton* browseButton;

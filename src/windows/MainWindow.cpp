@@ -1,10 +1,12 @@
 ﻿#include "MainWindow.h"
 #include "HomeWindow.h"
 #include "SettingsWindow.h"
+#include "../events/AppEvents.h"
 #include "../components/TitleBar.h"
 #include <QVBoxLayout>
 
-MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
+MainWindow::MainWindow(std::shared_ptr<RepositoryProvider> repoProvider, QWidget* parent)
+    : QMainWindow(parent), repositoryProvider(std::move(repoProvider))
 {
     QWidget* container = new QWidget(this);
     QVBoxLayout* mainLayout = new QVBoxLayout(container);
@@ -20,14 +22,16 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     setCentralWidget(container);
 
     showHomePage();
-}
 
-MainWindow::~MainWindow() {}
+    connect(&AppEvents::instance(), &AppEvents::navigateToSettings, this, &MainWindow::showSettingsPage);
+}
 
 void MainWindow::setPage(BaseWindow* newPage, bool addToHistory)
 {
     if (!newPage)
+    {
         return;
+    }
 
     if (stackedWidget->count() > 0)
     {
@@ -45,10 +49,12 @@ void MainWindow::setPage(BaseWindow* newPage, bool addToHistory)
 
 void MainWindow::showHomePage()
 {
-    setPage(new HomeWindow(this), false);
+    setPage(new HomeWindow(repositoryProvider, this), false);
 }
 
 void MainWindow::showSettingsPage()
 {
-    new SettingsWindow(this);
+    SettingsWindow* settingsWindow = new SettingsWindow(repositoryProvider);
+    settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
+    settingsWindow->show();
 }

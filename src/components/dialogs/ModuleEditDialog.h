@@ -33,8 +33,8 @@ class ModuleEditDialog : public QDialog
     void setupUI();
     void setupConnections();
 
+  private:
     Module module;
-
     QLineEdit* nameEdit;
     QSpinBox* portSpinBox;
     QLineEdit* commandEdit;
@@ -43,7 +43,6 @@ class ModuleEditDialog : public QDialog
     QTextEdit* parametersEdit;
     QTextEdit* environmentEdit;
     QCheckBox* autoStartCheckBox;
-
     QPushButton* okButton;
     QPushButton* cancelButton;
 };
