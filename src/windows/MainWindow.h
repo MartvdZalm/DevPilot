@@ -1,8 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "BaseWindow.h"
 #include "../repositories/RepositoryProvider.h"
+#include "BaseWindow.h"
 #include <QMainWindow>
 #include <QStack>
 #include <QStackedWidget>
@@ -12,7 +12,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
   public:
-    MainWindow(std::shared_ptr<RepositoryProvider> repositoryProvider, QWidget* parent = nullptr);
+    MainWindow(RepositoryProvider& repositoryProvider, QWidget* parent = nullptr);
 
   private:
     void showHomePage();
@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow
     void setPage(BaseWindow* newPage, bool addToHistory = true);
 
   private:
-    std::shared_ptr<RepositoryProvider> repositoryProvider;
+    RepositoryProvider& repositoryProvider;
     QStackedWidget* stackedWidget;
 };
 

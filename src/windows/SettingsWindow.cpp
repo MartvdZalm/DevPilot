@@ -2,14 +2,14 @@
 
 #include "../styles/ButtonStyle.h"
 #include "../styles/ListStyle.h"
-#include <QLabel>
-#include <QGroupBox>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
-#include <QCheckBox>
+#include <QGroupBox>
+#include <QLabel>
 
-SettingsWindow::SettingsWindow(std::shared_ptr<RepositoryProvider> repoProvider, QWidget* parent)
-    : repositoryRepository(std::move(repoProvider)), BaseWindow(parent)
+SettingsWindow::SettingsWindow(RepositoryProvider& repoProvider, QWidget* parent)
+    : repositoryRepository(repoProvider), BaseWindow(parent)
 {
     setFixedSize(QSize(1000, 600));
     setWindowTitle("Settings");
@@ -151,12 +151,6 @@ void SettingsWindow::onApplyClicked()
     saveSettings();
 }
 
-void SettingsWindow::loadSettings()
-{
+void SettingsWindow::loadSettings() {}
 
-}
-
-void SettingsWindow::saveSettings()
-{
-
-}
+void SettingsWindow::saveSettings() {}

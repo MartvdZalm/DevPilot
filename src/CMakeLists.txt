@@ -24,6 +24,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         components/FlowLayout.cpp
         components/TitleBar.h
         components/TitleBar.cpp
+        components/SidebarWidget.cpp
+        components/SidebarWidget.h
+        components/EmptyStateWidget.cpp
+        components/EmptyStateWidget.h
+        components/ProjectDetailsWidget.cpp
+        components/ProjectDetailsWidget.h
 
         # Database Layer
         database/Database.h
@@ -61,7 +67,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         repositories/ISettingRepository.h
         repositories/SettingRepository.cpp
         repositories/RepositoryProvider.h
-        repositories/RepositoryProvider.cpp
 
         # Styles
         styles/AppStyle.h

@@ -22,21 +22,14 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    auto& db = Database::instance().database();
+    QSqlDatabase& db = Database::instance().database();
 
-    auto projectRepository = std::make_shared<ProjectRepository>(db);
-    auto noteRepository = std::make_shared<NoteRepository>(db);
-    auto moduleRepository = std::make_shared<ModuleRepository>(db);
-    auto settingRepository = std::make_shared<SettingRepository>(db);
-
-    auto repositoryProvider = std::make_shared<RepositoryProvider>(
-        projectRepository,
-        noteRepository,
-        moduleRepository,
-        settingRepository
+    auto repositoryProvider = std::make_unique<RepositoryProvider>(
+        std::make_unique<ProjectRepository>(db), std::make_unique<NoteRepository>(db),
+        std::make_unique<ModuleRepository>(db), std::make_unique<SettingRepository>(db)
     );
 
-    MainWindow window(repositoryProvider);
+    MainWindow window(*repositoryProvider);
     window.setWindowTitle("DevPilot");
     window.showMaximized();
 

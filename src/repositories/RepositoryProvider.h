@@ -9,26 +9,37 @@
 class RepositoryProvider
 {
   public:
-    RepositoryProvider(
-        std::shared_ptr<IProjectRepository> projectRepository,
-        std::shared_ptr<INoteRepository> noteRepository,
-        std::shared_ptr<IModuleRepository> moduleRepository,
-        std::shared_ptr<ISettingRepository> settingRepository)
-        : projectRepository(std::move(projectRepository)),
-          noteRepository(std::move(noteRepository)),
-          moduleRepository(std::move(moduleRepository)),
-          settingRepository(std::move(settingRepository)) {}
+    RepositoryProvider(std::unique_ptr<IProjectRepository> projectRepository,
+                       std::unique_ptr<INoteRepository> noteRepository,
+                       std::unique_ptr<IModuleRepository> moduleRepository,
+                       std::unique_ptr<ISettingRepository> settingRepository)
+        : projectRepository(std::move(projectRepository)), noteRepository(std::move(noteRepository)),
+          moduleRepository(std::move(moduleRepository)), settingRepository(std::move(settingRepository))
+    {
+    }
 
-    std::shared_ptr<IProjectRepository> getProjectRepository() const { return projectRepository; }
-    std::shared_ptr<INoteRepository> getNoteRepository() const { return noteRepository; }
-    std::shared_ptr<IModuleRepository> getModuleRepository() const { return moduleRepository; }
-    std::shared_ptr<ISettingRepository> getSettingRepository() const { return settingRepository; }
+    IProjectRepository& getProjectRepository() const
+    {
+        return *projectRepository;
+    }
+    INoteRepository& getNoteRepository() const
+    {
+        return *noteRepository;
+    }
+    IModuleRepository& getModuleRepository() const
+    {
+        return *moduleRepository;
+    }
+    ISettingRepository& getSettingRepository() const
+    {
+        return *settingRepository;
+    }
 
   private:
-    std::shared_ptr<IProjectRepository> projectRepository;
-    std::shared_ptr<INoteRepository> noteRepository;
-    std::shared_ptr<IModuleRepository> moduleRepository;
-    std::shared_ptr<ISettingRepository> settingRepository;
+    std::unique_ptr<IProjectRepository> projectRepository;
+    std::unique_ptr<INoteRepository> noteRepository;
+    std::unique_ptr<IModuleRepository> moduleRepository;
+    std::unique_ptr<ISettingRepository> settingRepository;
 };
 
 #endif // REPOSITORYPROVIDER_H

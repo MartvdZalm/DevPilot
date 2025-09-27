@@ -1,12 +1,12 @@
 ﻿#include "MainWindow.h"
+#include "../components/TitleBar.h"
+#include "../events/AppEvents.h"
 #include "HomeWindow.h"
 #include "SettingsWindow.h"
-#include "../events/AppEvents.h"
-#include "../components/TitleBar.h"
 #include <QVBoxLayout>
 
-MainWindow::MainWindow(std::shared_ptr<RepositoryProvider> repoProvider, QWidget* parent)
-    : QMainWindow(parent), repositoryProvider(std::move(repoProvider))
+MainWindow::MainWindow(RepositoryProvider& repoProvider, QWidget* parent)
+    : QMainWindow(parent), repositoryProvider(repoProvider)
 {
     QWidget* container = new QWidget(this);
     QVBoxLayout* mainLayout = new QVBoxLayout(container);

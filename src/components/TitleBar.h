@@ -1,10 +1,10 @@
 #ifndef TITLEBAR_H
 #define TITLEBAR_H
 
-#include <QWidget>
+#include <QAction>
 #include <QPoint>
 #include <QToolButton>
-#include <QAction>
+#include <QWidget>
 
 class TitleBar : public QWidget
 {
