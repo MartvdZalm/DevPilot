@@ -5,16 +5,15 @@
 
 class AppEvents : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
-	public:
+  public:
     static AppEvents& instance();
 
     void notifyNavigateToSettings();
 
-signals:
+  signals:
     void navigateToSettings();
-
 };
 
 #endif // APP_EVENTS_H

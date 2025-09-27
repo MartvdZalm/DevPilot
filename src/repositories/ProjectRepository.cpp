@@ -4,8 +4,8 @@
 #include <QDateTime>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QVariant>
 #include <QString>
+#include <QVariant>
 
 ProjectRepository::ProjectRepository(QSqlDatabase& db) : database(db) {}
 
@@ -64,7 +64,8 @@ QList<Project> ProjectRepository::findByDirectoryPath(const QString& directoryPa
 
     if (!query.exec())
     {
-        LOG_ERROR("Database error when finding projects by directory path " + directoryPath + " : " + query.lastError().text());
+        LOG_ERROR("Database error when finding projects by directory path " + directoryPath + " : " +
+                  query.lastError().text());
         return results;
     }
 
@@ -133,7 +134,8 @@ Project ProjectRepository::mapFromRecord(const QSqlQuery& query)
 std::optional<Project> ProjectRepository::insert(const Project& project)
 {
     QSqlQuery query(database);
-    query.prepare("INSERT INTO projects (name, directory_path, description, created_at, updated_at) VALUES (:name, :directory_path, :description, :created_at, :updated_at)");
+    query.prepare("INSERT INTO projects (name, directory_path, description, created_at, updated_at) VALUES (:name, "
+                  ":directory_path, :description, :created_at, :updated_at)");
 
     query.bindValue(":name", project.getName());
     query.bindValue(":directory_path", project.getDirectoryPath());
@@ -155,7 +157,8 @@ std::optional<Project> ProjectRepository::insert(const Project& project)
 std::optional<Project> ProjectRepository::update(const Project& project)
 {
     QSqlQuery query(database);
-    query.prepare("UPDATE projects SET name = :name, directory_path = :directory_path, description = :description, updated_at = :updated_at WHERE id = :id");
+    query.prepare("UPDATE projects SET name = :name, directory_path = :directory_path, description = :description, "
+                  "updated_at = :updated_at WHERE id = :id");
     query.bindValue(":name", project.getName());
     query.bindValue(":directory_path", project.getDirectoryPath());
     query.bindValue(":description", project.getDescription());

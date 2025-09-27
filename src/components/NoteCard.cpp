@@ -8,17 +8,19 @@ NoteCard::NoteCard(const Note& note, QWidget* parent) : QFrame(parent), note(not
     setObjectName("NoteCard");
     setFixedSize(170, 150);
     setCursor(Qt::PointingHandCursor);
+    setupUI();
+}
 
-    setStyleSheet(
-        "QFrame#NoteCard {"
-        "  background: #FFF9C4;"
-        "  border: 1px solid #FBC02D;"
-        "  border-radius: 8px;"
-        "}"
-        "QFrame#NoteCard:hover {"
-        "  background: #FFF59D;"
-        "}"
-        );
+void NoteCard::setupUI()
+{
+    setStyleSheet("QFrame#NoteCard {"
+                  "  background: #FFF9C4;"
+                  "  border: 1px solid #FBC02D;"
+                  "  border-radius: 8px;"
+                  "}"
+                  "QFrame#NoteCard:hover {"
+                  "  background: #FFF59D;"
+                  "}");
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(6, 6, 6, 6);
@@ -39,12 +41,10 @@ NoteCard::NoteCard(const Note& note, QWidget* parent) : QFrame(parent), note(not
     deleteBtn->setIcon(QIcon(":/Images/Bin"));
     deleteBtn->setIconSize(QSize(20, 20));
     deleteBtn->setFixedSize(24, 24);
-    deleteBtn->setStyleSheet(
-        "QPushButton { background: transparent; border: none; }"
-        "QPushButton:hover { color: red; }"
-        );
+    deleteBtn->setStyleSheet("QPushButton { background: transparent; border: none; }"
+                             "QPushButton:hover { color: red; }");
 
-    connect(deleteBtn, &QPushButton::clicked, this, [this, note]() { emit deleteClicked(note); });
+    connect(deleteBtn, &QPushButton::clicked, this, [this]() { emit deleteClicked(note); });
 
     bottomRow->addStretch();
     bottomRow->addWidget(deleteBtn, 0, Qt::AlignRight);
@@ -54,7 +54,6 @@ NoteCard::NoteCard(const Note& note, QWidget* parent) : QFrame(parent), note(not
     mainLayout->addStretch();
     mainLayout->addLayout(bottomRow);
 }
-
 
 void NoteCard::mousePressEvent(QMouseEvent* event)
 {

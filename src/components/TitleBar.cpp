@@ -1,17 +1,16 @@
 #include "TitleBar.h"
 
+#include "../events/AppEvents.h"
 #include "../styles/ButtonStyle.h"
 #include "../styles/MenuStyle.h"
-#include "../events/AppEvents.h"
+#include <QApplication>
 #include <QHBoxLayout>
-#include <QToolButton>
+#include <QIcon>
 #include <QMenu>
 #include <QMouseEvent>
-#include <QIcon>
-#include <QApplication>
+#include <QToolButton>
 
-TitleBar::TitleBar(QWidget* parent)
-    : QWidget(parent)
+TitleBar::TitleBar(QWidget* parent) : QWidget(parent)
 {
     setFixedHeight(32);
     setupUI();

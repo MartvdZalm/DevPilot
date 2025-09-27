@@ -4,8 +4,8 @@
 #include "../models/Note.h"
 #include <QFrame>
 #include <QLabel>
-#include <QVBoxLayout>
 #include <QPushButton>
+#include <QVBoxLayout>
 
 class NoteCard : public QFrame
 {
@@ -20,6 +20,9 @@ class NoteCard : public QFrame
 
   protected:
     void mousePressEvent(QMouseEvent* event) override;
+
+  private:
+    void setupUI();
 
   private:
     Note note;
