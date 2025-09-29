@@ -117,6 +117,19 @@ bool Database::createTables()
             updated_at DATETIME NOT NULL,
             FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
         );
+        )",
+        R"(
+        CREATE TABLE IF NOT EXISTS editors (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            path TEXT NOT NULL,
+            arguments TEXT,
+            enabled BOOLEAN NOT NULL DEFAULT 1,
+            display_order INTEGER NOT NULL DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(name)
+        )
         )"};
 
     for (const auto& table : tables)

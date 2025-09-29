@@ -7,6 +7,7 @@ class ButtonStyle
 {
   public:
     static QString primary();
+    static QString danger();
     static QString icon();
 };
 

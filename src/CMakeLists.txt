@@ -49,6 +49,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         models/Module.h
         models/Note.h
         models/Setting.h
+        models/Editor.h
 
         # Repositories
         repositories/IProjectRepository.h
@@ -66,6 +67,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         repositories/SettingRepository.h
         repositories/ISettingRepository.h
         repositories/SettingRepository.cpp
+        repositories/EditorRepository.h
+        repositories/IEditorRepository.h
+        repositories/EditorRepository.cpp
         repositories/RepositoryProvider.h
 
         # Styles

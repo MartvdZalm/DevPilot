@@ -18,9 +18,15 @@ SidebarWidget::SidebarWidget(RepositoryProvider& repoProvider, QWidget* parent)
 void SidebarWidget::setupUI()
 {
     setFixedWidth(250);
-    setStyleSheet("border-right: 1px solid #3a3f47;");
 
-    QVBoxLayout* sidebarLayout = new QVBoxLayout(this);
+    QFrame* mainFrame = new QFrame(this);
+    mainFrame->setStyleSheet("QFrame { border-right: 1px solid #3a3f47; background-color: transparent; }");
+
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->addWidget(mainFrame);
+
+    QVBoxLayout* sidebarLayout = new QVBoxLayout(mainFrame);
     sidebarLayout->setContentsMargins(15, 15, 15, 15);
     sidebarLayout->setSpacing(10);
 

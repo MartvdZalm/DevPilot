@@ -15,7 +15,7 @@ class INoteRepository
     virtual std::optional<Note> save(const Note& note) = 0;
     virtual bool deleteById(int id) = 0;
 
-    virtual QList<Note> findByProjectId(int projectId) = 0;
+    virtual QList<Note> findByProjectId(int projenctId) = 0;
     virtual Note mapFromRecord(const QSqlQuery& query) = 0;
 };
 
