@@ -2,6 +2,7 @@
 
 #include "../core/Logger.h"
 #include "../styles/ButtonStyle.h"
+#include "../styles/ListStyle.h"
 #include "FlowLayout.h"
 #include "ModuleListItem.h"
 #include "NoteCard.h"
@@ -12,10 +13,12 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QProcess>
+#include <QListWidget>
 
 ProjectDetailsWidget::ProjectDetailsWidget(RepositoryProvider& repoProvider, QWidget* parent)
     : QWidget(parent), projectRepository(repoProvider.getProjectRepository()),
-      moduleRepository(repoProvider.getModuleRepository()), noteRepository(repoProvider.getNoteRepository())
+      moduleRepository(repoProvider.getModuleRepository()), noteRepository(repoProvider.getNoteRepository()),
+      editorRepository(repoProvider.getEditorRepository())
 {
     setupUI();
     setupConnections();
@@ -382,7 +385,81 @@ void ProjectDetailsWidget::onOpenInTerminalClicked()
 
 void ProjectDetailsWidget::onOpenInIDEClicked()
 {
-    
+    if (currentProject.getDirectoryPath().isEmpty())
+    {
+        QMessageBox::information(this, "No Project Path", "Please set a project directory path first.");
+        return;
+    }
+
+    QString path = currentProject.getDirectoryPath();
+    if (!QDir(path).exists())
+    {
+        QMessageBox::warning(this, "Invalid Path", QString("The directory '%1' does not exist.").arg(path));
+        return;
+    }
+
+    QList<Editor> availableEditors = editorRepository.findAll();
+
+    if (availableEditors.isEmpty())
+    {
+        QMessageBox::information(this, "No Editors", "No editors configured. Add some in Settings.");
+        return;
+    }
+
+    QDialog dialog(this);
+    dialog.setWindowTitle("Open Project in Editor");
+    dialog.setFixedSize(400, 300);
+    dialog.setStyleSheet("QDialog { background-color: #2b2b2b; }");
+
+    QVBoxLayout* layout = new QVBoxLayout(&dialog);
+    QListWidget* editorList = new QListWidget();
+    editorList->setStyleSheet(ListStyle::primary());
+    editorList->setAlternatingRowColors(false);
+
+    for (const Editor& editor : availableEditors)
+    {
+        QListWidgetItem* item = new QListWidgetItem(editor.getName());
+        item->setData(Qt::UserRole, QVariant::fromValue(editor));
+        editorList->addItem(item);
+    }
+
+    if (editorList->count() > 0)
+    {
+        editorList->setCurrentRow(0);
+    }
+
+    layout->addWidget(editorList);
+
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Open | QDialogButtonBox::Cancel);
+    QPushButton* openButton = buttonBox->button(QDialogButtonBox::Open);
+    QPushButton* cancelButton = buttonBox->button(QDialogButtonBox::Cancel);
+    openButton->setStyleSheet(ButtonStyle::primary());
+    cancelButton->setStyleSheet(ButtonStyle::primary());
+
+    layout->addWidget(buttonBox);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    if (dialog.exec() == QDialog::Accepted && editorList->currentItem())
+    {
+        Editor selectedEditor = editorList->currentItem()->data(Qt::UserRole).value<Editor>();
+
+        QString command = selectedEditor.getPath();
+        QString arguments = selectedEditor.getArguments();
+
+        arguments.replace("%PATH%", path);
+
+        bool success = QProcess::startDetached(command, QStringList() << arguments);
+
+        if (!success)
+        {
+            QMessageBox::warning(this, "Failed to Open",
+                                 QString("Could not open %1.\nCheck if the path is correct:\n%2")
+                                     .arg(selectedEditor.getName())
+                                     .arg(command));
+        }
+    }
 }
 
 void ProjectDetailsWidget::onAddModuleClicked()

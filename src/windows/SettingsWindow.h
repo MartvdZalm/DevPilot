@@ -10,6 +10,10 @@
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QWidget>
+#include <QTableWidget>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QLineEdit>
 
 class SettingsWindow : public BaseWindow
 {
@@ -22,6 +26,8 @@ class SettingsWindow : public BaseWindow
     void onSidebarItemChanged(int index);
     void onCancelClicked();
     void onApplyClicked();
+    void onAddEditorClicked();
+    void onEditorRowChanged(int row, int column);
 
   private:
     void setupUI() override;
@@ -31,31 +37,48 @@ class SettingsWindow : public BaseWindow
     void setupButtonArea();
     void loadSettings();
     void saveSettings();
+
     QWidget* createGeneralPage();
+    QWidget* createEditorsPage();
     QWidget* createAboutPage();
 
+    void addEditorRow(const Editor& editor = Editor());
+    void loadEditors();
+    void saveEditors();
+
   private:
-    RepositoryProvider& repositoryRepository;
+    IEditorRepository& editorRepository;
 
     QHBoxLayout* mainLayout;
     QVBoxLayout* leftLayout;
     QVBoxLayout* rightLayout;
-
     QListWidget* sidebar;
     QFrame* sidebarFrame;
-
     QStackedWidget* contentStack;
     QScrollArea* scrollArea;
     QFrame* contentFrame;
-
     QFrame* buttonFrame;
     QHBoxLayout* buttonLayout;
     QPushButton* okButton;
     QPushButton* cancelButton;
     QPushButton* applyButton;
 
-    QWidget* generalPage;
     QWidget* aboutPage;
+
+    // Editors Page Widgets
+    QWidget* editorsPage;
+    QTableWidget* editorsTable;
+    QPushButton* addEditorButton;
+    QList<Editor> currentEditors;
+
+    // General Page Widgets
+    QWidget* generalPage;
+    QCheckBox* startupCheckbox;
+    QCheckBox* minimizeToTrayCheckbox;
+    QCheckBox* autoStartCheckbox;
+    QCheckBox* alwaysOnTopCheckbox;
+    QComboBox* themeComboBox;
+    QLineEdit* defaultLocationLineEdit;
 };
 
 #endif // SETTINGSWINDOW_H

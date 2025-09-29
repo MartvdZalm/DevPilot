@@ -6,8 +6,8 @@
 #include "repositories/NoteRepository.h"
 #include "repositories/ModuleRepository.h"
 #include "repositories/SettingRepository.h"
+#include "repositories/EditorRepository.h"
 #include "repositories/RepositoryProvider.h"
-
 #include <QApplication>
 
 int main(int argc, char* argv[])
@@ -26,7 +26,8 @@ int main(int argc, char* argv[])
 
     auto repositoryProvider = std::make_unique<RepositoryProvider>(
         std::make_unique<ProjectRepository>(db), std::make_unique<NoteRepository>(db),
-        std::make_unique<ModuleRepository>(db), std::make_unique<SettingRepository>(db)
+        std::make_unique<ModuleRepository>(db), std::make_unique<SettingRepository>(db),
+        std::make_unique<EditorRepository>(db)
     );
 
     MainWindow window(*repositoryProvider);

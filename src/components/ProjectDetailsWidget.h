@@ -7,6 +7,7 @@
 #include "../repositories/INoteRepository.h"
 #include "../repositories/IProjectRepository.h"
 #include "../repositories/RepositoryProvider.h"
+#include "../repositories/IEditorRepository.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QList>
@@ -50,6 +51,7 @@ class ProjectDetailsWidget : public QWidget
     IProjectRepository& projectRepository;
     IModuleRepository& moduleRepository;
     INoteRepository& noteRepository;
+    IEditorRepository& editorRepository;
 
     Project currentProject;
     QList<Module> currentModules;
