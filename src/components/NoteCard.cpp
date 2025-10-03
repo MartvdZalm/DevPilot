@@ -2,6 +2,7 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QVBoxLayout>
+#include "../styles/ButtonStyle.h"
 
 NoteCard::NoteCard(const Note& note, QWidget* parent) : QFrame(parent), note(note)
 {
@@ -37,12 +38,10 @@ void NoteCard::setupUI()
     QHBoxLayout* bottomRow = new QHBoxLayout();
     bottomRow->setContentsMargins(0, 0, 0, 0);
 
-    deleteBtn = new QPushButton(this);
-    deleteBtn->setIcon(QIcon(":/Images/Bin"));
+    deleteBtn = new QPushButton(QIcon(":/Images/Delete"), "");
     deleteBtn->setIconSize(QSize(20, 20));
     deleteBtn->setFixedSize(24, 24);
-    deleteBtn->setStyleSheet("QPushButton { background: transparent; border: none; }"
-                             "QPushButton:hover { color: red; }");
+    deleteBtn->setStyleSheet(ButtonStyle::danger());
 
     connect(deleteBtn, &QPushButton::clicked, this, [this]() { emit deleteClicked(note); });
 

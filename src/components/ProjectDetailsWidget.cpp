@@ -11,12 +11,13 @@
 #include "dialogs/ProjectDialog.h"
 #include <QDesktopServices>
 #include <QDir>
+#include <QListWidget>
 #include <QMessageBox>
 #include <QProcess>
-#include <QListWidget>
+#include <QTimer>
 
 ProjectDetailsWidget::ProjectDetailsWidget(RepositoryProvider& repoProvider, QWidget* parent)
-    : QWidget(parent), projectRepository(repoProvider.getProjectRepository()),
+    : QWidget(parent), repositoryProvider(repoProvider), projectRepository(repoProvider.getProjectRepository()),
       moduleRepository(repoProvider.getModuleRepository()), noteRepository(repoProvider.getNoteRepository()),
       editorRepository(repoProvider.getEditorRepository())
 {
@@ -30,6 +31,7 @@ void ProjectDetailsWidget::setupUI()
     projectDetailsLayout->setContentsMargins(0, 0, 0, 0);
     projectDetailsLayout->setSpacing(15);
 
+    // Project header with name, path, and action buttons
     QHBoxLayout* projectHeaderLayout = new QHBoxLayout();
 
     QHBoxLayout* titleLayout = new QHBoxLayout();
@@ -59,6 +61,7 @@ void ProjectDetailsWidget::setupUI()
     projectInfoLayout->addWidget(projectPathLabel);
     projectInfoLayout->addWidget(addModuleButton);
 
+    // Project action buttons (right side)
     openInFolderButton = new QPushButton("Open");
     openInFolderButton->setStyleSheet(ButtonStyle::primary());
 
@@ -76,13 +79,43 @@ void ProjectDetailsWidget::setupUI()
 
     projectDetailsLayout->addLayout(projectHeaderLayout);
 
-    QWidget* moduleListWidget = new QWidget();
-    moduleListLayout = new QVBoxLayout(moduleListWidget);
+    // Modules section header with toggle button
+    QHBoxLayout* moduleControlsLayout = new QHBoxLayout();
+    moduleControlsLayout->setContentsMargins(0, 10, 0, 10);
+
+    QLabel* modulesTitle = new QLabel("Modules");
+    modulesTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #ffffff;");
+    moduleControlsLayout->addWidget(modulesTitle);
+
+    // Toggle to show/hide module logs for all modules
+    toggleLogsButton = new QPushButton("Hide Logs");
+    toggleLogsButton->setCheckable(true);
+    toggleLogsButton->setChecked(false);
+    toggleLogsButton->setStyleSheet(ButtonStyle::primary());
+    toggleLogsButton->setFixedWidth(100);
+    moduleControlsLayout->addWidget(toggleLogsButton);
+    moduleControlsLayout->addStretch();
+
+    projectDetailsLayout->addLayout(moduleControlsLayout);
+
+    // Scrollable area for modules
+    modulesScrollArea = new QScrollArea();
+    modulesScrollArea->setWidgetResizable(true);
+    modulesScrollArea->setFrameShape(QFrame::NoFrame);
+    modulesScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    modulesScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    modulesScrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    QWidget* modulesContainer = new QWidget();
+    modulesContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    moduleListLayout = new QVBoxLayout(modulesContainer);
     moduleListLayout->setContentsMargins(0, 0, 0, 0);
     moduleListLayout->setSpacing(15);
+    moduleListLayout->setAlignment(Qt::AlignTop);
 
-    projectDetailsLayout->addWidget(moduleListWidget);
-    projectDetailsLayout->addStretch();
+    modulesScrollArea->setWidget(modulesContainer);
+
+    projectDetailsLayout->addWidget(modulesScrollArea, 1);
 
     toggleNotesBtn = new QToolButton();
     toggleNotesBtn->setStyleSheet(ButtonStyle::icon());
@@ -97,7 +130,7 @@ void ProjectDetailsWidget::setupUI()
     toggleNotesBtn->setIcon(arrowDown);
 
     notesScrollArea = new QScrollArea();
-    notesScrollArea->setMaximumHeight(250);
+    notesScrollArea->setMaximumHeight(160);
     notesScrollArea->setWidgetResizable(true);
     notesScrollArea->setFrameShape(QFrame::NoFrame);
 
@@ -128,8 +161,6 @@ void ProjectDetailsWidget::setupUI()
 
     projectDetailsLayout->addWidget(toggleNotesBtn);
     projectDetailsLayout->addWidget(notesScrollArea);
-
-    projectDetailsLayout->addWidget(notesScrollArea);
 }
 
 void ProjectDetailsWidget::setupConnections()
@@ -141,6 +172,7 @@ void ProjectDetailsWidget::setupConnections()
     connect(addModuleButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onAddModuleClicked);
     connect(toggleNotesBtn, &QToolButton::toggled, this, &ProjectDetailsWidget::onToggleNotesClicked);
     connect(addNoteButton, &QToolButton::clicked, this, &ProjectDetailsWidget::onAddNoteClicked);
+    connect(toggleLogsButton, &QPushButton::toggled, this, &ProjectDetailsWidget::onToggleLogsClicked);
 }
 
 void ProjectDetailsWidget::setProject(Project project)
@@ -177,6 +209,7 @@ void ProjectDetailsWidget::loadProjectNotes(int projectId)
 {
     QList<Note> currentNotes = noteRepository.findByProjectId(projectId);
 
+    // Clear existing notes (preserving the add note button)
     for (int i = notesListLayout->count() - 1; i >= 0; --i)
     {
         QLayoutItem* item = notesListLayout->itemAt(i);
@@ -196,6 +229,7 @@ void ProjectDetailsWidget::loadProjectNotes(int projectId)
         }
     }
 
+    // Add note cards for each note
     for (const Note& note : currentNotes)
     {
         NoteCard* card = new NoteCard(note, notesContainer);
@@ -225,6 +259,7 @@ void ProjectDetailsWidget::refreshProject()
 {
     projectNameLabel->setText(currentProject.getName());
 
+    // Enable/disable action buttons based on whether path is set
     if (!currentProject.getDirectoryPath().isEmpty())
     {
         projectPathLabel->setText(QString("Directory  %1").arg(currentProject.getDirectoryPath()));
@@ -245,6 +280,7 @@ void ProjectDetailsWidget::refreshProject()
 
 void ProjectDetailsWidget::refreshModules()
 {
+    // Clear existing modules
     QLayoutItem* child;
     while ((child = moduleListLayout->takeAt(0)) != nullptr)
     {
@@ -253,21 +289,16 @@ void ProjectDetailsWidget::refreshModules()
         delete child;
     }
 
+    // Create module list items
     for (const Module& module : currentModules)
     {
-        ModuleListItem* item = new ModuleListItem(module, "", this);
+        ModuleListItem* item = new ModuleListItem(module, this);
 
         if (!module.getLogs().isEmpty())
             item->setLogs(module.getLogs());
 
-        if (QPushButton* startBtn = item->getStartButton())
-        {
-            connect(startBtn, &QPushButton::clicked, this, [this, item]() { item->startCommand(); });
-        }
-        if (QPushButton* stopBtn = item->getStopButton())
-        {
-            connect(stopBtn, &QPushButton::clicked, this, [this, item]() { item->stopCommand(); });
-        }
+        connect(item, &ModuleListItem::editRequested, this, &ProjectDetailsWidget::onEditModuleClicked);
+        connect(item, &ModuleListItem::deleteRequested, this, &ProjectDetailsWidget::onDeleteModuleClicked);
 
         moduleListLayout->addWidget(item);
     }
@@ -357,6 +388,7 @@ void ProjectDetailsWidget::onOpenInTerminalClicked()
         return;
     }
 
+    // Handle WSL paths differently from regular Windows paths
     if (path.contains("wsl", Qt::CaseInsensitive))
     {
         QRegularExpression regex(R"(\\\\wsl\.localhost\\[^\\]+\\home\\[^\\]+)");
@@ -464,26 +496,92 @@ void ProjectDetailsWidget::onOpenInIDEClicked()
 
 void ProjectDetailsWidget::onAddModuleClicked()
 {
-    ModuleEditDialog dialog(this);
+    Module newModule;
+    newModule.setProjectId(currentProject.getId());
+    ModuleEditDialog dialog(newModule, repositoryProvider, currentProject, this);
+
     if (dialog.exec() != QDialog::Accepted)
     {
         return;
     }
 
-    Module newModule = dialog.getModule();
-    newModule.setProjectId(currentProject.getId());
+    Module moduleToSave = dialog.getModule();
+    moduleToSave.setProjectId(currentProject.getId());
 
-    std::optional<Module> savedModule = moduleRepository.save(newModule);
+    std::optional<Module> savedModule = moduleRepository.save(moduleToSave);
     if (!savedModule.has_value())
     {
         return;
     }
 
     LOG_INFO("Created module: " + savedModule->getName());
+    loadProjectModules(currentProject.getId());
+}
+
+void ProjectDetailsWidget::onEditModuleClicked(const Module& module)
+{
+    ModuleEditDialog dialog(module, repositoryProvider, currentProject, this);
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        Module updatedModule = dialog.getModule();
+        updatedModule.setProjectId(currentProject.getId());
+
+        std::optional<Module> savedModule = moduleRepository.save(updatedModule);
+        if (savedModule.has_value())
+        {
+            LOG_INFO("Updated module: " + savedModule->getName());
+            loadProjectModules(currentProject.getId());
+        }
+    }
+}
+
+void ProjectDetailsWidget::onDeleteModuleClicked(const Module& module)
+{
+    QMessageBox::StandardButton reply = QMessageBox::question(
+        this, "Delete Module", QString("Are you sure you want to delete the module '%1'?").arg(module.getName()),
+        QMessageBox::Yes | QMessageBox::No);
+
+    if (reply == QMessageBox::Yes)
+    {
+        if (moduleRepository.deleteById(module.getId()))
+        {
+            LOG_INFO("Deleted module: " + module.getName());
+            loadProjectModules(currentProject.getId());
+        }
+        else
+        {
+            QMessageBox::warning(this, "Error", "Failed to delete module.");
+        }
+    }
 }
 
 void ProjectDetailsWidget::onToggleNotesClicked(bool checked)
 {
     toggleNotesBtn->setIcon(checked ? arrowDown : arrowRight);
     notesScrollArea->setVisible(checked);
+}
+
+void ProjectDetailsWidget::onToggleLogsClicked(bool hideLogs)
+{
+    toggleLogsButton->setText(hideLogs ? "Show Logs" : "Hide Logs");
+
+
+    // Toggle visibility of logs for all module items
+    for (int i = 0; i < moduleListLayout->count(); ++i)
+    {
+        QLayoutItem* item = moduleListLayout->itemAt(i);
+        if (item && item->widget())
+        {
+            ModuleListItem* moduleItem = qobject_cast<ModuleListItem*>(item->widget());
+
+            if (moduleItem)
+            {
+                QTextEdit* logs = moduleItem->getLogs();
+                if (logs)
+                {
+                    logs->setVisible(!hideLogs);
+                }
+            }
+        }
+    }
 }

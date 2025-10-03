@@ -1,34 +1,55 @@
 #include "core/Logger.h"
 #include "database/Database.h"
+#include "repositories/EditorRepository.h"
+#include "repositories/ModuleRepository.h"
+#include "repositories/ModuleTemplateRepository.h"
+#include "repositories/NoteRepository.h"
+#include "repositories/ProjectRepository.h"
+#include "repositories/RepositoryProvider.h"
+#include "repositories/SettingRepository.h"
+#include "seeders/ModuleTemplateSeeder.h"
+#include "seeders/Seeder.h"
 #include "styles/AppStyle.h"
 #include "windows/MainWindow.h"
-#include "repositories/ProjectRepository.h"
-#include "repositories/NoteRepository.h"
-#include "repositories/ModuleRepository.h"
-#include "repositories/SettingRepository.h"
-#include "repositories/EditorRepository.h"
-#include "repositories/RepositoryProvider.h"
 #include <QApplication>
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     app.setStyleSheet(AppStyle::styleSheet());
+    app.setWindowIcon(QIcon(":/Images/AppIcon"));
+
     Logger::initialize("DevPilot");
 
     if (!Database::instance().initialize())
     {
-        qFatal("Failed to initialize database");
+        LOG_CRITICAL("Failed to initialize database");
         return -1;
     }
 
-    QSqlDatabase& db = Database::instance().database();
+    // Create repositories first
+    QSqlDatabase& db = Database::instance().getDatabase();
 
+    auto projectRepo = std::make_unique<ProjectRepository>(db);
+    auto noteRepo = std::make_unique<NoteRepository>(db);
+    auto moduleRepo = std::make_unique<ModuleRepository>(db);
+    auto settingRepo = std::make_unique<SettingRepository>(db);
+    auto editorRepo = std::make_unique<EditorRepository>(db);
+    auto moduleTemplateRepo = std::make_unique<ModuleTemplateRepository>(db);
+
+    // Run seeders
+    Seeder seeder;
+    seeder.addSeeder(std::make_unique<ModuleTemplateSeeder>(*moduleTemplateRepo));
+
+    if (!seeder.runSeeders())
+    {
+        LOG_WARNING("Some database seeders failed, but continuing application startup");
+    }
+
+    // Create repository provider with the repositories
     auto repositoryProvider = std::make_unique<RepositoryProvider>(
-        std::make_unique<ProjectRepository>(db), std::make_unique<NoteRepository>(db),
-        std::make_unique<ModuleRepository>(db), std::make_unique<SettingRepository>(db),
-        std::make_unique<EditorRepository>(db)
-    );
+        std::move(projectRepo), std::move(noteRepo), std::move(moduleRepo), std::move(settingRepo),
+        std::move(editorRepo), std::move(moduleTemplateRepo));
 
     MainWindow window(*repositoryProvider);
     window.setWindowTitle("DevPilot");

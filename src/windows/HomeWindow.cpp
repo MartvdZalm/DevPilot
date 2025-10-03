@@ -13,20 +13,24 @@ void HomeWindow::setupUI()
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
+    // Sidebar shows project list
     sidebarWidget = new SidebarWidget(repositoryProvider, this);
     sidebarWidget->setProjects(projectRepository.findAll());
     mainLayout->addWidget(sidebarWidget);
 
+    // Main content area (right side)
     QWidget* mainContentWidget = new QWidget();
     QVBoxLayout* mainContentLayout = new QVBoxLayout(mainContentWidget);
     mainContentLayout->setContentsMargins(20, 20, 20, 20);
     mainContentLayout->setSpacing(15);
 
+    // Empty state shown when no project is selected
     emptyStateWidget = new EmptyStateWidget(this);
     emptyStateWidget->show();
 
     mainContentLayout->addWidget(emptyStateWidget);
 
+    // Project details shown when a project is selected
     projectDetailsWidget = new ProjectDetailsWidget(repositoryProvider, this);
     projectDetailsWidget->hide();
     mainContentLayout->addWidget(projectDetailsWidget);

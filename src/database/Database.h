@@ -21,7 +21,7 @@ class Database : public QObject
         return initialized;
     }
 
-    QSqlDatabase& database()
+    QSqlDatabase& getDatabase()
     {
         return db;
     }

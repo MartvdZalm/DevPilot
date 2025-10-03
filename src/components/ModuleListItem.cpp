@@ -6,41 +6,51 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-ModuleListItem::ModuleListItem(const Module& module, const QString& iconEmoji, QWidget* parent)
-    : QGroupBox(module.getName(), parent), module(module)
+ModuleListItem::ModuleListItem(const Module& module, QWidget* parent)
+    : QGroupBox(parent), module(module)
 {
     setStyleSheet(GroupBoxStyle::primary());
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(15, 20, 15, 15);
+    mainLayout->setContentsMargins(15, 5, 15, 15);
 
     QHBoxLayout* infoLayout = new QHBoxLayout();
-
-    QLabel* iconLabel = new QLabel(iconEmoji);
-    iconLabel->setStyleSheet("font-size: 16px;");
 
     QVBoxLayout* infoTextLayout = new QVBoxLayout();
     QLabel* nameLabel = new QLabel(module.getName());
     nameLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #ffffff;");
-    QLabel* logsLabel = new QLabel("Logs");
-    logsLabel->setStyleSheet("font-size: 12px; color: #a0a0a0;");
     infoTextLayout->addWidget(nameLabel);
-    infoTextLayout->addWidget(logsLabel);
 
     portLabel = new QLabel(QString("Port: %1").arg(module.getPort()));
     portLabel->setStyleSheet("font-size: 12px; color: #a0a0a0;");
 
-    startButton = new QPushButton("Start");
-    startButton->setStyleSheet(ButtonStyle::primary());
-    stopButton = new QPushButton("Stop");
-    stopButton->setStyleSheet(ButtonStyle::primary());
+    statusLabel = new QLabel("Stopped");
+    statusLabel->setStyleSheet("font-size: 12px; color: #ff6b6b; font-weight: bold;");
 
-    infoLayout->addWidget(iconLabel);
+    startButton = new QPushButton(QIcon(":/Images/Play"), "");
+    startButton->setStyleSheet(ButtonStyle::primary());
+    startButton->setMaximumWidth(60);
+   
+    stopButton = new QPushButton(QIcon(":/Images/Stop"), "");
+    stopButton->setStyleSheet(ButtonStyle::primary());
+    stopButton->setMaximumWidth(60);
+    
+    editButton = new QPushButton(QIcon(":/Images/Edit"), "");
+    editButton->setStyleSheet(ButtonStyle::primary());
+    editButton->setMaximumWidth(50);
+    
+    deleteButton = new QPushButton(QIcon(":/Images/Delete"), "");
+    deleteButton->setStyleSheet(ButtonStyle::danger());
+    deleteButton->setMaximumWidth(60);
+
     infoLayout->addLayout(infoTextLayout);
     infoLayout->addStretch();
     infoLayout->addWidget(portLabel);
+    infoLayout->addWidget(statusLabel);
     infoLayout->addWidget(startButton);
     infoLayout->addWidget(stopButton);
+    infoLayout->addWidget(editButton);
+    infoLayout->addWidget(deleteButton);
 
     mainLayout->addLayout(infoLayout);
 
@@ -50,6 +60,13 @@ ModuleListItem::ModuleListItem(const Module& module, const QString& iconEmoji, Q
     logs->setReadOnly(true);
 
     mainLayout->addWidget(logs);
+    
+    connect(startButton, &QPushButton::clicked, this, &ModuleListItem::startCommand);
+    connect(stopButton, &QPushButton::clicked, this, &ModuleListItem::stopCommand);
+    connect(editButton, &QPushButton::clicked, this, [this]() { emit editRequested(this->module); });
+    connect(deleteButton, &QPushButton::clicked, this, [this]() { emit deleteRequested(this->module); });
+    
+    updateStatus();
 }
 
 QString ModuleListItem::cleanAnsi(const QString& text)
@@ -73,6 +90,63 @@ void ModuleListItem::appendLog(const QString& line)
 void ModuleListItem::setModule(const Module& module)
 {
     this->module = module;
+    updateStatus();
+}
+
+void ModuleListItem::updateStatus()
+{
+    if (!statusLabel) return;
+    
+    QString statusText;
+    QString statusColor;
+    
+    switch (module.getStatus())
+    {
+        case Module::Status::Stopped:
+            statusText = "Stopped";
+            statusColor = "#ff6b6b";
+            startButton->setEnabled(true);
+            stopButton->setEnabled(false);
+            break;
+        case Module::Status::Starting:
+            statusText = "Starting...";
+            statusColor = "#ffa726";
+            startButton->setEnabled(false);
+            stopButton->setEnabled(true);
+            break;
+        case Module::Status::Running:
+            statusText = "Running";
+            statusColor = "#66bb6a";
+            startButton->setEnabled(false);
+            stopButton->setEnabled(true);
+            break;
+        case Module::Status::Stopping:
+            statusText = "Stopping...";
+            statusColor = "#ffa726";
+            startButton->setEnabled(false);
+            stopButton->setEnabled(false);
+            break;
+        case Module::Status::Error:
+            statusText = "Error";
+            statusColor = "#f44336";
+            startButton->setEnabled(true);
+            stopButton->setEnabled(false);
+            break;
+        default:
+            statusText = "Unknown";
+            statusColor = "#9e9e9e";
+            startButton->setEnabled(true);
+            stopButton->setEnabled(false);
+            break;
+    }
+    
+    statusLabel->setText(statusText);
+    statusLabel->setStyleSheet(QString("font-size: 12px; color: %1; font-weight: bold;").arg(statusColor));
+}
+
+Module ModuleListItem::getModule() const
+{
+    return module;
 }
 
 void ModuleListItem::startCommand()
@@ -84,6 +158,8 @@ void ModuleListItem::startCommand()
     }
 
     process = new QProcess(this);
+    module.setStatus(Module::Status::Starting);
+    updateStatus();
 
     if (!module.getWorkingDirectory().isEmpty())
         process->setWorkingDirectory(module.getWorkingDirectory());
@@ -95,8 +171,24 @@ void ModuleListItem::startCommand()
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [this](int exitCode, QProcess::ExitStatus)
             {
-                appendLog(QString("✅ Process finished with code %1").arg(exitCode));
+                if (exitCode == 0)
+                {
+                    appendLog(QString("✅ Process finished successfully"));
+                    module.setStatus(Module::Status::Stopped);
+                }
+                else
+                {
+                    appendLog(QString("❌ Process finished with error code %1").arg(exitCode));
+                    module.setStatus(Module::Status::Error);
+                }
                 process = nullptr;
+                updateStatus();
+            });
+    connect(process, &QProcess::started, this,
+            [this]()
+            {
+                module.setStatus(Module::Status::Running);
+                updateStatus();
             });
 
     appendLog(QString("▶ Running: %1").arg(module.getCommand()));
@@ -113,6 +205,8 @@ void ModuleListItem::stopCommand()
     if (!process)
         return;
 
+    module.setStatus(Module::Status::Stopping);
+    updateStatus();
     appendLog("⏹ Stopping process...");
 
 #ifdef _WIN32
@@ -124,8 +218,10 @@ void ModuleListItem::stopCommand()
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [this](int exitCode, QProcess::ExitStatus)
             {
-                appendLog(QString("✅ Process finished with code %1").arg(exitCode));
+                appendLog(QString("✅ Process stopped"));
+                module.setStatus(Module::Status::Stopped);
                 process = nullptr;
+                updateStatus();
             });
 }
 
