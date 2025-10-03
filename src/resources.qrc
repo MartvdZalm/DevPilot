@@ -12,5 +12,9 @@
         <file alias="Minimize">assets/images/minimize.png</file>
         <file alias="Maximize">assets/images/maximize.png</file>
         <file alias="Restore">assets/images/restore.png</file>
+        <file alias="Play">assets/images/play_arrow.ico</file>
+        <file alias="Stop">assets/images/stop.ico</file>
+        <file alias="Delete">assets/images/delete.ico</file>
+        <file alias="AppIcon">assets/images/app_icon.png</file>
     </qresource>
 </RCC>

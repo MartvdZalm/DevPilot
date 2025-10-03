@@ -23,9 +23,9 @@ std::optional<Editor> EditorRepository::findById(int id)
 
     if (query.next())
     {
-        auto note = mapFromRecord(query);
+        auto editor = mapFromRecord(query);
         LOG_INFO("Successfully found editor ID: " + QString::number(id));
-        return note;
+        return editor;
     }
 
     LOG_INFO("Editor not found with ID: " + QString::number(id));

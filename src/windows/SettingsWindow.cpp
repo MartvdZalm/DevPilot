@@ -11,7 +11,8 @@
 #include <QSettings>
 
 SettingsWindow::SettingsWindow(RepositoryProvider& repoProvider, QWidget* parent)
-    : editorRepository(repoProvider.getEditorRepository()), BaseWindow(parent)
+    : editorRepository(repoProvider.getEditorRepository()),
+      moduleTemplateRepository(repoProvider.getModuleTemplateRepository()), BaseWindow(parent)
 {
     setFixedSize(QSize(1000, 600));
     setWindowTitle("Settings");
@@ -52,6 +53,8 @@ void SettingsWindow::setupConnections()
     connect(applyButton, &QPushButton::clicked, this, &SettingsWindow::onApplyClicked);
     connect(addEditorButton, &QPushButton::clicked, this, &SettingsWindow::onAddEditorClicked);
     connect(editorsTable, &QTableWidget::cellChanged, this, &SettingsWindow::onEditorRowChanged);
+    connect(addTemplateButton, &QPushButton::clicked, this, &SettingsWindow::onAddTemplateClicked);
+    connect(templatesTable, &QTableWidget::cellChanged, this, &SettingsWindow::onTemplateRowChanged);
 }
 
 void SettingsWindow::setupSidebar()
@@ -69,6 +72,7 @@ void SettingsWindow::setupSidebar()
 
     sidebar->addItem("General");
     sidebar->addItem("Editors");
+    sidebar->addItem("Module Templates");
     sidebar->addItem("About");
 
     sidebarLayout->addWidget(sidebar);
@@ -92,10 +96,12 @@ void SettingsWindow::setupContentArea()
 
     generalPage = createGeneralPage();
     editorsPage = createEditorsPage();
+    templatesPage = createTemplatesPage();
     aboutPage = createAboutPage();
 
     contentStack->addWidget(generalPage);
     contentStack->addWidget(editorsPage);
+    contentStack->addWidget(templatesPage);
     contentStack->addWidget(aboutPage);
 
     scrollArea->setWidget(contentStack);
@@ -221,7 +227,6 @@ QWidget* SettingsWindow::createEditorsPage()
     addEditorButton = new QPushButton("Add Editor");
     addEditorButton->setStyleSheet(ButtonStyle::primary());
 
-
     buttonLayout->addWidget(addEditorButton);
     buttonLayout->addStretch();
 
@@ -239,6 +244,47 @@ QWidget* SettingsWindow::createEditorsPage()
     editorsTable->setColumnWidth(3, 150);
 
     layout->addWidget(editorsTable);
+
+    return page;
+}
+
+QWidget* SettingsWindow::createTemplatesPage()
+{
+    QWidget* page = new QWidget;
+    QVBoxLayout* layout = new QVBoxLayout(page);
+    layout->setContentsMargins(20, 20, 20, 20);
+
+    QLabel* titleLabel = new QLabel("Manage Module Templates");
+    titleLabel->setStyleSheet("font-size: 16px; font-weight: bold; margin-bottom: 15px;");
+    layout->addWidget(titleLabel);
+
+    QLabel* descriptionLabel =
+        new QLabel("Configure custom module templates that appear when creating new modules. "
+                   "Templates automatically pre-fill commands, ports, and settings for common project types.");
+    descriptionLabel->setWordWrap(true);
+    descriptionLabel->setStyleSheet("color: #666; margin-bottom: 15px;");
+    layout->addWidget(descriptionLabel);
+
+    QHBoxLayout* buttonLayout = new QHBoxLayout;
+    addTemplateButton = new QPushButton("Add Template");
+    addTemplateButton->setStyleSheet(ButtonStyle::primary());
+    buttonLayout->addWidget(addTemplateButton);
+    buttonLayout->addStretch();
+    layout->addLayout(buttonLayout);
+
+    templatesTable = new QTableWidget;
+    templatesTable->setColumnCount(6);
+    templatesTable->setHorizontalHeaderLabels({"Enabled", "Name", "Command", "Port", "Description", "Actions"});
+    templatesTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    templatesTable->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+
+    templatesTable->setColumnWidth(0, 80);
+    templatesTable->setColumnWidth(1, 120);
+    templatesTable->setColumnWidth(2, 150);
+    templatesTable->setColumnWidth(3, 80);
+    templatesTable->setColumnWidth(4, 200);
+
+    layout->addWidget(templatesTable);
 
     return page;
 }
@@ -323,7 +369,6 @@ void SettingsWindow::addEditorRow(const Editor& editor)
     editorsTable->setCellWidget(row, 4, deleteButton);
 }
 
-
 void SettingsWindow::loadSettings()
 {
     QSettings settings;
@@ -339,9 +384,9 @@ void SettingsWindow::loadSettings()
     int index = themeComboBox->findText(theme);
     if (index >= 0)
         themeComboBox->setCurrentIndex(index);
-    
 
     loadEditors();
+    loadTemplates();
     applyButton->setEnabled(false);
 }
 
@@ -355,8 +400,9 @@ void SettingsWindow::saveSettings()
     settings.setValue("behavior/alwaysOnTop", alwaysOnTopCheckbox->isChecked());
     settings.setValue("project/defaultLocation", defaultLocationLineEdit->text());
     settings.setValue("interface/theme", themeComboBox->currentText());
-    
+
     saveEditors();
+    saveTemplates();
     applyButton->setEnabled(false);
     QMessageBox::information(this, "Settings Saved", "Editor settings have been saved successfully.");
 }
@@ -424,4 +470,130 @@ void SettingsWindow::saveEditors()
     }
 
     currentEditors = editorsToSave;
+}
+
+void SettingsWindow::addTemplateRow(const ModuleTemplate& moduleTemplate)
+{
+    int row = templatesTable->rowCount();
+    templatesTable->insertRow(row);
+
+    QCheckBox* enabledCheck = new QCheckBox;
+    enabledCheck->setChecked(moduleTemplate.isEnabled());
+    enabledCheck->setStyleSheet("margin-left: 20px;");
+    templatesTable->setCellWidget(row, 0, enabledCheck);
+    connect(enabledCheck, &QCheckBox::stateChanged, this, [this]() { applyButton->setEnabled(true); });
+
+    QTableWidgetItem* nameItem = new QTableWidgetItem(moduleTemplate.getName());
+    templatesTable->setItem(row, 1, nameItem);
+
+    QTableWidgetItem* commandItem = new QTableWidgetItem(moduleTemplate.getCommand());
+    templatesTable->setItem(row, 2, commandItem);
+
+    QTableWidgetItem* portItem = new QTableWidgetItem(QString::number(moduleTemplate.getPort()));
+    templatesTable->setItem(row, 3, portItem);
+
+    QTableWidgetItem* descriptionItem = new QTableWidgetItem(moduleTemplate.getDescription());
+    templatesTable->setItem(row, 4, descriptionItem);
+
+    QPushButton* deleteButton = new QPushButton("Delete");
+    deleteButton->setStyleSheet(ButtonStyle::danger());
+    deleteButton->setProperty("row", row);
+
+    connect(deleteButton, &QPushButton::clicked, this,
+            [this, row]()
+            {
+                QMessageBox::StandardButton reply =
+                    QMessageBox::question(this, "Delete Template", "Are you sure you want to delete this template?",
+                                          QMessageBox::Yes | QMessageBox::No);
+
+                if (reply == QMessageBox::Yes)
+                {
+                    templatesTable->removeRow(row);
+                    applyButton->setEnabled(true);
+                }
+            });
+
+    templatesTable->setCellWidget(row, 5, deleteButton);
+}
+
+void SettingsWindow::loadTemplates()
+{
+    templatesTable->setRowCount(0);
+    currentTemplates = moduleTemplateRepository.findAll();
+
+    for (const ModuleTemplate& moduleTemplate : currentTemplates)
+    {
+        addTemplateRow(moduleTemplate);
+    }
+}
+
+void SettingsWindow::saveTemplates()
+{
+    QList<ModuleTemplate> templatesToSave;
+
+    for (int row = 0; row < templatesTable->rowCount(); ++row)
+    {
+        ModuleTemplate moduleTemplate;
+
+        QCheckBox* enabledCheck = static_cast<QCheckBox*>(templatesTable->cellWidget(row, 0));
+        if (enabledCheck)
+        {
+            moduleTemplate.setEnabled(enabledCheck->isChecked());
+        }
+
+        QTableWidgetItem* nameItem = templatesTable->item(row, 1);
+        if (nameItem && !nameItem->text().isEmpty())
+        {
+            moduleTemplate.setName(nameItem->text());
+        }
+        else
+        {
+            continue;
+        }
+
+        QTableWidgetItem* commandItem = templatesTable->item(row, 2);
+        if (commandItem)
+        {
+            moduleTemplate.setCommand(commandItem->text());
+        }
+
+        QTableWidgetItem* portItem = templatesTable->item(row, 3);
+        if (portItem && !portItem->text().isEmpty())
+        {
+            moduleTemplate.setPort(portItem->text().toInt());
+        }
+
+        QTableWidgetItem* descriptionItem = templatesTable->item(row, 4);
+        if (descriptionItem)
+        {
+            moduleTemplate.setDescription(descriptionItem->text());
+        }
+
+        templatesToSave.append(moduleTemplate);
+    }
+
+    QList<ModuleTemplate> existingTemplates = moduleTemplateRepository.findAll();
+    for (const ModuleTemplate& existing : existingTemplates)
+    {
+        moduleTemplateRepository.deleteById(existing.getId());
+    }
+
+    for (ModuleTemplate& moduleTemplate : templatesToSave)
+    {
+        moduleTemplateRepository.save(moduleTemplate);
+    }
+
+    currentTemplates = templatesToSave;
+}
+
+void SettingsWindow::onAddTemplateClicked()
+{
+    ModuleTemplate newTemplate;
+    addTemplateRow(newTemplate);
+    applyButton->setEnabled(true);
+}
+
+void SettingsWindow::onTemplateRowChanged(int row, int column)
+{
+    applyButton->setEnabled(true);
 }

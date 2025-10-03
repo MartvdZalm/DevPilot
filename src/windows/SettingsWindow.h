@@ -3,17 +3,17 @@
 
 #include "../repositories/RepositoryProvider.h"
 #include "BaseWindow.h"
+#include <QCheckBox>
+#include <QComboBox>
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QStackedWidget>
-#include <QWidget>
 #include <QTableWidget>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QLineEdit>
+#include <QWidget>
 
 class SettingsWindow : public BaseWindow
 {
@@ -28,6 +28,8 @@ class SettingsWindow : public BaseWindow
     void onApplyClicked();
     void onAddEditorClicked();
     void onEditorRowChanged(int row, int column);
+    void onAddTemplateClicked();
+    void onTemplateRowChanged(int row, int column);
 
   private:
     void setupUI() override;
@@ -40,14 +42,20 @@ class SettingsWindow : public BaseWindow
 
     QWidget* createGeneralPage();
     QWidget* createEditorsPage();
+    QWidget* createTemplatesPage();
     QWidget* createAboutPage();
 
     void addEditorRow(const Editor& editor = Editor());
     void loadEditors();
     void saveEditors();
 
+    void addTemplateRow(const ModuleTemplate& moduleTemplate = ModuleTemplate());
+    void loadTemplates();
+    void saveTemplates();
+
   private:
     IEditorRepository& editorRepository;
+    IModuleTemplateRepository& moduleTemplateRepository;
 
     QHBoxLayout* mainLayout;
     QVBoxLayout* leftLayout;
@@ -70,6 +78,12 @@ class SettingsWindow : public BaseWindow
     QTableWidget* editorsTable;
     QPushButton* addEditorButton;
     QList<Editor> currentEditors;
+
+    // Templates Page Widgets
+    QWidget* templatesPage;
+    QTableWidget* templatesTable;
+    QPushButton* addTemplateButton;
+    QList<ModuleTemplate> currentTemplates;
 
     // General Page Widgets
     QWidget* generalPage;

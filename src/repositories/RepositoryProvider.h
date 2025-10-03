@@ -6,6 +6,7 @@
 #include "IProjectRepository.h"
 #include "ISettingRepository.h"
 #include "IEditorRepository.h"
+#include "IModuleTemplateRepository.h"
 
 class RepositoryProvider
 {
@@ -14,10 +15,12 @@ class RepositoryProvider
                        std::unique_ptr<INoteRepository> noteRepository,
                        std::unique_ptr<IModuleRepository> moduleRepository,
                        std::unique_ptr<ISettingRepository> settingRepository,
-                       std::unique_ptr<IEditorRepository> editorRepository)
+                       std::unique_ptr<IEditorRepository> editorRepository,
+                       std::unique_ptr<IModuleTemplateRepository> moduleTemplateRepository
+    )
         : projectRepository(std::move(projectRepository)), noteRepository(std::move(noteRepository)),
           moduleRepository(std::move(moduleRepository)), settingRepository(std::move(settingRepository)),
-          editorRepository(std::move(editorRepository))
+          editorRepository(std::move(editorRepository)), moduleTemplateRepository(std::move(moduleTemplateRepository))
     {
     }
 
@@ -46,12 +49,18 @@ class RepositoryProvider
         return *editorRepository;
     }
 
+    IModuleTemplateRepository& getModuleTemplateRepository() const
+    {
+        return *moduleTemplateRepository;
+    }
+
   private:
     std::unique_ptr<IProjectRepository> projectRepository;
     std::unique_ptr<INoteRepository> noteRepository;
     std::unique_ptr<IModuleRepository> moduleRepository;
     std::unique_ptr<ISettingRepository> settingRepository;
     std::unique_ptr<IEditorRepository> editorRepository;
+    std::unique_ptr<IModuleTemplateRepository> moduleTemplateRepository;
 };
 
 #endif // REPOSITORYPROVIDER_H

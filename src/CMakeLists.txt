@@ -50,6 +50,15 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         models/Note.h
         models/Setting.h
         models/Editor.h
+        models/ModuleTemplate.h
+
+        # Seeders
+        seeders/ISeeder.h
+        seeders/Seeder.h
+        seeders/Seeder.cpp
+        seeders/ModuleTemplateSeeder.h
+        seeders/ModuleTemplateSeeder.cpp
+
 
         # Repositories
         repositories/IProjectRepository.h
@@ -71,6 +80,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         repositories/IEditorRepository.h
         repositories/EditorRepository.cpp
         repositories/RepositoryProvider.h
+        repositories/IModuleTemplateRepository.h
+        repositories/ModuleTemplateRepository.h
+        repositories/ModuleTemplateRepository.cpp
 
         # Styles
         styles/AppStyle.h
@@ -102,11 +114,12 @@ else()
     )
 endif()
 
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql Network)
 
 target_link_libraries(DevPilot PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Sql
+    Qt${QT_VERSION_MAJOR}::Network
 )
 
 set_target_properties(DevPilot PROPERTIES

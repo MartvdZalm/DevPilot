@@ -2,17 +2,15 @@
 #include "../../styles/ButtonStyle.h"
 #include "../../styles/GroupBoxStyle.h"
 #include "../../styles/InputStyle.h"
+#include <QFileDialog>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QMessageBox>
 
-ModuleEditDialog::ModuleEditDialog(QWidget* parent) : QDialog(parent)
-{
-    setupUI();
-    setupConnections();
-}
-
-ModuleEditDialog::ModuleEditDialog(const Module& module, QWidget* parent) : QDialog(parent), module(module)
+ModuleEditDialog::ModuleEditDialog(const Module& module, RepositoryProvider& repositoryProvider, Project project,
+                                   QWidget* parent)
+    : QDialog(parent), module(module), moduleRepository(repositoryProvider.getModuleRepository()),
+      moduleTemplateRepository(repositoryProvider.getModuleTemplateRepository()), project(project)
 {
     setupUI();
     setupConnections();
@@ -32,8 +30,14 @@ void ModuleEditDialog::setupUI()
     basicGroup->setStyleSheet(GroupBoxStyle::primary());
     QFormLayout* basicLayout = new QFormLayout(basicGroup);
 
+    templateComboBox = new QComboBox();
+    templateComboBox->setStyleSheet(InputStyle::primary());
+
+    loadTemplatesFromRepository();
+
+    basicLayout->addRow("Template:", templateComboBox);
+
     nameEdit = new QLineEdit();
-    nameEdit->setPlaceholderText("e.g., Spring Boot API, Vue Frontend");
     nameEdit->setStyleSheet(InputStyle::primary());
     basicLayout->addRow("Name:", nameEdit);
 
@@ -45,7 +49,6 @@ void ModuleEditDialog::setupUI()
 
     descriptionEdit = new QTextEdit();
     descriptionEdit->setMaximumHeight(60);
-    descriptionEdit->setPlaceholderText("Describe what this module does...");
     descriptionEdit->setStyleSheet(InputStyle::primary());
     basicLayout->addRow("Description:", descriptionEdit);
 
@@ -56,14 +59,22 @@ void ModuleEditDialog::setupUI()
     QFormLayout* execLayout = new QFormLayout(execGroup);
 
     commandEdit = new QLineEdit();
-    commandEdit->setPlaceholderText("e.g., npm start, mvn spring-boot:run, python app.py");
     commandEdit->setStyleSheet(InputStyle::primary());
     execLayout->addRow("Command:", commandEdit);
 
+    QHBoxLayout* workingDirLayout = new QHBoxLayout();
     workingDirEdit = new QLineEdit();
     workingDirEdit->setPlaceholderText("Working directory (leave empty for project root)");
     workingDirEdit->setStyleSheet(InputStyle::primary());
-    execLayout->addRow("Working Directory:", workingDirEdit);
+
+    browseButton = new QPushButton("Browse...");
+    browseButton->setStyleSheet(ButtonStyle::primary());
+    browseButton->setFixedWidth(80);
+
+    workingDirLayout->addWidget(workingDirEdit);
+    workingDirLayout->addWidget(browseButton);
+
+    execLayout->addRow("Working Directory:", workingDirLayout);
 
     parametersEdit = new QTextEdit();
     parametersEdit->setMaximumHeight(60);
@@ -82,7 +93,6 @@ void ModuleEditDialog::setupUI()
 
     mainLayout->addWidget(execGroup);
 
-    // Buttons
     auto* buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
 
@@ -101,6 +111,43 @@ void ModuleEditDialog::setupConnections()
 {
     connect(okButton, &QPushButton::clicked, this, &ModuleEditDialog::onOkClicked);
     connect(cancelButton, &QPushButton::clicked, this, &ModuleEditDialog::onCancelClicked);
+    connect(templateComboBox, QOverload<const QString&>::of(&QComboBox::currentTextChanged), this,
+            &ModuleEditDialog::onTemplateSelected);
+    connect(browseButton, &QPushButton::clicked, this, &ModuleEditDialog::onBrowseClicked);
+}
+
+void ModuleEditDialog::onBrowseClicked()
+{
+    QString currentDir = workingDirEdit->text().isEmpty() ? project.getDirectoryPath() : workingDirEdit->text();
+
+    QString selectedDir = QFileDialog::getExistingDirectory(
+        this, "Select Working Directory", currentDir, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (!selectedDir.isEmpty())
+    {
+        workingDirEdit->setText(selectedDir);
+    }
+}
+
+void ModuleEditDialog::loadTemplatesFromRepository()
+{
+    templateComboBox->clear();
+    moduleTemplateMap.clear();
+
+    templateComboBox->addItem("Select a template...");
+
+    auto moduleTemplates = moduleTemplateRepository.findAll();
+
+    for (const auto& moduleTemplate : moduleTemplates)
+    {
+        if (moduleTemplate.isEnabled())
+        {
+            templateComboBox->addItem(moduleTemplate.getName());
+            moduleTemplateMap[moduleTemplate.getName()] = moduleTemplate;
+        }
+    }
+
+    templateComboBox->setCurrentIndex(0);
 }
 
 Module ModuleEditDialog::getModule()
@@ -151,4 +198,43 @@ void ModuleEditDialog::onOkClicked()
 void ModuleEditDialog::onCancelClicked()
 {
     reject();
+}
+
+void ModuleEditDialog::onTemplateSelected(const QString& displayName)
+{
+    if (moduleTemplateMap.contains(displayName))
+    {
+        const ModuleTemplate& selectedTemplate = moduleTemplateMap[displayName];
+        applyTemplate(selectedTemplate);
+    }
+}
+
+void ModuleEditDialog::applyTemplate(const ModuleTemplate& moduleTemplate)
+{
+    auto nameCursor = nameEdit->cursorPosition();
+    auto descCursor = descriptionEdit->textCursor().position();
+    auto cmdCursor = commandEdit->cursorPosition();
+
+    nameEdit->setText(moduleTemplate.getName());
+    nameEdit->setCursorPosition(nameCursor);
+
+    commandEdit->setText(moduleTemplate.getCommand());
+    commandEdit->setCursorPosition(cmdCursor);
+
+    portSpinBox->setValue(moduleTemplate.getPort());
+
+    if (descriptionEdit->toPlainText().isEmpty())
+    {
+        descriptionEdit->setPlainText(moduleTemplate.getDescription());
+    }
+
+    if (parametersEdit->toPlainText().isEmpty() && !moduleTemplate.getParameters().isEmpty())
+    {
+        parametersEdit->setPlainText(moduleTemplate.getParameters());
+    }
+
+    if (environmentEdit->toPlainText().isEmpty() && !moduleTemplate.getEnvironment().isEmpty())
+    {
+        environmentEdit->setPlainText(moduleTemplate.getEnvironment());
+    }
 }

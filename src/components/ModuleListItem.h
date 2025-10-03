@@ -13,24 +13,34 @@ class ModuleListItem : public QGroupBox
     Q_OBJECT
 
   public:
-    explicit ModuleListItem(const Module& module, const QString& iconEmoji, QWidget* parent = nullptr);
+    explicit ModuleListItem(const Module& module, QWidget* parent = nullptr);
 
-    QString cleanAnsi(const QString& text);
     void setLogs(const QString& text);
-    void appendLog(const QString& line);
     void setModule(const Module& module);
-    void startCommand();
-    void stopCommand();
-
+    QTextEdit* getLogs();
     QPushButton* getStartButton();
     QPushButton* getStopButton();
-    QTextEdit* getLogs();
+    Module getModule() const;
+
+  private:
+    QString cleanAnsi(const QString& text);
+    void appendLog(const QString& line);
+    void startCommand();
+    void stopCommand();
+    void updateStatus();
+
+signals:
+    void editRequested(const Module& module);
+    void deleteRequested(const Module& module);
 
   private:
     Module module;
     QLabel* portLabel = nullptr;
+    QLabel* statusLabel = nullptr;
     QPushButton* startButton = nullptr;
     QPushButton* stopButton = nullptr;
+    QPushButton* editButton = nullptr;
+    QPushButton* deleteButton = nullptr;
     QTextEdit* logs = nullptr;
     QProcess* process = nullptr;
 };

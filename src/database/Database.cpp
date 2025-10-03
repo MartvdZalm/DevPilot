@@ -130,6 +130,20 @@ bool Database::createTables()
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(name)
         )
+        )",
+        R"(
+        CREATE TABLE IF NOT EXISTS module_templates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            command TEXT NOT NULL,
+            port INTEGER NOT NULL,
+            description TEXT,
+            parameters TEXT,
+            environment TEXT,
+            enabled BOOLEAN NOT NULL DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
         )"};
 
     for (const auto& table : tables)

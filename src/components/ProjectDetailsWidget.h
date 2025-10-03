@@ -45,9 +45,12 @@ class ProjectDetailsWidget : public QWidget
     void onOpenInIDEClicked();
     void onAddModuleClicked();
     void onToggleNotesClicked(bool checked);
-
+    void onEditModuleClicked(const Module& module);
+    void onDeleteModuleClicked(const Module& module);
+    void onToggleLogsClicked(bool hideLogs);
 
   private:
+    RepositoryProvider& repositoryProvider;
     IProjectRepository& projectRepository;
     IModuleRepository& moduleRepository;
     INoteRepository& noteRepository;
@@ -67,8 +70,11 @@ class ProjectDetailsWidget : public QWidget
     QScrollArea* modulesScrollArea = nullptr;
     QScrollArea* notesScrollArea = nullptr;
     QPushButton* addModuleButton = nullptr;
+    QPushButton* startAllModulesButton = nullptr;
+    QPushButton* stopAllModulesButton = nullptr;
     QVBoxLayout* moduleListLayout = nullptr;
     QToolButton* addNoteButton = nullptr;
+    QPushButton* toggleLogsButton = nullptr;
     QWidget* notesContainer = nullptr;
     QLayout* notesListLayout = nullptr;
     QToolButton* toggleNotesBtn = nullptr;

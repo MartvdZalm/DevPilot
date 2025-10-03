@@ -3,7 +3,6 @@
 
 #include "Model.h"
 #include <QJsonObject>
-#include <QDateTime>
 #include <QString>
 
 class Editor : public Model
@@ -78,7 +77,7 @@ class Editor : public Model
   private:
     QString name;
     QString path;
-    QString arguments;
+    QString arguments = "%PATH%";
     bool enabled = true;
     int displayOrder = 0;
 };
