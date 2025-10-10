@@ -97,6 +97,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         styles/ListStyle.cpp
         styles/MenuStyle.h
         styles/MenuStyle.cpp
+        styles/ModuleStyle.h
+        styles/ModuleStyle.cpp
 
         # Windows
         windows/BaseWindow.h
@@ -107,6 +109,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         windows/MainWindow.cpp
         windows/SettingsWindow.h
         windows/SettingsWindow.cpp
+        windows/ModuleWindow.cpp
+        windows/ModuleWindow.h
     )
 else()
     add_executable(DevPilot

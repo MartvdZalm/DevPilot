@@ -304,6 +304,7 @@ void ProjectDetailsWidget::refreshModules()
     }
 
     moduleListLayout->addStretch();
+    applyLogsVisibility();
 }
 
 void ProjectDetailsWidget::onAddNoteClicked()
@@ -563,23 +564,25 @@ void ProjectDetailsWidget::onToggleNotesClicked(bool checked)
 
 void ProjectDetailsWidget::onToggleLogsClicked(bool hideLogs)
 {
+    logsHidden = hideLogs;
     toggleLogsButton->setText(hideLogs ? "Show Logs" : "Hide Logs");
+    applyLogsVisibility();
+}
 
-
-    // Toggle visibility of logs for all module items
+void ProjectDetailsWidget::applyLogsVisibility()
+{
     for (int i = 0; i < moduleListLayout->count(); ++i)
     {
         QLayoutItem* item = moduleListLayout->itemAt(i);
         if (item && item->widget())
         {
             ModuleListItem* moduleItem = qobject_cast<ModuleListItem*>(item->widget());
-
             if (moduleItem)
             {
                 QTextEdit* logs = moduleItem->getLogs();
                 if (logs)
                 {
-                    logs->setVisible(!hideLogs);
+                    logs->setVisible(!logsHidden);
                 }
             }
         }

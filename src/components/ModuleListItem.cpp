@@ -2,6 +2,7 @@
 #include "../styles/ButtonStyle.h"
 #include "../styles/GroupBoxStyle.h"
 #include "../styles/InputStyle.h"
+#include "../windows/ModuleWindow.h"
 #include <QHBoxLayout>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -34,6 +35,11 @@ ModuleListItem::ModuleListItem(const Module& module, QWidget* parent)
     stopButton = new QPushButton(QIcon(":/Images/Stop"), "");
     stopButton->setStyleSheet(ButtonStyle::primary());
     stopButton->setMaximumWidth(60);
+
+    terminalButton = new QPushButton(QIcon(":/Images/Terminal"), "");
+    terminalButton->setStyleSheet(ButtonStyle::primary());
+    terminalButton->setMaximumWidth(60);
+    terminalButton->setToolTip("Open in Terminal Window");
     
     editButton = new QPushButton(QIcon(":/Images/Edit"), "");
     editButton->setStyleSheet(ButtonStyle::primary());
@@ -49,6 +55,7 @@ ModuleListItem::ModuleListItem(const Module& module, QWidget* parent)
     infoLayout->addWidget(statusLabel);
     infoLayout->addWidget(startButton);
     infoLayout->addWidget(stopButton);
+    infoLayout->addWidget(terminalButton);
     infoLayout->addWidget(editButton);
     infoLayout->addWidget(deleteButton);
 
@@ -63,6 +70,7 @@ ModuleListItem::ModuleListItem(const Module& module, QWidget* parent)
     
     connect(startButton, &QPushButton::clicked, this, &ModuleListItem::startCommand);
     connect(stopButton, &QPushButton::clicked, this, &ModuleListItem::stopCommand);
+    connect(terminalButton, &QPushButton::clicked, this, &ModuleListItem::openTerminalWindow);
     connect(editButton, &QPushButton::clicked, this, [this]() { emit editRequested(this->module); });
     connect(deleteButton, &QPushButton::clicked, this, [this]() { emit deleteRequested(this->module); });
     
@@ -153,7 +161,7 @@ void ModuleListItem::startCommand()
 {
     if (process)
     {
-        appendLog("⚠ Process already running.");
+        appendLog("Process already running.");
         return;
     }
 
@@ -173,12 +181,12 @@ void ModuleListItem::startCommand()
             {
                 if (exitCode == 0)
                 {
-                    appendLog(QString("✅ Process finished successfully"));
+                    appendLog(QString("Process finished successfully"));
                     module.setStatus(Module::Status::Stopped);
                 }
                 else
                 {
-                    appendLog(QString("❌ Process finished with error code %1").arg(exitCode));
+                    appendLog(QString("Process finished with error code %1").arg(exitCode));
                     module.setStatus(Module::Status::Error);
                 }
                 process = nullptr;
@@ -191,7 +199,7 @@ void ModuleListItem::startCommand()
                 updateStatus();
             });
 
-    appendLog(QString("▶ Running: %1").arg(module.getCommand()));
+    appendLog(QString("Running: %1").arg(module.getCommand()));
 
 #ifdef _WIN32
     process->start("cmd.exe", {"/C", module.getCommand()});
@@ -207,7 +215,7 @@ void ModuleListItem::stopCommand()
 
     module.setStatus(Module::Status::Stopping);
     updateStatus();
-    appendLog("⏹ Stopping process...");
+    appendLog("Stopping process...");
 
 #ifdef _WIN32
     QProcess::execute("taskkill", {"/PID", QString::number(process->processId()), "/T", "/F"});
@@ -218,11 +226,20 @@ void ModuleListItem::stopCommand()
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [this](int exitCode, QProcess::ExitStatus)
             {
-                appendLog(QString("✅ Process stopped"));
+                appendLog(QString("Process stopped"));
                 module.setStatus(Module::Status::Stopped);
                 process = nullptr;
                 updateStatus();
             });
+}
+
+void ModuleListItem::openTerminalWindow()
+{
+    ModuleWindow* window = new ModuleWindow(nullptr, module);
+    window->setAttribute(Qt::WA_DeleteOnClose);
+    window->show();
+    window->raise();
+    window->activateWindow();
 }
 
 QPushButton* ModuleListItem::getStartButton()

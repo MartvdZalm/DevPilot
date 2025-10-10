@@ -48,6 +48,7 @@ class ProjectDetailsWidget : public QWidget
     void onEditModuleClicked(const Module& module);
     void onDeleteModuleClicked(const Module& module);
     void onToggleLogsClicked(bool hideLogs);
+    void applyLogsVisibility();
 
   private:
     RepositoryProvider& repositoryProvider;
@@ -79,6 +80,7 @@ class ProjectDetailsWidget : public QWidget
     QLayout* notesListLayout = nullptr;
     QToolButton* toggleNotesBtn = nullptr;
     QIcon arrowDown, arrowRight;
+    bool logsHidden = false;
 };
 
 #endif // PROJECTDETAILSWIDGET_H

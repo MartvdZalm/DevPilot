@@ -17,6 +17,16 @@ class Module : public Model
         Error
     };
 
+    enum class ServiceType
+    {
+        CUSTOM,
+        BACKEND,
+        FRONTEND,
+        DATABASE,
+        CACHE,
+        INFRASTRUCTURE
+    };
+
     Module() = default;
 
     int getProjectId() const
@@ -69,9 +79,9 @@ class Module : public Model
         return environment;
     }
 
-    bool getAutoStart() const
+    ServiceType getServiceType() const
     {
-        return autoStart;
+        return serviceType;
     }
 
     void setProjectId(int projectId)
@@ -124,9 +134,9 @@ class Module : public Model
         this->environment = environment;
     }
 
-    void setAutoStart(bool autoStart)
+    void setServiceType(ServiceType type)
     {
-        this->autoStart = autoStart;
+        this->serviceType = type;
     }
 
     QString getStatusString() const
@@ -148,6 +158,26 @@ class Module : public Model
         }
     }
 
+    QString getServiceTypeString() const
+    {
+        switch (serviceType)
+        {
+        case ServiceType::BACKEND:
+            return "Backend";
+        case ServiceType::FRONTEND:
+            return "Frontend";
+        case ServiceType::DATABASE:
+            return "Database";
+        case ServiceType::CACHE:
+            return "Cache";
+        case ServiceType::INFRASTRUCTURE:
+            return "Infrastructure";
+        case ServiceType::CUSTOM:
+        default:
+            return "Custom";
+        }
+    }
+
     QJsonObject serialize() const
     {
         QJsonObject obj;
@@ -162,7 +192,7 @@ class Module : public Model
         obj["description"] = description;
         obj["parameters"] = parameters;
         obj["environment"] = environment;
-        obj["autoStart"] = autoStart;
+        obj["serviceType"] = static_cast<int>(serviceType);
         obj["createdAt"] = createdAt.toString(Qt::ISODate);
         obj["updatedAt"] = updatedAt.toString(Qt::ISODate);
         return obj;
@@ -179,7 +209,7 @@ class Module : public Model
     QString description;
     QString parameters;
     QString environment;
-    bool autoStart = false;
+    ServiceType serviceType = ServiceType::CUSTOM;
 };
 
 #endif // MODULE_H
