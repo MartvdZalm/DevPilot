@@ -28,6 +28,7 @@ class ModuleListItem : public QGroupBox
     void startCommand();
     void stopCommand();
     void updateStatus();
+    void openTerminalWindow();
 
 signals:
     void editRequested(const Module& module);
@@ -39,6 +40,7 @@ signals:
     QLabel* statusLabel = nullptr;
     QPushButton* startButton = nullptr;
     QPushButton* stopButton = nullptr;
+    QPushButton* terminalButton = nullptr;
     QPushButton* editButton = nullptr;
     QPushButton* deleteButton = nullptr;
     QTextEdit* logs = nullptr;

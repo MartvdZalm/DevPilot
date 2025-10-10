@@ -91,6 +91,8 @@ class ModuleTemplate : public Model
         obj["parameters"] = parameters;
         obj["environment"] = environment;
         obj["enabled"] = enabled;
+        obj["createdAt"] = createdAt.toString(Qt::ISODate);
+        obj["updatedAt"] = updatedAt.toString(Qt::ISODate);
         return obj;
     }
 

@@ -100,7 +100,7 @@ bool Database::createTables()
             description TEXT,
             parameters TEXT,
             environment TEXT,
-            auto_start BOOLEAN NOT NULL DEFAULT 0,
+            service_type INTEGER NOT NULL DEFAULT 0,
             created_at DATETIME NOT NULL,
             updated_at DATETIME NOT NULL,
             FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,

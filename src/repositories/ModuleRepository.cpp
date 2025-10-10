@@ -161,7 +161,7 @@ Module ModuleRepository::mapFromRecord(const QSqlQuery& query)
     component.setDescription(query.value("description").toString());
     component.setParameters(query.value("parameters").toString());
     component.setEnvironment(query.value("environment").toString());
-    component.setAutoStart(query.value("auto_start").toBool());
+    component.setServiceType(static_cast<Module::ServiceType>(query.value("service_type").toInt()));
     component.setCreatedAt(query.value("created_at").toDateTime());
     component.setUpdatedAt(query.value("updated_at").toDateTime());
     return component;
@@ -171,9 +171,9 @@ std::optional<Module> ModuleRepository::insert(const Module& module)
 {
     QSqlQuery query(database);
     query.prepare("INSERT INTO modules (project_id, name, port, status, command, working_directory, logs, "
-                  "description, parameters, environment, auto_start, created_at, updated_at) VALUES (:project_id, "
+                  "description, parameters, environment, service_type, created_at, updated_at) VALUES (:project_id, "
                   ":name, :port, :status, :command, :working_directory, :logs, :description, :parameters, "
-                  ":environment, :auto_start, :created_at, :updated_at)");
+                  ":environment, :service_type, :created_at, :updated_at)");
 
     query.bindValue(":project_id", module.getProjectId());
     query.bindValue(":name", module.getName());
@@ -185,7 +185,7 @@ std::optional<Module> ModuleRepository::insert(const Module& module)
     query.bindValue(":description", module.getDescription());
     query.bindValue(":parameters", module.getParameters());
     query.bindValue(":environment", module.getEnvironment());
-    query.bindValue(":auto_start", module.getAutoStart());
+    query.bindValue(":service_type", static_cast<int>(module.getServiceType()));
     query.bindValue(":created_at", QDateTime::currentDateTime());
     query.bindValue(":updated_at", QDateTime::currentDateTime());
 
@@ -205,8 +205,7 @@ std::optional<Module> ModuleRepository::update(const Module& component)
     QSqlQuery query(database);
     query.prepare("UPDATE modules SET project_id = :project_id, name = :name, port = :port, status = "
                   ":status, command = :command, working_directory = :working_directory, logs = :logs, description = "
-                  ":description, parameters = :parameters, environment = :environment, auto_start = :auto_start, "
-                  "updated_at = :updated_at WHERE id = :id");
+                  ":description, parameters = :parameters, environment = :environment, service_type = :service_type, updated_at = :updated_at WHERE id = :id");
     query.bindValue(":project_id", component.getProjectId());
     query.bindValue(":name", component.getName());
     query.bindValue(":port", component.getPort());
@@ -217,7 +216,7 @@ std::optional<Module> ModuleRepository::update(const Module& component)
     query.bindValue(":description", component.getDescription());
     query.bindValue(":parameters", component.getParameters());
     query.bindValue(":environment", component.getEnvironment());
-    query.bindValue(":auto_start", component.getAutoStart());
+    query.bindValue(":service_type", static_cast<int>(component.getServiceType()));
     query.bindValue(":updated_at", QDateTime::currentDateTime());
     query.bindValue(":id", component.getId());
 

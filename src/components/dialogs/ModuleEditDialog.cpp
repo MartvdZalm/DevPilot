@@ -2,6 +2,7 @@
 #include "../../styles/ButtonStyle.h"
 #include "../../styles/GroupBoxStyle.h"
 #include "../../styles/InputStyle.h"
+#include "../../core/Logger.h"
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGroupBox>
@@ -40,6 +41,11 @@ void ModuleEditDialog::setupUI()
     nameEdit = new QLineEdit();
     nameEdit->setStyleSheet(InputStyle::primary());
     basicLayout->addRow("Name:", nameEdit);
+
+    serviceTypeComboBox = new QComboBox();
+    serviceTypeComboBox->setStyleSheet(InputStyle::primary());
+    setupServiceTypeComboBox();
+    basicLayout->addRow("Service Type:", serviceTypeComboBox);
 
     portSpinBox = new QSpinBox();
     portSpinBox->setRange(1, 65535);
@@ -116,6 +122,18 @@ void ModuleEditDialog::setupConnections()
     connect(browseButton, &QPushButton::clicked, this, &ModuleEditDialog::onBrowseClicked);
 }
 
+void ModuleEditDialog::setupServiceTypeComboBox()
+{
+    serviceTypeComboBox->clear();
+    serviceTypeComboBox->addItem("Custom", static_cast<int>(Module::ServiceType::CUSTOM));
+    serviceTypeComboBox->addItem("Backend", static_cast<int>(Module::ServiceType::BACKEND));
+    serviceTypeComboBox->addItem("Frontend", static_cast<int>(Module::ServiceType::FRONTEND));
+    serviceTypeComboBox->addItem("Database", static_cast<int>(Module::ServiceType::DATABASE));
+    serviceTypeComboBox->addItem("Cache", static_cast<int>(Module::ServiceType::CACHE));
+    serviceTypeComboBox->addItem("Infrastructure", static_cast<int>(Module::ServiceType::INFRASTRUCTURE));
+    serviceTypeComboBox->setCurrentIndex(0);
+}
+
 void ModuleEditDialog::onBrowseClicked()
 {
     QString currentDir = workingDirEdit->text().isEmpty() ? project.getDirectoryPath() : workingDirEdit->text();
@@ -166,7 +184,7 @@ void ModuleEditDialog::setModule(const Module& module)
     descriptionEdit->setPlainText(module.getDescription());
     parametersEdit->setPlainText(module.getParameters());
     environmentEdit->setPlainText(module.getEnvironment());
-    autoStartCheckBox->setChecked(module.getAutoStart());
+    serviceTypeComboBox->setCurrentIndex(static_cast<int>(module.getServiceType()));
 }
 
 void ModuleEditDialog::onOkClicked()
@@ -190,7 +208,9 @@ void ModuleEditDialog::onOkClicked()
     module.setDescription(descriptionEdit->toPlainText().trimmed());
     module.setParameters(parametersEdit->toPlainText().trimmed());
     module.setEnvironment(environmentEdit->toPlainText().trimmed());
-    module.setAutoStart(autoStartCheckBox->isChecked());
+
+    int serviceTypeValue = serviceTypeComboBox->currentData().toInt();
+    module.setServiceType(static_cast<Module::ServiceType>(serviceTypeValue));
 
     accept();
 }

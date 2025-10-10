@@ -43,6 +43,7 @@ class ModuleEditDialog : public QDialog
     void setupConnections();
     void loadTemplatesFromRepository();
     void applyTemplate(const ModuleTemplate& moduleTemplate);
+    void setupServiceTypeComboBox();
 
   private:
     Project project;
@@ -63,6 +64,7 @@ class ModuleEditDialog : public QDialog
     QPushButton* okButton;
     QPushButton* cancelButton;
     QMap<QString, ModuleTemplate> moduleTemplateMap;
+    QComboBox* serviceTypeComboBox;
 };
 
 #endif // MODULEEDITDIALOG_H
