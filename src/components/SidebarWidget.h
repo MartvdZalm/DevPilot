@@ -31,6 +31,7 @@ class SidebarWidget : public QWidget
     void onAddProjectClicked();
     void refreshProjectList();
 
+    RepositoryProvider& repoProvider;
     IProjectRepository& projectRepository;
     QListWidget* projectList = nullptr;
     QPushButton* addProjectButton = nullptr;

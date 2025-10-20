@@ -114,6 +114,7 @@ void ProjectDetailsWidget::setupConnections()
     connect(openInFolderButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onOpenInFolderClicked);
     connect(openInTerminalButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onOpenInTerminalClicked);
     connect(openInIDEButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onOpenInIDEClicked);
+    connect(openAllAppsButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onOpenAllAppsClicked);
     connect(addModuleButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onAddModuleClicked);
     connect(toggleNotesBtn, &QToolButton::toggled, this, &ProjectDetailsWidget::onToggleNotesClicked);
     connect(addNoteButton, &QToolButton::clicked, this, &ProjectDetailsWidget::onAddNoteClicked);
@@ -150,20 +151,24 @@ QHBoxLayout* ProjectDetailsWidget::createHeader()
     projectInfoLayout->addWidget(projectPathLabel);
     projectInfoLayout->addWidget(addModuleButton);
 
-    openInFolderButton = new QPushButton("Open");
+    openInFolderButton = new QPushButton(QIcon(":/Images/Folder"), "");
     openInFolderButton->setStyleSheet(ButtonStyle::primary());
 
-    openInTerminalButton = new QPushButton("Open in Terminal");
+    openInTerminalButton = new QPushButton(QIcon(":/Images/Terminal"), "");
     openInTerminalButton->setStyleSheet(ButtonStyle::primary());
 
-    openInIDEButton = new QPushButton("Open in IDE");
+    openInIDEButton = new QPushButton(QIcon(":/Images/Code"), "");
     openInIDEButton->setStyleSheet(ButtonStyle::primary());
+
+    openAllAppsButton = new QPushButton(QIcon(":/Images/SDK"), "");
+    openAllAppsButton->setStyleSheet(ButtonStyle::primary());
 
     projectHeaderLayout->addLayout(projectInfoLayout);
     projectHeaderLayout->addStretch();
     projectHeaderLayout->addWidget(openInFolderButton);
     projectHeaderLayout->addWidget(openInTerminalButton);
     projectHeaderLayout->addWidget(openInIDEButton);
+    projectHeaderLayout->addWidget(openAllAppsButton);
 
     return projectHeaderLayout;
 }
@@ -323,7 +328,7 @@ void ProjectDetailsWidget::onOpenNoteDialog(const Note& note)
 
 void ProjectDetailsWidget::onEditProjectClicked()
 {
-    ProjectDialog dialog(this, currentProject);
+    ProjectDialog dialog(repositoryProvider, this, currentProject);
     if (dialog.exec() != QDialog::Accepted)
     {
         return;
@@ -331,13 +336,19 @@ void ProjectDetailsWidget::onEditProjectClicked()
 
     Project updatedProject = dialog.getProject();
     auto savedProject = projectRepository.save(updatedProject);
+
     if (!savedProject)
     {
         QMessageBox::critical(this, "Error", "Failed to save project changes.");
         return;
     }
 
+    QList<int> selectedAppIds = dialog.getSelectedAppIds();
+    repositoryProvider.getAppRepository().setLinkedApps(savedProject->getId(), selectedAppIds);
+
     LOG_INFO("Updated project: " + savedProject->getName());
+
+    refreshProject();
 }
 
 void ProjectDetailsWidget::onOpenInFolderClicked()
@@ -378,6 +389,45 @@ void ProjectDetailsWidget::onOpenInIDEClicked()
     {
         ProjectLauncher::openInEditor(currentProject.getDirectoryPath(), dialog.getSelectedEditor());
     }
+}
+
+void ProjectDetailsWidget::onOpenAllAppsClicked()
+{
+    QList<App> apps = repositoryProvider.getAppRepository().findByProjectId(currentProject.getId());
+
+    if (apps.isEmpty())
+    {
+        QMessageBox::information(
+            this,
+            "No Linked Apps",
+            "This project has no linked apps.\n\nTo link apps, edit the project and select the desired apps from the list."
+            );
+    }
+
+    for (const App& app : apps)
+    {
+        if (!app.isEnabled())
+            continue;
+
+        QString path = app.getPath();
+        QString args = app.getArguments();
+
+        if (!QFile::exists(path))
+        {
+            LOG_WARNING("App not found: " + path);
+            continue;
+        }
+
+        QProcess* process = new QProcess(this);
+        process->setProgram(path);
+        if (!args.trimmed().isEmpty())
+        {
+            process->setArguments(QProcess::splitCommand(args));
+        }
+        process->startDetached();  // Run independently
+    }
+
+    LOG_INFO("Launched all enabled apps for project: " + currentProject.getName());
 }
 
 void ProjectDetailsWidget::onAddModuleClicked()
