@@ -1,7 +1,7 @@
 #ifndef MODULEREPOSITORY_H
 #define MODULEREPOSITORY_H
 
-#include "IModuleRepository.h"
+#include "interfaces/IModuleRepository.h"
 #include <QSqlDatabase>
 
 class ModuleRepository : public IModuleRepository

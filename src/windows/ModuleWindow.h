@@ -19,14 +19,14 @@ class ModuleWindow : public BaseWindow
 
   public:
     explicit ModuleWindow(QWidget* parent = nullptr, const Module& module = Module());
+    ~ModuleWindow();
 
   private:
     void setupUI() override;
     void setupConnections() override;
     void updateControlsState(bool running);
     void updateStatusIndicator(bool running);
-    void appendColoredText(const QString& text, const QString& color);
-    void autoScroll();
+    void appendColoredText(const QString& text, const QString& color = "#ffffff");
     void restartProcess();
     void onReadyReadError();
     void onReadyRead();
@@ -35,6 +35,8 @@ class ModuleWindow : public BaseWindow
     void clearTerminal();
     void startProcess();
     void stopProcess();
+    void setupProcessConnections();
+    QString parseAnsiToHtml(const QString& text);
 
     QWidget* createHeader();
     QHBoxLayout* createControls();
@@ -51,7 +53,6 @@ class ModuleWindow : public BaseWindow
     QPushButton* clearButton;
     QPushButton* restartButton;
     QPushButton* sendButton;
-    QCheckBox* autoScrollCheckbox;
     QLabel* statusIndicator;
     QTabWidget* tabWidget;
 };

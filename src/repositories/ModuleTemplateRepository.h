@@ -1,7 +1,7 @@
 #ifndef MODULETEMPLATEREPOSITORY_H
 #define MODULETEMPLATEREPOSITORY_H
 
-#include "IModuleTemplateRepository.h"
+#include "interfaces/IModuleTemplateRepository.h"
 #include <QSqlDatabase>
 
 class ModuleTemplateRepository : public IModuleTemplateRepository

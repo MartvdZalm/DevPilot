@@ -17,5 +17,6 @@
         <file alias="Delete">assets/images/delete.ico</file>
         <file alias="AppIcon">assets/images/app_icon.png</file>
         <file alias="Terminal">assets/images/terminal.ico</file>
+        <file alias="Env">assets/images/env.png</file>
     </qresource>
 </RCC>

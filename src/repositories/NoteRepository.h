@@ -1,7 +1,7 @@
 #ifndef NOTEREPOSITORY_H
 #define NOTEREPOSITORY_H
 
-#include "INoteRepository.h"
+#include "interfaces/INoteRepository.h"
 #include <QSqlDatabase>
 
 class NoteRepository : public INoteRepository

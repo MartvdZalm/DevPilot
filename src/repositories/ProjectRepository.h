@@ -1,7 +1,7 @@
 #ifndef PROJECTREPOSITORY_H
 #define PROJECTREPOSITORY_H
 
-#include "IProjectRepository.h"
+#include "interfaces/IProjectRepository.h"
 #include <QSqlDatabase>
 
 class ProjectRepository : public IProjectRepository

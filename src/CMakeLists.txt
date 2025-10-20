@@ -30,10 +30,17 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         components/EmptyStateWidget.h
         components/ProjectDetailsWidget.cpp
         components/ProjectDetailsWidget.h
+        components/dialogs/ChooseEditorDialog.h
+        components/dialogs/ChooseEditorDialog.cpp
 
         # Database Layer
         database/Database.h
         database/Database.cpp
+        database/seeders/ISeeder.h
+        database/seeders/Seeder.h
+        database/seeders/Seeder.cpp
+        database/seeders/ModuleTemplateSeeder.h
+        database/seeders/ModuleTemplateSeeder.cpp
 
         # Events
         events/AppEvents.cpp
@@ -42,6 +49,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         # Core
         core/Logger.cpp
         core/Logger.h
+        core/ProjectLauncher.cpp
+        core/ProjectLauncher.h
 
         # Models
         models/Model.h
@@ -52,35 +61,21 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         models/Editor.h
         models/ModuleTemplate.h
 
-        # Seeders
-        seeders/ISeeder.h
-        seeders/Seeder.h
-        seeders/Seeder.cpp
-        seeders/ModuleTemplateSeeder.h
-        seeders/ModuleTemplateSeeder.cpp
-
-
         # Repositories
-        repositories/IProjectRepository.h
+        repositories/interfaces/IProjectRepository.h
+        repositories/interfaces/INoteRepository.h
+        repositories/interfaces/IModuleRepository.h
+        repositories/interfaces/IEditorRepository.h
+        repositories/interfaces/IModuleTemplateRepository.h
         repositories/ProjectRepository.h
         repositories/ProjectRepository.cpp
-        repositories/IModuleRepository.h
         repositories/ModuleRepository.h
         repositories/ModuleRepository.cpp
-        repositories/INoteRepository.h
         repositories/NoteRepository.h
         repositories/NoteRepository.cpp
-        repositories/ISettingRepository.h
-        repositories/SettingRepository.h
-        repositories/SettingRepository.cpp
-        repositories/SettingRepository.h
-        repositories/ISettingRepository.h
-        repositories/SettingRepository.cpp
         repositories/EditorRepository.h
-        repositories/IEditorRepository.h
         repositories/EditorRepository.cpp
         repositories/RepositoryProvider.h
-        repositories/IModuleTemplateRepository.h
         repositories/ModuleTemplateRepository.h
         repositories/ModuleTemplateRepository.cpp
 
@@ -99,6 +94,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         styles/MenuStyle.cpp
         styles/ModuleStyle.h
         styles/ModuleStyle.cpp
+        styles/FontStyle.h
+        styles/FontStyle.cpp
 
         # Windows
         windows/BaseWindow.h

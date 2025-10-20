@@ -4,8 +4,8 @@
 #include "../../models/Module.h"
 #include "../../models/ModuleTemplate.h"
 #include "../../models/Project.h"
-#include "../../repositories/IModuleRepository.h"
-#include "../../repositories/IModuleTemplateRepository.h"
+#include "../../repositories/interfaces/IModuleRepository.h"
+#include "../../repositories/interfaces/IModuleTemplateRepository.h"
 #include "../../repositories/RepositoryProvider.h"
 
 #include <QCheckBox>

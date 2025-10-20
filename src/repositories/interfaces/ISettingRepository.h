@@ -1,11 +1,10 @@
 #ifndef ISETTINGREPOSITORY_H
 #define ISETTINGREPOSITORY_H
 
-#include "../models/Setting.h"
+#include "../../models/Setting.h"
 #include <QSqlQuery>
 #include <QString>
 #include <optional>
-#include <vector>
 
 class ISettingRepository
 {

@@ -6,9 +6,8 @@
 #include "repositories/NoteRepository.h"
 #include "repositories/ProjectRepository.h"
 #include "repositories/RepositoryProvider.h"
-#include "repositories/SettingRepository.h"
-#include "seeders/ModuleTemplateSeeder.h"
-#include "seeders/Seeder.h"
+#include "database/seeders/ModuleTemplateSeeder.h"
+#include "database/seeders/Seeder.h"
 #include "styles/AppStyle.h"
 #include "windows/MainWindow.h"
 #include <QApplication>
@@ -33,7 +32,6 @@ int main(int argc, char* argv[])
     auto projectRepo = std::make_unique<ProjectRepository>(db);
     auto noteRepo = std::make_unique<NoteRepository>(db);
     auto moduleRepo = std::make_unique<ModuleRepository>(db);
-    auto settingRepo = std::make_unique<SettingRepository>(db);
     auto editorRepo = std::make_unique<EditorRepository>(db);
     auto moduleTemplateRepo = std::make_unique<ModuleTemplateRepository>(db);
 
@@ -48,7 +46,7 @@ int main(int argc, char* argv[])
 
     // Create repository provider with the repositories
     auto repositoryProvider = std::make_unique<RepositoryProvider>(
-        std::move(projectRepo), std::move(noteRepo), std::move(moduleRepo), std::move(settingRepo),
+        std::move(projectRepo), std::move(noteRepo), std::move(moduleRepo),
         std::move(editorRepo), std::move(moduleTemplateRepo));
 
     MainWindow window(*repositoryProvider);

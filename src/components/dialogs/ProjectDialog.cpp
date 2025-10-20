@@ -25,14 +25,14 @@ void ProjectDialog::setupUI()
 
     QFormLayout* infoLayout = new QFormLayout();
     nameEdit = new QLineEdit();
-    nameEdit->setPlaceholderText("e.g., My Awesome Project, E-commerce Platform");
+    nameEdit->setPlaceholderText("Name");
     nameEdit->setStyleSheet(InputStyle::primary());
     infoLayout->addRow("Project Name:", nameEdit);
 
     QHBoxLayout* pathLayout = new QHBoxLayout();
 
     pathEdit = new QLineEdit();
-    pathEdit->setPlaceholderText("Optional: Project folder path");
+    pathEdit->setPlaceholderText("Folder path");
     pathEdit->setStyleSheet(InputStyle::primary());
 
     browseButton = new QPushButton("Browse...");
@@ -43,7 +43,6 @@ void ProjectDialog::setupUI()
 
     descriptionEdit = new QTextEdit();
     descriptionEdit->setMaximumHeight(80);
-    descriptionEdit->setPlaceholderText("Describe your project...");
     descriptionEdit->setStyleSheet(InputStyle::primary());
     infoLayout->addRow("Description:", descriptionEdit);
 
@@ -103,6 +102,11 @@ void ProjectDialog::onOkClicked()
     }
 
     QString originalPath = pathEdit->text().trimmed();
+    if (originalPath.isEmpty())
+    {
+        QMessageBox::warning(this, "Validation Error", "Project path is required!");
+        return;
+    }
 
     project.setName(nameEdit->text().trimmed());
     project.setDirectoryPath(originalPath);

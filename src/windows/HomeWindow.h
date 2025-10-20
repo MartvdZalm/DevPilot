@@ -4,7 +4,7 @@
 #include "../components/EmptyStateWidget.h"
 #include "../components/ProjectDetailsWidget.h"
 #include "../components/SidebarWidget.h"
-#include "../repositories/IProjectRepository.h"
+#include "../repositories/interfaces/IProjectRepository.h"
 #include "../repositories/RepositoryProvider.h"
 #include "BaseWindow.h"
 

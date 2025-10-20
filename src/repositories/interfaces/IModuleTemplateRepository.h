@@ -1,7 +1,7 @@
 #ifndef IMODULETEMPLATEREPOSITORY_H
 #define IMODULETEMPLATEREPOSITORY_H
 
-#include "../models/ModuleTemplate.h"
+#include "../../models/ModuleTemplate.h"
 #include <QSqlQuery>
 #include <optional>
 

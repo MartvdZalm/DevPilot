@@ -1,7 +1,7 @@
 #ifndef INOTEREPOSITORY_H
 #define INOTEREPOSITORY_H
 
-#include "../models/Note.h"
+#include "../../models/Note.h"
 #include <QSqlQuery>
 #include <optional>
 

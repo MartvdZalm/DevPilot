@@ -3,11 +3,11 @@
 
 #include "../models/Note.h"
 #include "../models/Project.h"
-#include "../repositories/IModuleRepository.h"
-#include "../repositories/INoteRepository.h"
-#include "../repositories/IProjectRepository.h"
+#include "../repositories/interfaces/IModuleRepository.h"
+#include "../repositories/interfaces/INoteRepository.h"
+#include "../repositories/interfaces/IProjectRepository.h"
 #include "../repositories/RepositoryProvider.h"
-#include "../repositories/IEditorRepository.h"
+#include "../repositories/interfaces/IEditorRepository.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QList>
@@ -29,6 +29,7 @@ class ProjectDetailsWidget : public QWidget
   private:
     void setupUI();
     void setupConnections();
+    QHBoxLayout* createHeader();
 
     void loadProject();
     void loadProjectModules(int projectId);
@@ -47,8 +48,6 @@ class ProjectDetailsWidget : public QWidget
     void onToggleNotesClicked(bool checked);
     void onEditModuleClicked(const Module& module);
     void onDeleteModuleClicked(const Module& module);
-    void onToggleLogsClicked(bool hideLogs);
-    void applyLogsVisibility();
 
   private:
     RepositoryProvider& repositoryProvider;
@@ -75,12 +74,10 @@ class ProjectDetailsWidget : public QWidget
     QPushButton* stopAllModulesButton = nullptr;
     QVBoxLayout* moduleListLayout = nullptr;
     QToolButton* addNoteButton = nullptr;
-    QPushButton* toggleLogsButton = nullptr;
     QWidget* notesContainer = nullptr;
     QLayout* notesListLayout = nullptr;
     QToolButton* toggleNotesBtn = nullptr;
     QIcon arrowDown, arrowRight;
-    bool logsHidden = false;
 };
 
 #endif // PROJECTDETAILSWIDGET_H

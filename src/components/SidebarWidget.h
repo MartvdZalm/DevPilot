@@ -2,7 +2,7 @@
 #define SIDEBARWIDGET_H
 
 #include "../models/Project.h"
-#include "../repositories/IProjectRepository.h"
+#include "../repositories/interfaces/IProjectRepository.h"
 #include "../repositories/RepositoryProvider.h"
 #include <QList>
 #include <QListWidget>
