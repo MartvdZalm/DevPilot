@@ -6,11 +6,13 @@
 #include <QGroupBox>
 #include <QMessageBox>
 
-ProjectDialog::ProjectDialog(QWidget* parent, const Project& projectToEdit) : QDialog(parent), project(projectToEdit)
+ProjectDialog::ProjectDialog(RepositoryProvider& repoProvider, QWidget* parent, const Project& projectToEdit)
+    : QDialog(parent), project(projectToEdit), repositoryProvider(repoProvider)
 {
     editing = !projectToEdit.getName().isEmpty();
     setupUI();
     setupConnections();
+    loadApps();         // load app list before filling checkboxes
     populateFields();
 }
 
@@ -24,19 +26,20 @@ void ProjectDialog::setupUI()
     mainLayout->setSpacing(15);
 
     QFormLayout* infoLayout = new QFormLayout();
+
     nameEdit = new QLineEdit();
     nameEdit->setPlaceholderText("Name");
     nameEdit->setStyleSheet(InputStyle::primary());
     infoLayout->addRow("Project Name:", nameEdit);
 
     QHBoxLayout* pathLayout = new QHBoxLayout();
-
     pathEdit = new QLineEdit();
     pathEdit->setPlaceholderText("Folder path");
     pathEdit->setStyleSheet(InputStyle::primary());
 
     browseButton = new QPushButton("Browse...");
     browseButton->setStyleSheet(ButtonStyle::primary());
+
     pathLayout->addWidget(pathEdit);
     pathLayout->addWidget(browseButton);
     infoLayout->addRow("Project Path:", pathLayout);
@@ -47,6 +50,16 @@ void ProjectDialog::setupUI()
     infoLayout->addRow("Description:", descriptionEdit);
 
     mainLayout->addLayout(infoLayout);
+
+    QGroupBox* appGroup = new QGroupBox("Linked Apps");
+    QVBoxLayout* appLayout = new QVBoxLayout();
+
+    appListWidget = new QListWidget();
+    appListWidget->setSelectionMode(QAbstractItemView::NoSelection);
+    appLayout->addWidget(appListWidget);
+
+    appGroup->setLayout(appLayout);
+    mainLayout->addWidget(appGroup);
 
     QHBoxLayout* buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
@@ -78,6 +91,19 @@ void ProjectDialog::setupConnections()
             });
 }
 
+void ProjectDialog::loadApps()
+{
+    allApps = repositoryProvider.getAppRepository().findAll();
+
+    for (const App& app : allApps)
+    {
+        QListWidgetItem* item = new QListWidgetItem(app.getName(), appListWidget);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(Qt::Unchecked);
+        item->setData(Qt::UserRole, app.getId());
+    }
+}
+
 void ProjectDialog::populateFields()
 {
     if (!editing)
@@ -86,11 +112,43 @@ void ProjectDialog::populateFields()
     nameEdit->setText(project.getName());
     pathEdit->setText(project.getDirectoryPath());
     descriptionEdit->setText(project.getDescription());
+
+    QList<App> linkedApps = repositoryProvider.getAppRepository().findByProjectId(project.getId());
+    QSet<int> linkedAppIds;
+    for (const App& app : linkedApps)
+    {
+        linkedAppIds.insert(app.getId());
+    }
+
+    for (int i = 0; i < appListWidget->count(); ++i)
+    {
+        QListWidgetItem* item = appListWidget->item(i);
+        int appId = item->data(Qt::UserRole).toInt();
+
+        if (linkedAppIds.contains(appId))
+        {
+            item->setCheckState(Qt::Checked);
+        }
+    }
 }
 
 Project ProjectDialog::getProject() const
 {
     return project;
+}
+
+QList<int> ProjectDialog::getSelectedAppIds() const
+{
+    QList<int> selectedAppIds;
+    for (int i = 0; i < appListWidget->count(); ++i)
+    {
+        QListWidgetItem* item = appListWidget->item(i);
+        if (item->checkState() == Qt::Checked)
+        {
+            selectedAppIds.append(item->data(Qt::UserRole).toInt());
+        }
+    }
+    return selectedAppIds;
 }
 
 void ProjectDialog::onOkClicked()

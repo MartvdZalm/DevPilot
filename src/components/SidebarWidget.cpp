@@ -9,7 +9,7 @@
 #include <QVBoxLayout>
 
 SidebarWidget::SidebarWidget(RepositoryProvider& repoProvider, QWidget* parent)
-    : QWidget(parent), projectRepository(repoProvider.getProjectRepository())
+    : QWidget(parent), repoProvider(repoProvider), projectRepository(repoProvider.getProjectRepository())
 {
     setupUI();
     setupConnections();
@@ -72,7 +72,7 @@ void SidebarWidget::setProjects(const QList<Project>& projects)
 
 void SidebarWidget::onAddProjectClicked()
 {
-    ProjectDialog dialog(this);
+    ProjectDialog dialog(repoProvider, this);
     if (dialog.exec() != QDialog::Accepted)
     {
         return;

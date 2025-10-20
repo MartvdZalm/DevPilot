@@ -12,7 +12,8 @@
 
 SettingsWindow::SettingsWindow(RepositoryProvider& repoProvider, QWidget* parent)
     : editorRepository(repoProvider.getEditorRepository()),
-      moduleTemplateRepository(repoProvider.getModuleTemplateRepository()), BaseWindow(parent)
+      moduleTemplateRepository(repoProvider.getModuleTemplateRepository()),
+      appRepository(repoProvider.getAppRepository()), BaseWindow(parent)
 {
     setFixedSize(QSize(1000, 600));
     setWindowTitle("Settings");
@@ -73,6 +74,7 @@ void SettingsWindow::setupSidebar()
     sidebar->addItem("General");
     sidebar->addItem("Editors");
     sidebar->addItem("Module Templates");
+    sidebar->addItem("Apps");
     sidebar->addItem("About");
 
     sidebarLayout->addWidget(sidebar);
@@ -98,10 +100,12 @@ void SettingsWindow::setupContentArea()
     editorsPage = createEditorsPage();
     templatesPage = createTemplatesPage();
     aboutPage = createAboutPage();
+    appsPage = createAppsPage();
 
     contentStack->addWidget(generalPage);
     contentStack->addWidget(editorsPage);
     contentStack->addWidget(templatesPage);
+    contentStack->addWidget(appsPage);
     contentStack->addWidget(aboutPage);
 
     scrollArea->setWidget(contentStack);
@@ -289,6 +293,153 @@ QWidget* SettingsWindow::createTemplatesPage()
     return page;
 }
 
+QWidget* SettingsWindow::createAppsPage()
+{
+    QWidget* page = new QWidget;
+    QVBoxLayout* layout = new QVBoxLayout(page);
+    layout->setContentsMargins(20, 20, 20, 20);
+
+    QLabel* titleLabel = new QLabel("Manage Applications");
+    titleLabel->setStyleSheet("font-size: 16px; font-weight: bold; margin-bottom: 15px;");
+    layout->addWidget(titleLabel);
+
+    QLabel* descriptionLabel = new QLabel("Configure the applications that can be linked to your projects.");
+    descriptionLabel->setWordWrap(true);
+    descriptionLabel->setStyleSheet("color: #666; margin-bottom: 15px;");
+    layout->addWidget(descriptionLabel);
+
+    QHBoxLayout* buttonLayout = new QHBoxLayout;
+
+    addAppButton = new QPushButton("Add App");
+    addAppButton->setStyleSheet(ButtonStyle::primary());
+    connect(addAppButton, &QPushButton::clicked, this, [this]() {
+        addAppRow();
+        applyButton->setEnabled(true);
+    });
+
+    buttonLayout->addWidget(addAppButton);
+    buttonLayout->addStretch();
+    layout->addLayout(buttonLayout);
+
+    appsTable = new QTableWidget;
+    appsTable->setColumnCount(5);
+    appsTable->setHorizontalHeaderLabels({"Enabled", "Name", "Path", "Arguments", "Actions"});
+    appsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    appsTable->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+
+    appsTable->setColumnWidth(0, 80);
+    appsTable->setColumnWidth(1, 150);
+    appsTable->setColumnWidth(2, 250);
+    appsTable->setColumnWidth(3, 150);
+
+    connect(appsTable, &QTableWidget::cellChanged, this, [this]() {
+        applyButton->setEnabled(true);
+    });
+
+    layout->addWidget(appsTable);
+    return page;
+}
+
+void SettingsWindow::addAppRow(const App& app)
+{
+    int row = appsTable->rowCount();
+    appsTable->insertRow(row);
+
+    QCheckBox* enabledCheck = new QCheckBox;
+    enabledCheck->setChecked(app.isEnabled());
+    enabledCheck->setStyleSheet("margin-left: 20px;");
+    appsTable->setCellWidget(row, 0, enabledCheck);
+    connect(enabledCheck, &QCheckBox::stateChanged, this, [this]() {
+        applyButton->setEnabled(true);
+    });
+
+    QTableWidgetItem* nameItem = new QTableWidgetItem(app.getName());
+    appsTable->setItem(row, 1, nameItem);
+
+    QTableWidgetItem* pathItem = new QTableWidgetItem(app.getPath());
+    appsTable->setItem(row, 2, pathItem);
+
+    QTableWidgetItem* argsItem = new QTableWidgetItem(app.getArguments());
+    appsTable->setItem(row, 3, argsItem);
+
+    QPushButton* deleteButton = new QPushButton("Delete");
+    deleteButton->setStyleSheet(ButtonStyle::danger());
+
+    connect(deleteButton, &QPushButton::clicked, this, [this, row]() {
+        QMessageBox::StandardButton reply = QMessageBox::question(this, "Delete App",
+                                                                  "Are you sure you want to delete this app?",
+                                                                  QMessageBox::Yes | QMessageBox::No);
+
+        if (reply == QMessageBox::Yes)
+        {
+            appsTable->removeRow(row);
+            applyButton->setEnabled(true);
+        }
+    });
+
+    appsTable->setCellWidget(row, 4, deleteButton);
+}
+
+void SettingsWindow::loadApps()
+{
+    appsTable->setRowCount(0);
+    currentApps = appRepository.findAll();
+
+    for (const App& app : currentApps)
+    {
+        addAppRow(app);
+    }
+}
+
+void SettingsWindow::saveApps()
+{
+    QList<App> appsToSave;
+
+    for (int row = 0; row < appsTable->rowCount(); ++row)
+    {
+        App app;
+
+        QCheckBox* enabledCheck = static_cast<QCheckBox*>(appsTable->cellWidget(row, 0));
+        if (enabledCheck)
+        {
+            app.setEnabled(enabledCheck->isChecked());
+        }
+
+        QTableWidgetItem* nameItem = appsTable->item(row, 1);
+        if (!nameItem || nameItem->text().isEmpty())
+        {
+            continue;
+        }
+        app.setName(nameItem->text());
+
+        QTableWidgetItem* pathItem = appsTable->item(row, 2);
+        if (pathItem)
+        {
+            app.setPath(pathItem->text());
+        }
+
+        QTableWidgetItem* argsItem = appsTable->item(row, 3);
+        if (argsItem)
+        {
+           app.setArguments(argsItem->text());
+        }
+
+        appsToSave.append(app);
+    }
+
+    for (const App& existing : appRepository.findAll())
+    {
+        appRepository.deleteById(existing.getId());
+    }
+
+    for (App& app : appsToSave)
+    {
+        appRepository.save(app);
+    }
+
+    currentApps = appsToSave;
+}
+
 QWidget* SettingsWindow::createAboutPage()
 {
     QWidget* page = new QWidget;
@@ -387,13 +538,13 @@ void SettingsWindow::loadSettings()
 
     loadEditors();
     loadTemplates();
+    loadApps();
     applyButton->setEnabled(false);
 }
 
 void SettingsWindow::saveSettings()
 {
     QSettings settings;
-
     settings.setValue("behavior/openLastProject", startupCheckbox->isChecked());
     settings.setValue("behavior/minimizeToTray", minimizeToTrayCheckbox->isChecked());
     settings.setValue("behavior/startWithWindows", autoStartCheckbox->isChecked());
@@ -403,8 +554,8 @@ void SettingsWindow::saveSettings()
 
     saveEditors();
     saveTemplates();
+    saveApps();
     applyButton->setEnabled(false);
-    QMessageBox::information(this, "Settings Saved", "Editor settings have been saved successfully.");
 }
 
 void SettingsWindow::loadEditors()

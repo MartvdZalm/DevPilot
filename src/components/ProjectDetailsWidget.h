@@ -44,6 +44,7 @@ class ProjectDetailsWidget : public QWidget
     void onOpenInFolderClicked();
     void onOpenInTerminalClicked();
     void onOpenInIDEClicked();
+    void onOpenAllAppsClicked();
     void onAddModuleClicked();
     void onToggleNotesClicked(bool checked);
     void onEditModuleClicked(const Module& module);
@@ -62,9 +63,12 @@ class ProjectDetailsWidget : public QWidget
     QLabel* projectNameLabel = nullptr;
     QLabel* projectPathLabel = nullptr;
     QPushButton* editProjectButton = nullptr;
+
     QPushButton* openInFolderButton = nullptr;
     QPushButton* openInTerminalButton = nullptr;
     QPushButton* openInIDEButton = nullptr;
+    QPushButton* openAllAppsButton;
+
     QGridLayout* modulesLayout = nullptr;
     QGridLayout* notesLayout = nullptr;
     QScrollArea* modulesScrollArea = nullptr;

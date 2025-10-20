@@ -60,6 +60,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         models/Setting.h
         models/Editor.h
         models/ModuleTemplate.h
+        models/App.h
 
         # Repositories
         repositories/interfaces/IProjectRepository.h
@@ -67,6 +68,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         repositories/interfaces/IModuleRepository.h
         repositories/interfaces/IEditorRepository.h
         repositories/interfaces/IModuleTemplateRepository.h
+        repositories/interfaces/IAppRepository.h
         repositories/ProjectRepository.h
         repositories/ProjectRepository.cpp
         repositories/ModuleRepository.h
@@ -78,6 +80,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         repositories/RepositoryProvider.h
         repositories/ModuleTemplateRepository.h
         repositories/ModuleTemplateRepository.cpp
+        repositories/AppRepository.h
+        repositories/AppRepository.cpp
 
         # Styles
         styles/AppStyle.h

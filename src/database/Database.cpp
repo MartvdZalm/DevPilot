@@ -144,6 +144,28 @@ bool Database::createTables()
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
+        )",
+        R"(
+        CREATE TABLE IF NOT EXISTS apps (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            path TEXT NOT NULL,
+            arguments TEXT,
+            enabled BOOLEAN NOT NULL DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(name)
+        )
+        )",
+        R"(
+        CREATE TABLE IF NOT EXISTS project_apps (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER NOT NULL,
+            app_id INTEGER NOT NULL,
+            FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
+            FOREIGN KEY (app_id) REFERENCES apps (id) ON DELETE CASCADE,
+            UNIQUE(project_id, app_id)
+        )
         )"};
 
     for (const auto& table : tables)

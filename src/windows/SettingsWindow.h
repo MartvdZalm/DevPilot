@@ -41,21 +41,27 @@ class SettingsWindow : public BaseWindow
     void saveSettings();
 
     QWidget* createGeneralPage();
-    QWidget* createEditorsPage();
-    QWidget* createTemplatesPage();
     QWidget* createAboutPage();
 
+    QWidget* createEditorsPage();
     void addEditorRow(const Editor& editor = Editor());
     void loadEditors();
     void saveEditors();
 
+    QWidget* createTemplatesPage();
     void addTemplateRow(const ModuleTemplate& moduleTemplate = ModuleTemplate());
     void loadTemplates();
     void saveTemplates();
 
+    QWidget* createAppsPage();
+    void addAppRow(const App& app = App());
+    void loadApps();
+    void saveApps();
+
   private:
     IEditorRepository& editorRepository;
     IModuleTemplateRepository& moduleTemplateRepository;
+    IAppRepository& appRepository;
 
     QHBoxLayout* mainLayout;
     QVBoxLayout* leftLayout;
@@ -84,6 +90,12 @@ class SettingsWindow : public BaseWindow
     QTableWidget* templatesTable;
     QPushButton* addTemplateButton;
     QList<ModuleTemplate> currentTemplates;
+
+    // Apps Page Widgets
+    QWidget* appsPage;
+    QTableWidget* appsTable;
+    QPushButton* addAppButton;
+    QList<App> currentApps;
 
     // General Page Widgets
     QWidget* generalPage;
