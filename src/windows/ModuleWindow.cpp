@@ -1,6 +1,5 @@
 ﻿#include "ModuleWindow.h"
 #include "../styles/ButtonStyle.h"
-#include "../styles/InputStyle.h"
 #include "../styles/ModuleStyle.h"
 #include <QGroupBox>
 #include <QScrollBar>
@@ -19,6 +18,15 @@ ModuleWindow::ModuleWindow(QWidget* parent, const Module& module)
     if (module.getStatus() == Module::Status::Running)
     {
         startProcess();
+    }
+}
+
+ModuleWindow::~ModuleWindow()
+{
+    if (process && process->state() == QProcess::Running)
+    {
+        disconnect(process, nullptr, this, nullptr);
+        stopProcess();
     }
 }
 
@@ -51,8 +59,8 @@ void ModuleWindow::setupConnections()
     connect(commandInput, &QLineEdit::returnPressed, this, &ModuleWindow::onCommandEntered);
     connect(process, &QProcess::readyRead, this, &ModuleWindow::onReadyRead);
     connect(process, &QProcess::readyReadStandardError, this, &ModuleWindow::onReadyReadError);
-    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
-            &ModuleWindow::onProcessFinished);
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, &ModuleWindow::onProcessFinished);
 }
 
 QWidget* ModuleWindow::createHeader()
@@ -116,15 +124,10 @@ QHBoxLayout* ModuleWindow::createControls()
     clearButton->setStyleSheet(ButtonStyle::primary());
     clearButton->setFixedWidth(80);
 
-    autoScrollCheckbox = new QCheckBox("Auto-scroll");
-    autoScrollCheckbox->setChecked(true);
-    autoScrollCheckbox->setStyleSheet("color: #ffffff;");
-
     controlLayout->addWidget(startButton);
     controlLayout->addWidget(stopButton);
     controlLayout->addWidget(restartButton);
     controlLayout->addStretch();
-    controlLayout->addWidget(autoScrollCheckbox);
     controlLayout->addWidget(clearButton);
 
     return controlLayout;
@@ -236,6 +239,14 @@ void ModuleWindow::startProcess()
         return;
     }
 
+    if (process) {
+        process->close();
+        process->deleteLater();
+    }
+
+    process = new QProcess(this);
+    setupProcessConnections();
+
     if (!module.getWorkingDirectory().isEmpty())
     {
         process->setWorkingDirectory(module.getWorkingDirectory());
@@ -245,42 +256,64 @@ void ModuleWindow::startProcess()
     appendColoredText(QString("Command: %1").arg(module.getCommand()), "#8b949e");
     terminalOutput->append("");
 
-    process->start("cmd.exe");
+    process->setProgram("powershell.exe");
+    process->setArguments({"-NoExit", "-Command", module.getCommand()});
+
+    process->setProcessChannelMode(QProcess::MergedChannels);
+    process->start();
+
+    if (!process->waitForStarted(5000))
+    {
+        appendColoredText("Failed to start process!", "#f85149");
+        appendColoredText("Error: " + process->errorString(), "#f85149");
+        updateControlsState(false);
+        updateStatusIndicator(false);
+        return;
+    }
+
     updateControlsState(true);
     updateStatusIndicator(true);
+    appendColoredText("Process started successfully!", "#7ee787");
 }
 
 void ModuleWindow::stopProcess()
 {
-    if (process->state() != QProcess::Running)
+    if (!process) return;
+
+    appendColoredText("Stopping process...", "#ffa657");
+
+    // Disconnect to prevent signal interference during shutdown
+    disconnect(process, nullptr, this, nullptr);
+
+    if (process->state() == QProcess::Running)
     {
-        appendColoredText("No process is running.", "#ffa657");
-        return;
+        QProcess::execute("taskkill", {"/PID", QString::number(process->processId()), "/T", "/F"});
+
+        process->terminate();
+        if (!process->waitForFinished(3000))
+        {
+            process->kill();
+            process->waitForFinished(1000);
+        }
     }
 
-    appendColoredText("Stopping process...", "#f85149");
-#ifdef _WIN32
-    process->kill();
-#else
-    process->terminate();
-#endif
+    process->close();
+    updateControlsState(false);
+    updateStatusIndicator(false);
+    appendColoredText("Process stopped.", "#ffa657");
 }
 
 void ModuleWindow::restartProcess()
 {
-    if (process->state() == QProcess::Running)
+    appendColoredText("Restarting process...", "#ffa657");
+
+    if (process && process->state() == QProcess::Running)
     {
-        appendColoredText("Restarting process...", "#ffa657");
-        disconnect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
-                   &ModuleWindow::onProcessFinished);
-        connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
-                [this](int, QProcess::ExitStatus)
-                {
-                    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
-                            &ModuleWindow::onProcessFinished);
-                    QTimer::singleShot(300, this, &ModuleWindow::startProcess);
-                });
-        process->terminate();
+        // Use a small delay to ensure clean shutdown before restart
+        QTimer::singleShot(500, this, [this]() {
+            stopProcess();
+            QTimer::singleShot(500, this, &ModuleWindow::startProcess);
+        });
     }
     else
     {
@@ -290,14 +323,24 @@ void ModuleWindow::restartProcess()
 
 void ModuleWindow::onReadyRead()
 {
-    terminalOutput->insertPlainText(QString::fromLocal8Bit(process->readAll()));
-    autoScroll();
+    if (!process) return;
+
+    QByteArray rawOutput = process->readAll();
+    if (rawOutput.isEmpty()) return;
+
+    QString text = QString::fromUtf8(rawOutput);
+    appendColoredText(parseAnsiToHtml(text));
 }
 
 void ModuleWindow::onReadyReadError()
 {
-    appendColoredText(QString::fromLocal8Bit(process->readAllStandardError()), "#f85149");
-    autoScroll();
+    if (!process) return;
+
+    QByteArray errorOutput = process->readAllStandardError();
+    if (!errorOutput.isEmpty())
+    {
+        appendColoredText(QString::fromUtf8(errorOutput), "#f85149");
+    }
 }
 
 void ModuleWindow::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -315,27 +358,28 @@ void ModuleWindow::onProcessFinished(int exitCode, QProcess::ExitStatus exitStat
     terminalOutput->append("");
     updateControlsState(false);
     updateStatusIndicator(false);
-    process->close();
+
+    if (process) {
+        process->close();
+    }
 }
 
 void ModuleWindow::onCommandEntered()
 {
-    if (process->state() != QProcess::Running)
+    if (!process || process->state() != QProcess::Running)
     {
         appendColoredText("No process is running. Start it first.", "#ffa657");
         return;
     }
 
     QString command = commandInput->text().trimmed();
-    if (command.isEmpty())
-    {
-        return;
-    }
+    if (command.isEmpty()) return;
 
     appendColoredText(QString("$ %1").arg(command), "#58a6ff");
-    process->write(command.toLocal8Bit() + "\r\n");
+
+    process->write((command + "\r\n").toLocal8Bit());
+
     commandInput->clear();
-    autoScroll();
 }
 
 void ModuleWindow::clearTerminal()
@@ -370,11 +414,17 @@ void ModuleWindow::appendColoredText(const QString& text, const QString& color)
     terminalOutput->append(QString("<span style='color: %1;'>%2</span>").arg(color, text));
 }
 
-void ModuleWindow::autoScroll()
+QString ModuleWindow::parseAnsiToHtml(const QString& text)
 {
-    if (autoScrollCheckbox->isChecked())
-    {
-        QScrollBar* scrollBar = terminalOutput->verticalScrollBar();
-        scrollBar->setValue(scrollBar->maximum());
-    }
+    QString result = text;
+    result.replace(QRegularExpression {"\\x1B\\[[0-9;]*[A-Za-z]"} , "");
+    return result;
+}
+
+void ModuleWindow::setupProcessConnections()
+{
+    // Reconnect process signals safely
+    connect(process, &QProcess::readyRead, this, &ModuleWindow::onReadyRead);
+    connect(process, &QProcess::readyReadStandardError, this, &ModuleWindow::onReadyReadError);
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &ModuleWindow::onProcessFinished);
 }

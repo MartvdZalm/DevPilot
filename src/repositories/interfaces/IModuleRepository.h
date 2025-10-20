@@ -1,7 +1,7 @@
 #ifndef IMODULEREPOSITORY_H
 #define IMODULEREPOSITORY_H
 
-#include "../models/Module.h"
+#include "../../models/Module.h"
 #include <QSqlQuery>
 #include <QString>
 #include <optional>

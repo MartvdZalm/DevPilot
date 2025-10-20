@@ -1,7 +1,7 @@
 #ifndef IEDITORREPOSITORY_H
 #define IEDITORREPOSITORY_H
 
-#include "../models/Editor.h"
+#include "../../models/Editor.h"
 #include <QSqlQuery>
 #include <optional>
 

@@ -1,7 +1,7 @@
 #ifndef IPROJECTREPOSITORY_H
 #define IPROJECTREPOSITORY_H
 
-#include "../models/Project.h"
+#include "../../models/Project.h"
 #include <QSqlQuery>
 #include <QString>
 #include <optional>

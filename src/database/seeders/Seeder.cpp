@@ -1,5 +1,6 @@
 #include "Seeder.h"
 #include <QDebug>
+#include "../../core/Logger.h"
 
 void Seeder::addSeeder(std::unique_ptr<ISeeder> seeder)
 {
@@ -8,7 +9,7 @@ void Seeder::addSeeder(std::unique_ptr<ISeeder> seeder)
 
 bool Seeder::runSeeders()
 {
-    qDebug() << "Running database seeders...";
+    LOG_INFO("Running database seeders...");
 
     bool allSuccess = true;
     int seededCount = 0;
@@ -17,24 +18,24 @@ bool Seeder::runSeeders()
     {
         if (seeder->shouldSeed())
         {
-            qDebug() << "Running seeder:" << seeder->getName();
+            LOG_INFO("Running seeder: " + seeder->getName());
             if (seeder->seed())
             {
                 seededCount++;
-                qDebug() << "Seeder completed successfully:" << seeder->getName();
-            }
+                LOG_INFO("Seeder completed successfully: " + seeder->getName());
+                            }
             else
             {
-                qWarning() << "Seeder failed:" << seeder->getName();
+                LOG_WARNING("Seeder failed: " + seeder->getName());
                 allSuccess = false;
             }
         }
         else
         {
-            qDebug() << "Seeder already run, skipping:" << seeder->getName();
+            LOG_INFO("Seeder already run, skipping: " + seeder->getName());
         }
     }
 
-    qDebug() << "Database seeding completed. Successfully ran" << seededCount << "seeders";
+    LOG_INFO("Database seeding completed. Successfully ran " + QString::number(seededCount) + " seeders");
     return allSuccess;
 }

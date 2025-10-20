@@ -4,7 +4,7 @@ QString AppStyle::styleSheet()
 {
     return QString(R"(
         /* =============================
-           Global Background & Text
+           QWidget
         ============================= */
         QWidget {
             background-color: #2a2d33;
@@ -13,7 +13,7 @@ QString AppStyle::styleSheet()
         }
 
         /* =============================
-           ScrollBars (your original)
+           ScrollBars
         ============================= */
         QScrollBar:vertical {
             background: transparent;

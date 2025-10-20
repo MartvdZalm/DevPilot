@@ -1,8 +1,8 @@
 #ifndef MODULETEMPLATESEEDER_H
 #define MODULETEMPLATESEEDER_H
 
-#include "../models/ModuleTemplate.h"
-#include "../repositories/ModuleTemplateRepository.h"
+#include "../../models/ModuleTemplate.h"
+#include "../../repositories/ModuleTemplateRepository.h"
 #include "ISeeder.h"
 #include <QVector>
 

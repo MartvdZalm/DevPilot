@@ -1,7 +1,7 @@
 #ifndef EDITORREPOSITORY_H
 #define EDITORREPOSITORY_H
 
-#include "IEditorRepository.h"
+#include "interfaces/IEditorRepository.h"
 #include <QSqlDatabase>
 
 class EditorRepository : public IEditorRepository

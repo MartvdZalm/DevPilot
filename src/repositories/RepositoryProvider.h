@@ -1,12 +1,11 @@
 #ifndef REPOSITORYPROVIDER_H
 #define REPOSITORYPROVIDER_H
 
-#include "IModuleRepository.h"
-#include "INoteRepository.h"
-#include "IProjectRepository.h"
-#include "ISettingRepository.h"
-#include "IEditorRepository.h"
-#include "IModuleTemplateRepository.h"
+#include "interfaces/IModuleRepository.h"
+#include "interfaces/INoteRepository.h"
+#include "interfaces/IProjectRepository.h"
+#include "interfaces/IEditorRepository.h"
+#include "interfaces/IModuleTemplateRepository.h"
 
 class RepositoryProvider
 {
@@ -14,12 +13,11 @@ class RepositoryProvider
     RepositoryProvider(std::unique_ptr<IProjectRepository> projectRepository,
                        std::unique_ptr<INoteRepository> noteRepository,
                        std::unique_ptr<IModuleRepository> moduleRepository,
-                       std::unique_ptr<ISettingRepository> settingRepository,
                        std::unique_ptr<IEditorRepository> editorRepository,
                        std::unique_ptr<IModuleTemplateRepository> moduleTemplateRepository
     )
         : projectRepository(std::move(projectRepository)), noteRepository(std::move(noteRepository)),
-          moduleRepository(std::move(moduleRepository)), settingRepository(std::move(settingRepository)),
+          moduleRepository(std::move(moduleRepository)),
           editorRepository(std::move(editorRepository)), moduleTemplateRepository(std::move(moduleTemplateRepository))
     {
     }
@@ -39,11 +37,6 @@ class RepositoryProvider
         return *moduleRepository;
     }
 
-    ISettingRepository& getSettingRepository() const
-    {
-        return *settingRepository;
-    }
-
     IEditorRepository& getEditorRepository() const
     {
         return *editorRepository;
@@ -58,7 +51,6 @@ class RepositoryProvider
     std::unique_ptr<IProjectRepository> projectRepository;
     std::unique_ptr<INoteRepository> noteRepository;
     std::unique_ptr<IModuleRepository> moduleRepository;
-    std::unique_ptr<ISettingRepository> settingRepository;
     std::unique_ptr<IEditorRepository> editorRepository;
     std::unique_ptr<IModuleTemplateRepository> moduleTemplateRepository;
 };

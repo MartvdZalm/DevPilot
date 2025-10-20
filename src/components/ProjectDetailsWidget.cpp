@@ -2,13 +2,15 @@
 
 #include "../core/Logger.h"
 #include "../styles/ButtonStyle.h"
-#include "../styles/ListStyle.h"
+#include "../styles/FontStyle.h"
+#include "dialogs/ChooseEditorDialog.h"
 #include "FlowLayout.h"
 #include "ModuleListItem.h"
 #include "NoteCard.h"
 #include "dialogs/ModuleEditDialog.h"
 #include "dialogs/NoteDialog.h"
 #include "dialogs/ProjectDialog.h"
+#include "../core/ProjectLauncher.h"
 #include <QDesktopServices>
 #include <QDir>
 #include <QListWidget>
@@ -31,78 +33,21 @@ void ProjectDetailsWidget::setupUI()
     projectDetailsLayout->setContentsMargins(0, 0, 0, 0);
     projectDetailsLayout->setSpacing(15);
 
-    // Project header with name, path, and action buttons
-    QHBoxLayout* projectHeaderLayout = new QHBoxLayout();
-
-    QHBoxLayout* titleLayout = new QHBoxLayout();
-    titleLayout->setContentsMargins(0, 0, 0, 0);
-    titleLayout->setSpacing(8);
-
-    projectNameLabel = new QLabel();
-    projectNameLabel->setStyleSheet("font-size: 22px; font-weight: bold; color: #ffffff;");
-
-    editProjectButton = new QPushButton(QIcon(":/Images/Edit"), "");
-    editProjectButton->setStyleSheet(ButtonStyle::icon());
-    editProjectButton->setIconSize(QSize(20, 20));
-
-    titleLayout->addWidget(projectNameLabel);
-    titleLayout->addWidget(editProjectButton);
-    titleLayout->addStretch();
-
-    projectPathLabel = new QLabel();
-    projectPathLabel->setStyleSheet("font-size: 12px; color: #a0a0a0; margin-top: 5px;");
-
-    addModuleButton = new QPushButton("+");
-    addModuleButton->setFixedSize(25, 25);
-    addModuleButton->setStyleSheet(ButtonStyle::primary());
-
-    QVBoxLayout* projectInfoLayout = new QVBoxLayout();
-    projectInfoLayout->addLayout(titleLayout);
-    projectInfoLayout->addWidget(projectPathLabel);
-    projectInfoLayout->addWidget(addModuleButton);
-
-    // Project action buttons (right side)
-    openInFolderButton = new QPushButton("Open");
-    openInFolderButton->setStyleSheet(ButtonStyle::primary());
-
-    openInTerminalButton = new QPushButton("Open in Terminal");
-    openInTerminalButton->setStyleSheet(ButtonStyle::primary());
-
-    openInIDEButton = new QPushButton("Open in IDE");
-    openInIDEButton->setStyleSheet(ButtonStyle::primary());
-
-    projectHeaderLayout->addLayout(projectInfoLayout);
-    projectHeaderLayout->addStretch();
-    projectHeaderLayout->addWidget(openInFolderButton);
-    projectHeaderLayout->addWidget(openInTerminalButton);
-    projectHeaderLayout->addWidget(openInIDEButton);
-
-    projectDetailsLayout->addLayout(projectHeaderLayout);
+    projectDetailsLayout->addLayout(createHeader());
 
     // Modules section header with toggle button
     QHBoxLayout* moduleControlsLayout = new QHBoxLayout();
     moduleControlsLayout->setContentsMargins(0, 10, 0, 10);
 
     QLabel* modulesTitle = new QLabel("Modules");
-    modulesTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #ffffff;");
+    modulesTitle->setStyleSheet(FontStyle::h2());
     moduleControlsLayout->addWidget(modulesTitle);
-
-    // Toggle to show/hide module logs for all modules
-    toggleLogsButton = new QPushButton("Hide Logs");
-    toggleLogsButton->setCheckable(true);
-    toggleLogsButton->setChecked(false);
-    toggleLogsButton->setStyleSheet(ButtonStyle::primary());
-    toggleLogsButton->setFixedWidth(100);
-    moduleControlsLayout->addWidget(toggleLogsButton);
-    moduleControlsLayout->addStretch();
 
     projectDetailsLayout->addLayout(moduleControlsLayout);
 
     // Scrollable area for modules
     modulesScrollArea = new QScrollArea();
     modulesScrollArea->setWidgetResizable(true);
-    modulesScrollArea->setFrameShape(QFrame::NoFrame);
-    modulesScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     modulesScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     modulesScrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -172,7 +117,55 @@ void ProjectDetailsWidget::setupConnections()
     connect(addModuleButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onAddModuleClicked);
     connect(toggleNotesBtn, &QToolButton::toggled, this, &ProjectDetailsWidget::onToggleNotesClicked);
     connect(addNoteButton, &QToolButton::clicked, this, &ProjectDetailsWidget::onAddNoteClicked);
-    connect(toggleLogsButton, &QPushButton::toggled, this, &ProjectDetailsWidget::onToggleLogsClicked);
+}
+
+QHBoxLayout* ProjectDetailsWidget::createHeader()
+{
+    QHBoxLayout* projectHeaderLayout = new QHBoxLayout();
+
+    QHBoxLayout* titleLayout = new QHBoxLayout();
+    titleLayout->setContentsMargins(0, 0, 0, 0);
+    titleLayout->setSpacing(8);
+
+    projectNameLabel = new QLabel();
+    projectNameLabel->setStyleSheet(FontStyle::h1());
+
+    editProjectButton = new QPushButton(QIcon(":/Images/Edit"), "");
+    editProjectButton->setStyleSheet(ButtonStyle::icon());
+    editProjectButton->setIconSize(QSize(20, 20));
+
+    titleLayout->addWidget(projectNameLabel);
+    titleLayout->addWidget(editProjectButton);
+    titleLayout->addStretch();
+
+    projectPathLabel = new QLabel();
+    projectPathLabel->setStyleSheet(FontStyle::text());
+
+    addModuleButton = new QPushButton("+");
+    addModuleButton->setFixedSize(25, 25);
+    addModuleButton->setStyleSheet(ButtonStyle::primary());
+
+    QVBoxLayout* projectInfoLayout = new QVBoxLayout();
+    projectInfoLayout->addLayout(titleLayout);
+    projectInfoLayout->addWidget(projectPathLabel);
+    projectInfoLayout->addWidget(addModuleButton);
+
+    openInFolderButton = new QPushButton("Open");
+    openInFolderButton->setStyleSheet(ButtonStyle::primary());
+
+    openInTerminalButton = new QPushButton("Open in Terminal");
+    openInTerminalButton->setStyleSheet(ButtonStyle::primary());
+
+    openInIDEButton = new QPushButton("Open in IDE");
+    openInIDEButton->setStyleSheet(ButtonStyle::primary());
+
+    projectHeaderLayout->addLayout(projectInfoLayout);
+    projectHeaderLayout->addStretch();
+    projectHeaderLayout->addWidget(openInFolderButton);
+    projectHeaderLayout->addWidget(openInTerminalButton);
+    projectHeaderLayout->addWidget(openInIDEButton);
+
+    return projectHeaderLayout;
 }
 
 void ProjectDetailsWidget::setProject(Project project)
@@ -294,9 +287,6 @@ void ProjectDetailsWidget::refreshModules()
     {
         ModuleListItem* item = new ModuleListItem(module, this);
 
-        if (!module.getLogs().isEmpty())
-            item->setLogs(module.getLogs());
-
         connect(item, &ModuleListItem::editRequested, this, &ProjectDetailsWidget::onEditModuleClicked);
         connect(item, &ModuleListItem::deleteRequested, this, &ProjectDetailsWidget::onDeleteModuleClicked);
 
@@ -304,7 +294,6 @@ void ProjectDetailsWidget::refreshModules()
     }
 
     moduleListLayout->addStretch();
-    applyLogsVisibility();
 }
 
 void ProjectDetailsWidget::onAddNoteClicked()
@@ -353,67 +342,12 @@ void ProjectDetailsWidget::onEditProjectClicked()
 
 void ProjectDetailsWidget::onOpenInFolderClicked()
 {
-    qDebug() << "Open in folder";
-
-    if (currentProject.getDirectoryPath().isEmpty())
-    {
-        QMessageBox::information(this, "No Project Path",
-                                 "Please set a project directory path first. "
-                                 "You can do this by editing the project.");
-        return;
-    }
-
-    QString path = currentProject.getDirectoryPath();
-    if (!QDir(path).exists())
-    {
-        QMessageBox::warning(this, "Invalid Path", QString("The directory '%1' does not exist.").arg(path));
-        return;
-    }
-
-    QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+    ProjectLauncher::openFolder(currentProject.getDirectoryPath());
 }
 
 void ProjectDetailsWidget::onOpenInTerminalClicked()
 {
-    if (currentProject.getDirectoryPath().isEmpty())
-    {
-        QMessageBox::information(this, "No Project Path",
-                                 "Please set a project directory path first. "
-                                 "You can do this by editing the project.");
-        return;
-    }
-#if defined(Q_OS_WIN)
-    QString path = currentProject.getDirectoryPath();
-    if (path.isEmpty())
-    {
-        return;
-    }
-
-    // Handle WSL paths differently from regular Windows paths
-    if (path.contains("wsl", Qt::CaseInsensitive))
-    {
-        QRegularExpression regex(R"(\\\\wsl\.localhost\\[^\\]+\\home\\[^\\]+)");
-        QString cleanedPath = path.replace(regex, "~");
-        cleanedPath.replace("\\", "/");
-
-        QStringList arguments;
-        arguments << "wsl"
-                  << "--cd" << cleanedPath;
-
-        QProcess::startDetached("wt.exe", arguments);
-    }
-    else
-    {
-        QString windowsPath = QDir::toNativeSeparators(path).trimmed();
-        if (windowsPath.endsWith('\\'))
-        {
-            windowsPath.chop(1);
-        }
-
-        QString command = QString("Start-Process cmd -ArgumentList '/K cd /d \"\"%1\"\"'").arg(windowsPath);
-        QProcess::startDetached("powershell.exe", QStringList() << "-Command" << command);
-    }
-#endif
+    ProjectLauncher::openTerminal(currentProject.getDirectoryPath());
 }
 
 void ProjectDetailsWidget::onOpenInIDEClicked()
@@ -439,59 +373,10 @@ void ProjectDetailsWidget::onOpenInIDEClicked()
         return;
     }
 
-    QDialog dialog(this);
-    dialog.setWindowTitle("Open Project in Editor");
-    dialog.setFixedSize(400, 300);
-    dialog.setStyleSheet("QDialog { background-color: #2b2b2b; }");
-
-    QVBoxLayout* layout = new QVBoxLayout(&dialog);
-    QListWidget* editorList = new QListWidget();
-    editorList->setStyleSheet(ListStyle::primary());
-    editorList->setAlternatingRowColors(false);
-
-    for (const Editor& editor : availableEditors)
+    ChooseEditorDialog dialog(availableEditors, this);
+    if (dialog.exec() == QDialog::Accepted)
     {
-        QListWidgetItem* item = new QListWidgetItem(editor.getName());
-        item->setData(Qt::UserRole, QVariant::fromValue(editor));
-        editorList->addItem(item);
-    }
-
-    if (editorList->count() > 0)
-    {
-        editorList->setCurrentRow(0);
-    }
-
-    layout->addWidget(editorList);
-
-    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Open | QDialogButtonBox::Cancel);
-    QPushButton* openButton = buttonBox->button(QDialogButtonBox::Open);
-    QPushButton* cancelButton = buttonBox->button(QDialogButtonBox::Cancel);
-    openButton->setStyleSheet(ButtonStyle::primary());
-    cancelButton->setStyleSheet(ButtonStyle::primary());
-
-    layout->addWidget(buttonBox);
-
-    connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-
-    if (dialog.exec() == QDialog::Accepted && editorList->currentItem())
-    {
-        Editor selectedEditor = editorList->currentItem()->data(Qt::UserRole).value<Editor>();
-
-        QString command = selectedEditor.getPath();
-        QString arguments = selectedEditor.getArguments();
-
-        arguments.replace("%PATH%", path);
-
-        bool success = QProcess::startDetached(command, QStringList() << arguments);
-
-        if (!success)
-        {
-            QMessageBox::warning(this, "Failed to Open",
-                                 QString("Could not open %1.\nCheck if the path is correct:\n%2")
-                                     .arg(selectedEditor.getName())
-                                     .arg(command));
-        }
+        ProjectLauncher::openInEditor(currentProject.getDirectoryPath(), dialog.getSelectedEditor());
     }
 }
 
@@ -560,31 +445,4 @@ void ProjectDetailsWidget::onToggleNotesClicked(bool checked)
 {
     toggleNotesBtn->setIcon(checked ? arrowDown : arrowRight);
     notesScrollArea->setVisible(checked);
-}
-
-void ProjectDetailsWidget::onToggleLogsClicked(bool hideLogs)
-{
-    logsHidden = hideLogs;
-    toggleLogsButton->setText(hideLogs ? "Show Logs" : "Hide Logs");
-    applyLogsVisibility();
-}
-
-void ProjectDetailsWidget::applyLogsVisibility()
-{
-    for (int i = 0; i < moduleListLayout->count(); ++i)
-    {
-        QLayoutItem* item = moduleListLayout->itemAt(i);
-        if (item && item->widget())
-        {
-            ModuleListItem* moduleItem = qobject_cast<ModuleListItem*>(item->widget());
-            if (moduleItem)
-            {
-                QTextEdit* logs = moduleItem->getLogs();
-                if (logs)
-                {
-                    logs->setVisible(!logsHidden);
-                }
-            }
-        }
-    }
 }

@@ -60,13 +60,6 @@ ModuleListItem::ModuleListItem(const Module& module, QWidget* parent)
     infoLayout->addWidget(deleteButton);
 
     mainLayout->addLayout(infoLayout);
-
-    logs = new QTextEdit();
-    logs->setMaximumHeight(100);
-    logs->setStyleSheet(InputStyle::commandLine());
-    logs->setReadOnly(true);
-
-    mainLayout->addWidget(logs);
     
     connect(startButton, &QPushButton::clicked, this, &ModuleListItem::startCommand);
     connect(stopButton, &QPushButton::clicked, this, &ModuleListItem::stopCommand);
@@ -75,24 +68,6 @@ ModuleListItem::ModuleListItem(const Module& module, QWidget* parent)
     connect(deleteButton, &QPushButton::clicked, this, [this]() { emit deleteRequested(this->module); });
     
     updateStatus();
-}
-
-QString ModuleListItem::cleanAnsi(const QString& text)
-{
-    QRegularExpression ansiEscape("\\x1B\\[[0-9;]*[A-Za-z]");
-    QString result = text;
-    result.replace(ansiEscape, "");
-    return result;
-}
-
-void ModuleListItem::setLogs(const QString& text)
-{
-    logs->setPlainText(text);
-}
-
-void ModuleListItem::appendLog(const QString& line)
-{
-    logs->append(cleanAnsi(line));
 }
 
 void ModuleListItem::setModule(const Module& module)
@@ -161,7 +136,6 @@ void ModuleListItem::startCommand()
 {
     if (process)
     {
-        appendLog("Process already running.");
         return;
     }
 
@@ -170,23 +144,19 @@ void ModuleListItem::startCommand()
     updateStatus();
 
     if (!module.getWorkingDirectory().isEmpty())
+    {
         process->setWorkingDirectory(module.getWorkingDirectory());
+    }
 
-    connect(process, &QProcess::readyReadStandardOutput, this,
-            [this]() { appendLog(QString::fromUtf8(process->readAllStandardOutput())); });
-    connect(process, &QProcess::readyReadStandardError, this,
-            [this]() { appendLog(QString::fromUtf8(process->readAllStandardError())); });
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [this](int exitCode, QProcess::ExitStatus)
             {
                 if (exitCode == 0)
                 {
-                    appendLog(QString("Process finished successfully"));
                     module.setStatus(Module::Status::Stopped);
                 }
                 else
                 {
-                    appendLog(QString("Process finished with error code %1").arg(exitCode));
                     module.setStatus(Module::Status::Error);
                 }
                 process = nullptr;
@@ -198,8 +168,6 @@ void ModuleListItem::startCommand()
                 module.setStatus(Module::Status::Running);
                 updateStatus();
             });
-
-    appendLog(QString("Running: %1").arg(module.getCommand()));
 
 #ifdef _WIN32
     process->start("cmd.exe", {"/C", module.getCommand()});
@@ -215,7 +183,6 @@ void ModuleListItem::stopCommand()
 
     module.setStatus(Module::Status::Stopping);
     updateStatus();
-    appendLog("Stopping process...");
 
 #ifdef _WIN32
     QProcess::execute("taskkill", {"/PID", QString::number(process->processId()), "/T", "/F"});
@@ -226,7 +193,6 @@ void ModuleListItem::stopCommand()
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [this](int exitCode, QProcess::ExitStatus)
             {
-                appendLog(QString("Process stopped"));
                 module.setStatus(Module::Status::Stopped);
                 process = nullptr;
                 updateStatus();
@@ -250,9 +216,4 @@ QPushButton* ModuleListItem::getStartButton()
 QPushButton* ModuleListItem::getStopButton()
 {
     return stopButton;
-}
-
-QTextEdit* ModuleListItem::getLogs()
-{
-    return logs;
 }
