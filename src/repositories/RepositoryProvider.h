@@ -7,6 +7,7 @@
 #include "interfaces/IProcessRepository.h"
 #include "interfaces/IProcessTemplateRepository.h"
 #include "interfaces/IProjectRepository.h"
+#include "interfaces/ISnippetRepository.h"
 
 class RepositoryProvider
 {
@@ -16,10 +17,12 @@ class RepositoryProvider
                        std::unique_ptr<IProcessRepository> processRepository,
                        std::unique_ptr<IEditorRepository> editorRepository,
                        std::unique_ptr<IProcessTemplateRepository> processTemplateRepository,
-                       std::unique_ptr<IAppRepository> appRepository)
+                       std::unique_ptr<IAppRepository> appRepository,
+                       std::unique_ptr<ISnippetRepository> snippetRepository)
         : projectRepository(std::move(projectRepository)), noteRepository(std::move(noteRepository)),
           processRepository(std::move(processRepository)), editorRepository(std::move(editorRepository)),
-          processTemplateRepository(std::move(processTemplateRepository)), appRepository(std::move(appRepository))
+          processTemplateRepository(std::move(processTemplateRepository)), appRepository(std::move(appRepository)),
+          snippetRepository(std::move(snippetRepository))
     {
     }
 
@@ -53,6 +56,11 @@ class RepositoryProvider
         return *appRepository;
     }
 
+    ISnippetRepository& getSnippetRepository() const
+    {
+        return *snippetRepository;
+    }
+
   private:
     std::unique_ptr<IProjectRepository> projectRepository;
     std::unique_ptr<INoteRepository> noteRepository;
@@ -60,6 +68,7 @@ class RepositoryProvider
     std::unique_ptr<IEditorRepository> editorRepository;
     std::unique_ptr<IProcessTemplateRepository> processTemplateRepository;
     std::unique_ptr<IAppRepository> appRepository;
+    std::unique_ptr<ISnippetRepository> snippetRepository;
 };
 
 #endif // REPOSITORYPROVIDER_H

@@ -37,6 +37,7 @@ class Database : public QObject
     bool createEditorsTable(QSqlQuery& query);
     bool createProcessTemplatesTable(QSqlQuery& query);
     bool createAppsTables(QSqlQuery& query);
+    bool createSnippetTable(QSqlQuery& query);
     bool applyPragmas();
     bool verifyDatabase();
     bool runMigrations();

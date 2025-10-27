@@ -15,6 +15,7 @@
 #include <QScrollArea>
 #include <QToolButton>
 #include <QWidget>
+#include <QSettings>
 
 class ProjectDetailsWidget : public QWidget
 {
@@ -82,6 +83,7 @@ class ProjectDetailsWidget : public QWidget
     QLayout* notesListLayout = nullptr;
     QToolButton* toggleNotesBtn = nullptr;
     QIcon arrowDown, arrowRight;
+    QSettings settings;
 };
 
 #endif // PROJECTDETAILSWIDGET_H

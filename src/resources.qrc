@@ -20,5 +20,6 @@
         <file alias="Code">assets/images/code.png</file>
         <file alias="SDK">assets/images/sdk.png</file>
         <file alias="Mop">assets/images/mop.png</file>
+        <file alias="Snippet">assets/images/snippet.png</file>
     </qresource>
 </RCC>

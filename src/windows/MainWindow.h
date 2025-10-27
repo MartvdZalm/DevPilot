@@ -17,6 +17,7 @@ class MainWindow : public QMainWindow
   private:
     void showHomePage();
     void showSettingsPage();
+    void showSnippetsPage();
     void setPage(BaseWindow* newPage, bool addToHistory = true);
 
   private:

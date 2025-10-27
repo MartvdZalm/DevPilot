@@ -41,6 +41,7 @@ void TitleBar::setupMenu()
     QMenu* menu = new QMenu(this);
     menu->setStyleSheet(MenuStyle::primary());
 
+    snippetsAction = menu->addAction("Snippets");
     settingsAction = menu->addAction("Settings");
     menu->addSeparator();
     exitAction = menu->addAction("Exit");
@@ -50,6 +51,7 @@ void TitleBar::setupMenu()
 
 void TitleBar::setupConnections()
 {
+    connect(snippetsAction, &QAction::triggered, this, [this] { AppEvents::instance().notifyNavigateToSnippets(); });
     connect(settingsAction, &QAction::triggered, this, [this] { AppEvents::instance().notifyNavigateToSettings(); });
     connect(exitAction, &QAction::triggered, qApp, &QApplication::quit);
 }
