@@ -11,9 +11,12 @@ class AppEvents : public QObject
     static AppEvents& instance();
 
     void notifyNavigateToSettings();
+    void notifyNavigateToSnippets();
 
   signals:
     void navigateToSettings();
+    void navigateToSnippets();
+
 };
 
 #endif // APP_EVENTS_H

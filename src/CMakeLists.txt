@@ -10,113 +10,116 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         resources.qrc
 
         # Components
-        components/dialogs/ProjectDialog.h
-        components/dialogs/ProjectDialog.cpp
-        components/dialogs/ProcessDialog.h
-        components/dialogs/ProcessDialog.cpp
-        components/dialogs/NoteDialog.h
-        components/dialogs/NoteDialog.cpp
-        components/ProcessListItem.h
-        components/ProcessListItem.cpp
-        components/NoteCard.cpp
-        components/NoteCard.h
-        components/FlowLayout.h
-        components/FlowLayout.cpp
-        components/TitleBar.h
-        components/TitleBar.cpp
-        components/SidebarWidget.cpp
-        components/SidebarWidget.h
         components/EmptyStateWidget.cpp
         components/EmptyStateWidget.h
+        components/FlowLayout.cpp
+        components/FlowLayout.h
+        components/NoteCard.cpp
+        components/NoteCard.h
+        components/ProcessListItem.cpp
+        components/ProcessListItem.h
         components/ProjectDetailsWidget.cpp
         components/ProjectDetailsWidget.h
-        components/dialogs/ChooseEditorDialog.h
+        components/SidebarWidget.cpp
+        components/SidebarWidget.h
+        components/TitleBar.cpp
+        components/TitleBar.h
         components/dialogs/ChooseEditorDialog.cpp
-
-        # Database Layer
-        database/Database.h
-        database/Database.cpp
-        database/seeders/ISeeder.h
-        database/seeders/Seeder.h
-        database/seeders/Seeder.cpp
-        database/seeders/ProcessTemplateSeeder.h
-        database/seeders/ProcessTemplateSeeder.cpp
-
-        # Events
-        events/AppEvents.cpp
-        events/AppEvents.h
+        components/dialogs/ChooseEditorDialog.h
+        components/dialogs/NoteDialog.cpp
+        components/dialogs/NoteDialog.h
+        components/dialogs/ProcessDialog.cpp
+        components/dialogs/ProcessDialog.h
+        components/dialogs/ProjectDialog.cpp
+        components/dialogs/ProjectDialog.h
 
         # Core
+        core/AnsiHtmlConverter.cpp
+        core/AnsiHtmlConverter.h
         core/Logger.cpp
         core/Logger.h
         core/ProjectLauncher.cpp
         core/ProjectLauncher.h
 
+        # Database Layer
+        database/Database.cpp
+        database/Database.h
+        database/seeders/ISeeder.h
+        database/seeders/ProcessTemplateSeeder.cpp
+        database/seeders/ProcessTemplateSeeder.h
+        database/seeders/Seeder.cpp
+        database/seeders/Seeder.h
+
+        # Events
+        events/AppEvents.cpp
+        events/AppEvents.h
+
         # Models
-        models/Model.h
-        models/Project.h
-        models/Process.h
-        models/Note.h
-        models/Setting.h
-        models/Editor.h
-        models/ProcessTemplate.h
         models/App.h
+        models/Editor.h
+        models/Model.h
+        models/Note.h
+        models/Process.h
+        models/ProcessTemplate.h
+        models/Project.h
+        models/Setting.h
+        models/Snippet.h
 
         # Repositories
-        repositories/interfaces/IProjectRepository.h
+        repositories/AppRepository.cpp
+        repositories/AppRepository.h
+        repositories/EditorRepository.cpp
+        repositories/EditorRepository.h
+        repositories/NoteRepository.cpp
+        repositories/NoteRepository.h
+        repositories/ProcessRepository.cpp
+        repositories/ProcessRepository.h
+        repositories/ProcessTemplateRepository.cpp
+        repositories/ProcessTemplateRepository.h
+        repositories/ProjectRepository.cpp
+        repositories/ProjectRepository.h
+        repositories/RepositoryProvider.h
+        repositories/SnippetRepository.cpp
+        repositories/SnippetRepository.h
+        repositories/interfaces/IAppRepository.h
+        repositories/interfaces/IEditorRepository.h
         repositories/interfaces/INoteRepository.h
         repositories/interfaces/IProcessRepository.h
-        repositories/interfaces/IEditorRepository.h
         repositories/interfaces/IProcessTemplateRepository.h
-        repositories/interfaces/IAppRepository.h
-        repositories/ProjectRepository.h
-        repositories/ProjectRepository.cpp
-        repositories/ProcessRepository.h
-        repositories/ProcessRepository.cpp
-        repositories/NoteRepository.h
-        repositories/NoteRepository.cpp
-        repositories/EditorRepository.h
-        repositories/EditorRepository.cpp
-        repositories/RepositoryProvider.h
-        repositories/ProcessTemplateRepository.h
-        repositories/ProcessTemplateRepository.cpp
-        repositories/AppRepository.h
-        repositories/AppRepository.cpp
+        repositories/interfaces/IProjectRepository.h
+        repositories/interfaces/ISnippetRepository.h
 
         # Styles
-        styles/AppStyle.h
         styles/AppStyle.cpp
-        styles/ButtonStyle.h
+        styles/AppStyle.h
         styles/ButtonStyle.cpp
-        styles/InputStyle.h
-        styles/InputStyle.cpp
-        styles/GroupBoxStyle.h
-        styles/GroupBoxStyle.cpp
-        styles/ListStyle.h
-        styles/ListStyle.cpp
-        styles/MenuStyle.h
-        styles/MenuStyle.cpp
-        styles/ModuleStyle.h
-        styles/ModuleStyle.cpp
-        styles/FontStyle.h
+        styles/ButtonStyle.h
         styles/FontStyle.cpp
+        styles/FontStyle.h
+        styles/GroupBoxStyle.cpp
+        styles/GroupBoxStyle.h
+        styles/InputStyle.cpp
+        styles/InputStyle.h
+        styles/ListStyle.cpp
+        styles/ListStyle.h
+        styles/MenuStyle.cpp
+        styles/MenuStyle.h
+        styles/ModuleStyle.cpp
+        styles/ModuleStyle.h
 
         # Windows
-        windows/BaseWindow.h
         windows/BaseWindow.cpp
-        windows/HomeWindow.h
+        windows/BaseWindow.h
         windows/HomeWindow.cpp
-        windows/MainWindow.h
+        windows/HomeWindow.h
         windows/MainWindow.cpp
-        windows/SettingsWindow.h
-        windows/SettingsWindow.cpp
+        windows/MainWindow.h
         windows/ProcessWindow.cpp
         windows/ProcessWindow.h
-
-        database/seeders/README.md
-        core/AnsiHtmlConverter.h
-        core/AnsiHtmlConverter.cpp
-
+        windows/SettingsWindow.cpp
+        windows/SettingsWindow.h
+        windows/SnippetsWindow.cpp
+        windows/SnippetsWindow.h
     )
 else()
     add_executable(DevPilot

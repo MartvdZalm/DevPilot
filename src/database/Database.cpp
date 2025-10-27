@@ -64,7 +64,8 @@ bool Database::createTables()
     }
 
     bool success = createProjectsTable(query) && createProcessesTable(query) && createNotesTable(query) &&
-                   createEditorsTable(query) && createProcessTemplatesTable(query) && createAppsTables(query);
+                   createEditorsTable(query) && createProcessTemplatesTable(query) && createAppsTables(query) &&
+                   createSnippetTable(query);
 
     if (success)
         query.exec("COMMIT");
@@ -201,6 +202,23 @@ bool Database::createAppsTables(QSqlQuery& query)
     )";
 
     return query.exec(appsTable) && query.exec(projectAppsTable);
+}
+
+bool Database::createSnippetTable(QSqlQuery& query)
+{
+    const QString sql = R"(
+        CREATE TABLE IF NOT EXISTS snippets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            language TEXT NOT NULL,
+            code TEXT NOT NULL,
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    )";
+
+    return query.exec(sql);
 }
 
 bool Database::verifyDatabase()

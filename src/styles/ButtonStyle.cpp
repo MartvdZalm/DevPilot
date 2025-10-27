@@ -24,6 +24,34 @@ QString ButtonStyle::primary()
     )");
 }
 
+QString ButtonStyle::success()
+{
+    return QString(R"(
+        QPushButton, QToolButton {
+            background-color: #2e7d32;
+            border: 1px solid #1b5e20;
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 6px 12px;
+        }
+        QPushButton:hover, QToolButton:hover {
+            background-color: #43a047;
+            border-color: #2e7d32;
+        }
+        QPushButton:pressed, QToolButton:pressed {
+            background-color: #1b5e20;
+            border-color: #0d3d10;
+        }
+        QPushButton:disabled, QToolButton:disabled {
+            background-color: #4e4e4e;
+            border-color: #3e3e3e;
+            color: #bcbcbc;
+        }
+    )");
+}
+
 QString ButtonStyle::danger()
 {
     return QString(R"(

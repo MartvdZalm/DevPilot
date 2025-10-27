@@ -6,6 +6,7 @@
 #include "repositories/NoteRepository.h"
 #include "repositories/ProjectRepository.h"
 #include "repositories/AppRepository.h"
+#include "repositories/SnippetRepository.h"
 #include "repositories/RepositoryProvider.h"
 #include "database/seeders/ProcessTemplateSeeder.h"
 #include "database/seeders/Seeder.h"
@@ -36,6 +37,7 @@ int main(int argc, char* argv[])
     auto editorRepo = std::make_unique<EditorRepository>(db);
     auto processTemplateRepo = std::make_unique<ProcessTemplateRepository>(db);
     auto appRepo = std::make_unique<AppRepository>(db);
+    auto snippetRepo = std::make_unique<SnippetRepository>(db);
 
     // Run seeders
     Seeder seeder;
@@ -49,7 +51,7 @@ int main(int argc, char* argv[])
     // Create repository provider with the repositories
     auto repositoryProvider = std::make_unique<RepositoryProvider>(
         std::move(projectRepo), std::move(noteRepo), std::move(processRepo),
-        std::move(editorRepo), std::move(processTemplateRepo), std::move(appRepo));
+        std::move(editorRepo), std::move(processTemplateRepo), std::move(appRepo), std::move(snippetRepo));
 
     MainWindow window(*repositoryProvider);
     window.setWindowTitle("DevPilot");

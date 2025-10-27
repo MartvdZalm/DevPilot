@@ -3,6 +3,7 @@
 #include "../events/AppEvents.h"
 #include "HomeWindow.h"
 #include "SettingsWindow.h"
+#include "SnippetsWindow.h"
 #include <QVBoxLayout>
 
 MainWindow::MainWindow(RepositoryProvider& repoProvider, QWidget* parent)
@@ -24,6 +25,7 @@ MainWindow::MainWindow(RepositoryProvider& repoProvider, QWidget* parent)
     showHomePage();
 
     connect(&AppEvents::instance(), &AppEvents::navigateToSettings, this, &MainWindow::showSettingsPage);
+    connect(&AppEvents::instance(), &AppEvents::navigateToSnippets, this, &MainWindow::showSnippetsPage);
 }
 
 void MainWindow::setPage(BaseWindow* newPage, bool addToHistory)
@@ -57,4 +59,11 @@ void MainWindow::showSettingsPage()
     SettingsWindow* settingsWindow = new SettingsWindow(repositoryProvider);
     settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
     settingsWindow->show();
+}
+
+void MainWindow::showSnippetsPage()
+{
+    SnippetsWindow* snippetWindow = new SnippetsWindow(repositoryProvider);
+    snippetWindow->setAttribute(Qt::WA_DeleteOnClose);
+    snippetWindow->show();
 }

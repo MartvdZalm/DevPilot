@@ -10,3 +10,8 @@ void AppEvents::notifyNavigateToSettings()
 {
     emit navigateToSettings();
 }
+
+void AppEvents::notifyNavigateToSnippets()
+{
+    emit navigateToSnippets();
+}

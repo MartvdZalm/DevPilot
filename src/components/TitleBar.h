@@ -22,6 +22,7 @@ class TitleBar : public QWidget
     QToolButton* burgerButton = nullptr;
     QMenu* menu = nullptr;
     QAction* settingsAction = nullptr;
+    QAction* snippetsAction = nullptr;
     QAction* exitAction = nullptr;
 };
 

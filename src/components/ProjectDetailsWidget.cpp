@@ -21,7 +21,7 @@
 ProjectDetailsWidget::ProjectDetailsWidget(RepositoryProvider& repoProvider, QWidget* parent)
     : QWidget(parent), repositoryProvider(repoProvider), projectRepository(repoProvider.getProjectRepository()),
       processRepository(repoProvider.getProcessRepository()), noteRepository(repoProvider.getNoteRepository()),
-      editorRepository(repoProvider.getEditorRepository())
+      editorRepository(repoProvider.getEditorRepository()), settings("Dev", "Pilot")
 {
     setupUI();
     setupConnections();
@@ -78,6 +78,16 @@ void ProjectDetailsWidget::setupUI()
     notesScrollArea->setMaximumHeight(160);
     notesScrollArea->setWidgetResizable(true);
     notesScrollArea->setFrameShape(QFrame::NoFrame);
+
+    bool notesVisible = settings.value("NotesVisible", true).toBool();
+
+    toggleNotesBtn->setChecked(notesVisible);
+    notesScrollArea->setVisible(notesVisible);
+
+    if (notesVisible)
+        toggleNotesBtn->setIcon(arrowDown);
+    else
+        toggleNotesBtn->setIcon(arrowRight);
 
     notesContainer = new QWidget();
     auto* flow = new FlowLayout(notesContainer, 0, 12, 12);
@@ -493,4 +503,6 @@ void ProjectDetailsWidget::onToggleNotesClicked(bool checked)
 {
     toggleNotesBtn->setIcon(checked ? arrowDown : arrowRight);
     notesScrollArea->setVisible(checked);
+    settings.setValue("NotesVisible", checked);
 }
+
