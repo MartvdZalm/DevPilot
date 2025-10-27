@@ -3,11 +3,11 @@
 
 #include "../models/Note.h"
 #include "../models/Project.h"
-#include "../repositories/interfaces/IModuleRepository.h"
-#include "../repositories/interfaces/INoteRepository.h"
-#include "../repositories/interfaces/IProjectRepository.h"
 #include "../repositories/RepositoryProvider.h"
 #include "../repositories/interfaces/IEditorRepository.h"
+#include "../repositories/interfaces/INoteRepository.h"
+#include "../repositories/interfaces/IProcessRepository.h"
+#include "../repositories/interfaces/IProjectRepository.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QList>
@@ -32,11 +32,11 @@ class ProjectDetailsWidget : public QWidget
     QHBoxLayout* createHeader();
 
     void loadProject();
-    void loadProjectModules(int projectId);
+    void loadProjectProcesses(int projectId);
     void loadProjectNotes(int projectId);
 
     void refreshProject();
-    void refreshModules();
+    void refreshProcesses();
 
     void onAddNoteClicked();
     void onOpenNoteDialog(const Note& note);
@@ -45,20 +45,20 @@ class ProjectDetailsWidget : public QWidget
     void onOpenInTerminalClicked();
     void onOpenInIDEClicked();
     void onOpenAllAppsClicked();
-    void onAddModuleClicked();
+    void onAddProcessClicked();
     void onToggleNotesClicked(bool checked);
-    void onEditModuleClicked(const Module& module);
-    void onDeleteModuleClicked(const Module& module);
+    void onEditProcessClicked(const Process& process);
+    void onDeleteProcessClicked(const Process& process);
 
   private:
     RepositoryProvider& repositoryProvider;
     IProjectRepository& projectRepository;
-    IModuleRepository& moduleRepository;
+    IProcessRepository& processRepository;
     INoteRepository& noteRepository;
     IEditorRepository& editorRepository;
 
     Project currentProject;
-    QList<Module> currentModules;
+    QList<Process> currentProcesses;
 
     QLabel* projectNameLabel = nullptr;
     QLabel* projectPathLabel = nullptr;
@@ -69,14 +69,14 @@ class ProjectDetailsWidget : public QWidget
     QPushButton* openInIDEButton = nullptr;
     QPushButton* openAllAppsButton;
 
-    QGridLayout* modulesLayout = nullptr;
+    QGridLayout* processesLayout = nullptr;
     QGridLayout* notesLayout = nullptr;
-    QScrollArea* modulesScrollArea = nullptr;
+    QScrollArea* processesScrollArea = nullptr;
     QScrollArea* notesScrollArea = nullptr;
-    QPushButton* addModuleButton = nullptr;
-    QPushButton* startAllModulesButton = nullptr;
-    QPushButton* stopAllModulesButton = nullptr;
-    QVBoxLayout* moduleListLayout = nullptr;
+    QPushButton* addProcessButton = nullptr;
+    QPushButton* startAllProcessesButton = nullptr;
+    QPushButton* stopAllProcessesButton = nullptr;
+    QVBoxLayout* processListLayout = nullptr;
     QToolButton* addNoteButton = nullptr;
     QWidget* notesContainer = nullptr;
     QLayout* notesListLayout = nullptr;

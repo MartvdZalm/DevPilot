@@ -26,7 +26,7 @@ void EmptyStateWidget::setupUI()
 
     QPushButton* createProjectBtn = new QPushButton("Create Project");
     createProjectBtn->setStyleSheet(ButtonStyle::primary());
-    // connect(createProjectBtn, &QPushButton::clicked, this, &HomeWindow::onAddProjectClicked);
+    connect(createProjectBtn, &QPushButton::clicked, this, &EmptyStateWidget::createProjectClicked);
 
     emptyStateLayout->addWidget(emptyTitle);
     emptyStateLayout->addWidget(emptySubtitle);

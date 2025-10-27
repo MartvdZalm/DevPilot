@@ -46,6 +46,9 @@ void SidebarWidget::setupUI()
 
     projectList = new QListWidget();
     projectList->setStyleSheet(ListStyle::primary());
+    projectList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    projectList->setTextElideMode(Qt::ElideRight);
+
     sidebarLayout->addWidget(projectList);
 
     sidebarLayout->addStretch();

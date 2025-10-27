@@ -31,6 +31,12 @@ This application is currently in active development.
 
 ---
 
+## Contribute
+If you want to contribute to this project follow the following instructions.
+
+
+---
+
 ## License
 [MIT License](LICENSE)
 

@@ -1,8 +1,8 @@
 #ifndef PROJECTDIALOG_H
 #define PROJECTDIALOG_H
 
-#include "../../models/Project.h"
 #include "../../models/App.h"
+#include "../../models/Project.h"
 #include "../../repositories/RepositoryProvider.h"
 #include <QDialog>
 #include <QFormLayout>
@@ -19,7 +19,8 @@ class ProjectDialog : public QDialog
     Q_OBJECT
 
   public:
-    explicit ProjectDialog(RepositoryProvider& repoProvider, QWidget* parent = nullptr, const Project& projectToEdit = Project());
+    explicit ProjectDialog(RepositoryProvider& repoProvider, QWidget* parent = nullptr,
+                           const Project& projectToEdit = Project());
 
     Project getProject() const;
     QList<int> getSelectedAppIds() const;

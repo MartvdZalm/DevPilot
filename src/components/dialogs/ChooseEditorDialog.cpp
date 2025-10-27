@@ -1,14 +1,14 @@
 #include "ChooseEditorDialog.h"
 #include "../../styles/ButtonStyle.h"
 #include "../../styles/ListStyle.h"
-#include <QListWidget>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QListWidget>
 #include <QMessageBox>
 
-ChooseEditorDialog::ChooseEditorDialog(const QList<Editor>& editors, QWidget* parent) : QDialog(parent),
-    editors(editors)
+ChooseEditorDialog::ChooseEditorDialog(const QList<Editor>& editors, QWidget* parent)
+    : QDialog(parent), editors(editors)
 {
     setupUI();
 }

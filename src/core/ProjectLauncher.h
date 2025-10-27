@@ -1,9 +1,9 @@
 #ifndef PROJECTLAUNCHER_H
 #define PROJECTLAUNCHER_H
 
-#include <QString>
-#include <QList>
 #include "../models/Editor.h"
+#include <QList>
+#include <QString>
 
 class ProjectLauncher
 {
@@ -17,6 +17,5 @@ class ProjectLauncher
     // Opens the project in a specific editor
     static void openInEditor(const QString& path, const Editor& editor);
 };
-
 
 #endif // PROJECTLAUNCHER_H

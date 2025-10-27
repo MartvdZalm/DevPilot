@@ -1,6 +1,6 @@
 #include "Seeder.h"
-#include <QDebug>
 #include "../../core/Logger.h"
+#include <QDebug>
 
 void Seeder::addSeeder(std::unique_ptr<ISeeder> seeder)
 {
@@ -23,7 +23,7 @@ bool Seeder::runSeeders()
             {
                 seededCount++;
                 LOG_INFO("Seeder completed successfully: " + seeder->getName());
-                            }
+            }
             else
             {
                 LOG_WARNING("Seeder failed: " + seeder->getName());

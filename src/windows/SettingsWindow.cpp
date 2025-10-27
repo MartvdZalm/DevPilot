@@ -12,7 +12,7 @@
 
 SettingsWindow::SettingsWindow(RepositoryProvider& repoProvider, QWidget* parent)
     : editorRepository(repoProvider.getEditorRepository()),
-      moduleTemplateRepository(repoProvider.getModuleTemplateRepository()),
+      processTemplateRepository(repoProvider.getProcessTemplateRepository()),
       appRepository(repoProvider.getAppRepository()), BaseWindow(parent)
 {
     setFixedSize(QSize(1000, 600));
@@ -312,10 +312,12 @@ QWidget* SettingsWindow::createAppsPage()
 
     addAppButton = new QPushButton("Add App");
     addAppButton->setStyleSheet(ButtonStyle::primary());
-    connect(addAppButton, &QPushButton::clicked, this, [this]() {
-        addAppRow();
-        applyButton->setEnabled(true);
-    });
+    connect(addAppButton, &QPushButton::clicked, this,
+            [this]()
+            {
+                addAppRow();
+                applyButton->setEnabled(true);
+            });
 
     buttonLayout->addWidget(addAppButton);
     buttonLayout->addStretch();
@@ -332,9 +334,7 @@ QWidget* SettingsWindow::createAppsPage()
     appsTable->setColumnWidth(2, 250);
     appsTable->setColumnWidth(3, 150);
 
-    connect(appsTable, &QTableWidget::cellChanged, this, [this]() {
-        applyButton->setEnabled(true);
-    });
+    connect(appsTable, &QTableWidget::cellChanged, this, [this]() { applyButton->setEnabled(true); });
 
     layout->addWidget(appsTable);
     return page;
@@ -349,9 +349,7 @@ void SettingsWindow::addAppRow(const App& app)
     enabledCheck->setChecked(app.isEnabled());
     enabledCheck->setStyleSheet("margin-left: 20px;");
     appsTable->setCellWidget(row, 0, enabledCheck);
-    connect(enabledCheck, &QCheckBox::stateChanged, this, [this]() {
-        applyButton->setEnabled(true);
-    });
+    connect(enabledCheck, &QCheckBox::stateChanged, this, [this]() { applyButton->setEnabled(true); });
 
     QTableWidgetItem* nameItem = new QTableWidgetItem(app.getName());
     appsTable->setItem(row, 1, nameItem);
@@ -365,17 +363,19 @@ void SettingsWindow::addAppRow(const App& app)
     QPushButton* deleteButton = new QPushButton("Delete");
     deleteButton->setStyleSheet(ButtonStyle::danger());
 
-    connect(deleteButton, &QPushButton::clicked, this, [this, row]() {
-        QMessageBox::StandardButton reply = QMessageBox::question(this, "Delete App",
-                                                                  "Are you sure you want to delete this app?",
-                                                                  QMessageBox::Yes | QMessageBox::No);
+    connect(deleteButton, &QPushButton::clicked, this,
+            [this, row]()
+            {
+                QMessageBox::StandardButton reply =
+                    QMessageBox::question(this, "Delete App", "Are you sure you want to delete this app?",
+                                          QMessageBox::Yes | QMessageBox::No);
 
-        if (reply == QMessageBox::Yes)
-        {
-            appsTable->removeRow(row);
-            applyButton->setEnabled(true);
-        }
-    });
+                if (reply == QMessageBox::Yes)
+                {
+                    appsTable->removeRow(row);
+                    applyButton->setEnabled(true);
+                }
+            });
 
     appsTable->setCellWidget(row, 4, deleteButton);
 }
@@ -421,7 +421,7 @@ void SettingsWindow::saveApps()
         QTableWidgetItem* argsItem = appsTable->item(row, 3);
         if (argsItem)
         {
-           app.setArguments(argsItem->text());
+            app.setArguments(argsItem->text());
         }
 
         appsToSave.append(app);
@@ -623,27 +623,27 @@ void SettingsWindow::saveEditors()
     currentEditors = editorsToSave;
 }
 
-void SettingsWindow::addTemplateRow(const ModuleTemplate& moduleTemplate)
+void SettingsWindow::addTemplateRow(const ProcessTemplate& processTemplate)
 {
     int row = templatesTable->rowCount();
     templatesTable->insertRow(row);
 
     QCheckBox* enabledCheck = new QCheckBox;
-    enabledCheck->setChecked(moduleTemplate.isEnabled());
+    enabledCheck->setChecked(processTemplate.isEnabled());
     enabledCheck->setStyleSheet("margin-left: 20px;");
     templatesTable->setCellWidget(row, 0, enabledCheck);
     connect(enabledCheck, &QCheckBox::stateChanged, this, [this]() { applyButton->setEnabled(true); });
 
-    QTableWidgetItem* nameItem = new QTableWidgetItem(moduleTemplate.getName());
+    QTableWidgetItem* nameItem = new QTableWidgetItem(processTemplate.getName());
     templatesTable->setItem(row, 1, nameItem);
 
-    QTableWidgetItem* commandItem = new QTableWidgetItem(moduleTemplate.getCommand());
+    QTableWidgetItem* commandItem = new QTableWidgetItem(processTemplate.getCommand());
     templatesTable->setItem(row, 2, commandItem);
 
-    QTableWidgetItem* portItem = new QTableWidgetItem(QString::number(moduleTemplate.getPort()));
+    QTableWidgetItem* portItem = new QTableWidgetItem(QString::number(processTemplate.getPort()));
     templatesTable->setItem(row, 3, portItem);
 
-    QTableWidgetItem* descriptionItem = new QTableWidgetItem(moduleTemplate.getDescription());
+    QTableWidgetItem* descriptionItem = new QTableWidgetItem(processTemplate.getDescription());
     templatesTable->setItem(row, 4, descriptionItem);
 
     QPushButton* deleteButton = new QPushButton("Delete");
@@ -670,32 +670,32 @@ void SettingsWindow::addTemplateRow(const ModuleTemplate& moduleTemplate)
 void SettingsWindow::loadTemplates()
 {
     templatesTable->setRowCount(0);
-    currentTemplates = moduleTemplateRepository.findAll();
+    currentTemplates = processTemplateRepository.findAll();
 
-    for (const ModuleTemplate& moduleTemplate : currentTemplates)
+    for (const ProcessTemplate& processTemplate : currentTemplates)
     {
-        addTemplateRow(moduleTemplate);
+        addTemplateRow(processTemplate);
     }
 }
 
 void SettingsWindow::saveTemplates()
 {
-    QList<ModuleTemplate> templatesToSave;
+    QList<ProcessTemplate> templatesToSave;
 
     for (int row = 0; row < templatesTable->rowCount(); ++row)
     {
-        ModuleTemplate moduleTemplate;
+        ProcessTemplate processTemplate;
 
         QCheckBox* enabledCheck = static_cast<QCheckBox*>(templatesTable->cellWidget(row, 0));
         if (enabledCheck)
         {
-            moduleTemplate.setEnabled(enabledCheck->isChecked());
+            processTemplate.setEnabled(enabledCheck->isChecked());
         }
 
         QTableWidgetItem* nameItem = templatesTable->item(row, 1);
         if (nameItem && !nameItem->text().isEmpty())
         {
-            moduleTemplate.setName(nameItem->text());
+            processTemplate.setName(nameItem->text());
         }
         else
         {
@@ -705,33 +705,33 @@ void SettingsWindow::saveTemplates()
         QTableWidgetItem* commandItem = templatesTable->item(row, 2);
         if (commandItem)
         {
-            moduleTemplate.setCommand(commandItem->text());
+            processTemplate.setCommand(commandItem->text());
         }
 
         QTableWidgetItem* portItem = templatesTable->item(row, 3);
         if (portItem && !portItem->text().isEmpty())
         {
-            moduleTemplate.setPort(portItem->text().toInt());
+            processTemplate.setPort(portItem->text().toInt());
         }
 
         QTableWidgetItem* descriptionItem = templatesTable->item(row, 4);
         if (descriptionItem)
         {
-            moduleTemplate.setDescription(descriptionItem->text());
+            processTemplate.setDescription(descriptionItem->text());
         }
 
-        templatesToSave.append(moduleTemplate);
+        templatesToSave.append(processTemplate);
     }
 
-    QList<ModuleTemplate> existingTemplates = moduleTemplateRepository.findAll();
-    for (const ModuleTemplate& existing : existingTemplates)
+    QList<ProcessTemplate> existingTemplates = processTemplateRepository.findAll();
+    for (const ProcessTemplate& existing : existingTemplates)
     {
-        moduleTemplateRepository.deleteById(existing.getId());
+        processTemplateRepository.deleteById(existing.getId());
     }
 
-    for (ModuleTemplate& moduleTemplate : templatesToSave)
+    for (ProcessTemplate& moduleTemplate : templatesToSave)
     {
-        moduleTemplateRepository.save(moduleTemplate);
+        processTemplateRepository.save(moduleTemplate);
     }
 
     currentTemplates = templatesToSave;
@@ -739,7 +739,7 @@ void SettingsWindow::saveTemplates()
 
 void SettingsWindow::onAddTemplateClicked()
 {
-    ModuleTemplate newTemplate;
+    ProcessTemplate newTemplate;
     addTemplateRow(newTemplate);
     applyButton->setEnabled(true);
 }

@@ -26,6 +26,7 @@ void HomeWindow::setupUI()
 
     // Empty state shown when no project is selected
     emptyStateWidget = new EmptyStateWidget(this);
+    connect(emptyStateWidget, &EmptyStateWidget::createProjectClicked, sidebarWidget, &SidebarWidget::onAddProjectClicked);
     emptyStateWidget->show();
 
     mainContentLayout->addWidget(emptyStateWidget);

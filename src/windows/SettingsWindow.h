@@ -49,7 +49,7 @@ class SettingsWindow : public BaseWindow
     void saveEditors();
 
     QWidget* createTemplatesPage();
-    void addTemplateRow(const ModuleTemplate& moduleTemplate = ModuleTemplate());
+    void addTemplateRow(const ProcessTemplate& processTemplate = ProcessTemplate());
     void loadTemplates();
     void saveTemplates();
 
@@ -60,7 +60,7 @@ class SettingsWindow : public BaseWindow
 
   private:
     IEditorRepository& editorRepository;
-    IModuleTemplateRepository& moduleTemplateRepository;
+    IProcessTemplateRepository& processTemplateRepository;
     IAppRepository& appRepository;
 
     QHBoxLayout* mainLayout;
@@ -89,7 +89,7 @@ class SettingsWindow : public BaseWindow
     QWidget* templatesPage;
     QTableWidget* templatesTable;
     QPushButton* addTemplateButton;
-    QList<ModuleTemplate> currentTemplates;
+    QList<ProcessTemplate> currentTemplates;
 
     // Apps Page Widgets
     QWidget* appsPage;

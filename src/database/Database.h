@@ -31,8 +31,16 @@ class Database : public QObject
   private:
     ~Database();
     bool createTables();
+    bool createProjectsTable(QSqlQuery& query);
+    bool createProcessesTable(QSqlQuery& query);
+    bool createNotesTable(QSqlQuery& query);
+    bool createEditorsTable(QSqlQuery& query);
+    bool createProcessTemplatesTable(QSqlQuery& query);
+    bool createAppsTables(QSqlQuery& query);
     bool applyPragmas();
     bool verifyDatabase();
+    bool runMigrations();
+    bool migrateProcessesTable();
 
   private:
     QSqlDatabase db;

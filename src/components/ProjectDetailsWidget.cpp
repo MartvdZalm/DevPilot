@@ -1,16 +1,16 @@
 #include "ProjectDetailsWidget.h"
 
 #include "../core/Logger.h"
+#include "../core/ProjectLauncher.h"
 #include "../styles/ButtonStyle.h"
 #include "../styles/FontStyle.h"
-#include "dialogs/ChooseEditorDialog.h"
 #include "FlowLayout.h"
-#include "ModuleListItem.h"
 #include "NoteCard.h"
-#include "dialogs/ModuleEditDialog.h"
+#include "ProcessListItem.h"
+#include "dialogs/ChooseEditorDialog.h"
 #include "dialogs/NoteDialog.h"
+#include "dialogs/ProcessDialog.h"
 #include "dialogs/ProjectDialog.h"
-#include "../core/ProjectLauncher.h"
 #include <QDesktopServices>
 #include <QDir>
 #include <QListWidget>
@@ -20,7 +20,7 @@
 
 ProjectDetailsWidget::ProjectDetailsWidget(RepositoryProvider& repoProvider, QWidget* parent)
     : QWidget(parent), repositoryProvider(repoProvider), projectRepository(repoProvider.getProjectRepository()),
-      moduleRepository(repoProvider.getModuleRepository()), noteRepository(repoProvider.getNoteRepository()),
+      processRepository(repoProvider.getProcessRepository()), noteRepository(repoProvider.getNoteRepository()),
       editorRepository(repoProvider.getEditorRepository())
 {
     setupUI();
@@ -35,32 +35,32 @@ void ProjectDetailsWidget::setupUI()
 
     projectDetailsLayout->addLayout(createHeader());
 
-    // Modules section header with toggle button
-    QHBoxLayout* moduleControlsLayout = new QHBoxLayout();
-    moduleControlsLayout->setContentsMargins(0, 10, 0, 10);
+    // Processes section header with toggle button
+    QHBoxLayout* processControlsLayout = new QHBoxLayout();
+    processControlsLayout->setContentsMargins(0, 10, 0, 10);
 
-    QLabel* modulesTitle = new QLabel("Modules");
-    modulesTitle->setStyleSheet(FontStyle::h2());
-    moduleControlsLayout->addWidget(modulesTitle);
+    QLabel* processTitle = new QLabel("Processes");
+    processTitle->setStyleSheet(FontStyle::h2());
+    processControlsLayout->addWidget(processTitle);
 
-    projectDetailsLayout->addLayout(moduleControlsLayout);
+    projectDetailsLayout->addLayout(processControlsLayout);
 
-    // Scrollable area for modules
-    modulesScrollArea = new QScrollArea();
-    modulesScrollArea->setWidgetResizable(true);
-    modulesScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    modulesScrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // Scrollable area for processes
+    processesScrollArea = new QScrollArea();
+    processesScrollArea->setWidgetResizable(true);
+    processesScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    processesScrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    QWidget* modulesContainer = new QWidget();
-    modulesContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    moduleListLayout = new QVBoxLayout(modulesContainer);
-    moduleListLayout->setContentsMargins(0, 0, 0, 0);
-    moduleListLayout->setSpacing(15);
-    moduleListLayout->setAlignment(Qt::AlignTop);
+    QWidget* processesContainer = new QWidget();
+    processesContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    processListLayout = new QVBoxLayout(processesContainer);
+    processListLayout->setContentsMargins(0, 0, 0, 0);
+    processListLayout->setSpacing(15);
+    processListLayout->setAlignment(Qt::AlignTop);
 
-    modulesScrollArea->setWidget(modulesContainer);
+    processesScrollArea->setWidget(processesContainer);
 
-    projectDetailsLayout->addWidget(modulesScrollArea, 1);
+    projectDetailsLayout->addWidget(processesScrollArea, 1);
 
     toggleNotesBtn = new QToolButton();
     toggleNotesBtn->setStyleSheet(ButtonStyle::icon());
@@ -115,7 +115,7 @@ void ProjectDetailsWidget::setupConnections()
     connect(openInTerminalButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onOpenInTerminalClicked);
     connect(openInIDEButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onOpenInIDEClicked);
     connect(openAllAppsButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onOpenAllAppsClicked);
-    connect(addModuleButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onAddModuleClicked);
+    connect(addProcessButton, &QPushButton::clicked, this, &ProjectDetailsWidget::onAddProcessClicked);
     connect(toggleNotesBtn, &QToolButton::toggled, this, &ProjectDetailsWidget::onToggleNotesClicked);
     connect(addNoteButton, &QToolButton::clicked, this, &ProjectDetailsWidget::onAddNoteClicked);
 }
@@ -142,14 +142,14 @@ QHBoxLayout* ProjectDetailsWidget::createHeader()
     projectPathLabel = new QLabel();
     projectPathLabel->setStyleSheet(FontStyle::text());
 
-    addModuleButton = new QPushButton("+");
-    addModuleButton->setFixedSize(25, 25);
-    addModuleButton->setStyleSheet(ButtonStyle::primary());
+    addProcessButton = new QPushButton("+");
+    addProcessButton->setFixedSize(25, 25);
+    addProcessButton->setStyleSheet(ButtonStyle::primary());
 
     QVBoxLayout* projectInfoLayout = new QVBoxLayout();
     projectInfoLayout->addLayout(titleLayout);
     projectInfoLayout->addWidget(projectPathLabel);
-    projectInfoLayout->addWidget(addModuleButton);
+    projectInfoLayout->addWidget(addProcessButton);
 
     openInFolderButton = new QPushButton(QIcon(":/Images/Folder"), "");
     openInFolderButton->setStyleSheet(ButtonStyle::primary());
@@ -190,17 +190,17 @@ void ProjectDetailsWidget::loadProject()
 {
     int projectId = currentProject.getId();
 
-    loadProjectModules(projectId);
+    loadProjectProcesses(projectId);
     loadProjectNotes(projectId);
 }
 
-void ProjectDetailsWidget::loadProjectModules(int projectId)
+void ProjectDetailsWidget::loadProjectProcesses(int projectId)
 {
-    currentModules = moduleRepository.findByProjectId(projectId);
-    refreshModules();
+    currentProcesses = processRepository.findByProjectId(projectId);
+    refreshProcesses();
 
-    LOG_INFO("Loaded " + QString::number(currentModules.size()) +
-             " modules for project ID: " + QString::number(projectId));
+    LOG_INFO("Loaded " + QString::number(currentProcesses.size()) +
+             " processes for project ID: " + QString::number(projectId));
 }
 
 void ProjectDetailsWidget::loadProjectNotes(int projectId)
@@ -276,29 +276,29 @@ void ProjectDetailsWidget::refreshProject()
     }
 }
 
-void ProjectDetailsWidget::refreshModules()
+void ProjectDetailsWidget::refreshProcesses()
 {
-    // Clear existing modules
+    // Clear existing processes
     QLayoutItem* child;
-    while ((child = moduleListLayout->takeAt(0)) != nullptr)
+    while ((child = processListLayout->takeAt(0)) != nullptr)
     {
         if (auto* w = child->widget())
             w->deleteLater();
         delete child;
     }
 
-    // Create module list items
-    for (const Module& module : currentModules)
+    // Create process list items
+    for (Process& process : currentProcesses)
     {
-        ModuleListItem* item = new ModuleListItem(module, this);
+        ProcessListItem* item = new ProcessListItem(process, repositoryProvider.getProcessRepository(), this);
 
-        connect(item, &ModuleListItem::editRequested, this, &ProjectDetailsWidget::onEditModuleClicked);
-        connect(item, &ModuleListItem::deleteRequested, this, &ProjectDetailsWidget::onDeleteModuleClicked);
+        connect(item, &ProcessListItem::editRequested, this, &ProjectDetailsWidget::onEditProcessClicked);
+        connect(item, &ProcessListItem::deleteRequested, this, &ProjectDetailsWidget::onDeleteProcessClicked);
 
-        moduleListLayout->addWidget(item);
+        processListLayout->addWidget(item);
     }
 
-    moduleListLayout->addStretch();
+    processListLayout->addStretch();
 }
 
 void ProjectDetailsWidget::onAddNoteClicked()
@@ -397,11 +397,9 @@ void ProjectDetailsWidget::onOpenAllAppsClicked()
 
     if (apps.isEmpty())
     {
-        QMessageBox::information(
-            this,
-            "No Linked Apps",
-            "This project has no linked apps.\n\nTo link apps, edit the project and select the desired apps from the list."
-            );
+        QMessageBox::information(this, "No Linked Apps",
+                                 "This project has no linked apps.\n\nTo link apps, edit the project and select the "
+                                 "desired apps from the list.");
     }
 
     for (const App& app : apps)
@@ -424,69 +422,69 @@ void ProjectDetailsWidget::onOpenAllAppsClicked()
         {
             process->setArguments(QProcess::splitCommand(args));
         }
-        process->startDetached();  // Run independently
+        process->startDetached(); // Run independently
     }
 
     LOG_INFO("Launched all enabled apps for project: " + currentProject.getName());
 }
 
-void ProjectDetailsWidget::onAddModuleClicked()
+void ProjectDetailsWidget::onAddProcessClicked()
 {
-    Module newModule;
-    newModule.setProjectId(currentProject.getId());
-    ModuleEditDialog dialog(newModule, repositoryProvider, currentProject, this);
+    Process newProcess;
+    newProcess.setProjectId(currentProject.getId());
+    ProcessDialog dialog(newProcess, repositoryProvider, currentProject, this);
 
     if (dialog.exec() != QDialog::Accepted)
     {
         return;
     }
 
-    Module moduleToSave = dialog.getModule();
-    moduleToSave.setProjectId(currentProject.getId());
+    Process processToSave = dialog.getProcess();
+    processToSave.setProjectId(currentProject.getId());
 
-    std::optional<Module> savedModule = moduleRepository.save(moduleToSave);
-    if (!savedModule.has_value())
+    std::optional<Process> savedProcess = processRepository.save(processToSave);
+    if (!savedProcess.has_value())
     {
         return;
     }
 
-    LOG_INFO("Created module: " + savedModule->getName());
-    loadProjectModules(currentProject.getId());
+    LOG_INFO("Created process: " + savedProcess->getName());
+    loadProjectProcesses(currentProject.getId());
 }
 
-void ProjectDetailsWidget::onEditModuleClicked(const Module& module)
+void ProjectDetailsWidget::onEditProcessClicked(const Process& process)
 {
-    ModuleEditDialog dialog(module, repositoryProvider, currentProject, this);
+    ProcessDialog dialog(process, repositoryProvider, currentProject, this);
     if (dialog.exec() == QDialog::Accepted)
     {
-        Module updatedModule = dialog.getModule();
-        updatedModule.setProjectId(currentProject.getId());
+        Process updatedProcess = dialog.getProcess();
+        updatedProcess.setProjectId(currentProject.getId());
 
-        std::optional<Module> savedModule = moduleRepository.save(updatedModule);
-        if (savedModule.has_value())
+        std::optional<Process> savedProcess = processRepository.save(updatedProcess);
+        if (savedProcess.has_value())
         {
-            LOG_INFO("Updated module: " + savedModule->getName());
-            loadProjectModules(currentProject.getId());
+            LOG_INFO("Updated process: " + savedProcess->getName());
+            loadProjectProcesses(currentProject.getId());
         }
     }
 }
 
-void ProjectDetailsWidget::onDeleteModuleClicked(const Module& module)
+void ProjectDetailsWidget::onDeleteProcessClicked(const Process& process)
 {
     QMessageBox::StandardButton reply = QMessageBox::question(
-        this, "Delete Module", QString("Are you sure you want to delete the module '%1'?").arg(module.getName()),
+        this, "Delete Process", QString("Are you sure you want to delete the process '%1'?").arg(process.getName()),
         QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::Yes)
     {
-        if (moduleRepository.deleteById(module.getId()))
+        if (processRepository.deleteById(process.getId()))
         {
-            LOG_INFO("Deleted module: " + module.getName());
-            loadProjectModules(currentProject.getId());
+            LOG_INFO("Deleted process: " + process.getName());
+            loadProjectProcesses(currentProject.getId());
         }
         else
         {
-            QMessageBox::warning(this, "Error", "Failed to delete module.");
+            QMessageBox::warning(this, "Error", "Failed to delete process.");
         }
     }
 }

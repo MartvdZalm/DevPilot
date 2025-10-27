@@ -1,10 +1,10 @@
 #ifndef NOTEDIALOG_H
 #define NOTEDIALOG_H
 
-#include <QDialog>
-#include <QTextEdit>
-#include <QLineEdit>
 #include "../../models/Note.h"
+#include <QDialog>
+#include <QLineEdit>
+#include <QTextEdit>
 
 class NoteDialog : public QDialog
 {
