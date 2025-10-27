@@ -1,49 +1,52 @@
-#include "ModuleTemplateSeeder.h"
+#include "ProcessTemplateSeeder.h"
+#include "../../core/Logger.h"
 
-ModuleTemplateSeeder::ModuleTemplateSeeder(ModuleTemplateRepository& repository) : moduleTemplateRepository(repository)
+ProcessTemplateSeeder::ProcessTemplateSeeder(ProcessTemplateRepository& repository)
+    : processTemplateRepository(repository)
 {
 }
 
-bool ModuleTemplateSeeder::shouldSeed()
+bool ProcessTemplateSeeder::shouldSeed()
 {
-    auto templates = moduleTemplateRepository.findAll();
+    auto templates = processTemplateRepository.findAll();
     return templates.isEmpty();
 }
 
-bool ModuleTemplateSeeder::seed()
+bool ProcessTemplateSeeder::seed()
 {
-    qDebug() << "Seeding module templates...";
+    LOG_INFO("Seeding process templates");
 
-    auto moduleTemplates = getDefaultTemplates();
+    auto processTemplates = getDefaultTemplates();
     int successCount = 0;
 
-    for (const auto& moduleTemplate : moduleTemplates)
+    for (const auto& processTemplate : processTemplates)
     {
-        auto result = moduleTemplateRepository.save(moduleTemplate);
+        auto result = processTemplateRepository.save(processTemplate);
         if (result.has_value())
         {
             successCount++;
         }
         else
         {
-            qWarning() << "Failed to save template:" << moduleTemplate.getName();
+            LOG_WARNING("Failed to save template: " + processTemplate.getName());
         }
     }
 
-    qDebug() << "Successfully seeded" << successCount << "out of" << moduleTemplates.size() << "templates";
-    return successCount == moduleTemplates.size();
+    LOG_INFO("Successfully seeded " + QString::number(successCount) + " out of " +
+             QString::number(processTemplates.size()) + " templates");
+    return successCount == processTemplates.size();
 }
 
-QString ModuleTemplateSeeder::getName()
+QString ProcessTemplateSeeder::getName()
 {
-    return "ModuleTemplateSeeder";
+    return "ProcessTemplateSeeder";
 }
 
-QVector<ModuleTemplate> ModuleTemplateSeeder::getDefaultTemplates()
+QVector<ProcessTemplate> ProcessTemplateSeeder::getDefaultTemplates()
 {
-    QVector<ModuleTemplate> templates;
+    QVector<ProcessTemplate> templates;
 
-    ModuleTemplate nodeFrontend;
+    ProcessTemplate nodeFrontend;
     nodeFrontend.setName("Node.js Frontend");
     nodeFrontend.setCommand("npm start");
     nodeFrontend.setPort(3000);
@@ -52,7 +55,7 @@ QVector<ModuleTemplate> ModuleTemplateSeeder::getDefaultTemplates()
     nodeFrontend.setEnvironment("NODE_ENV=development");
     templates.append(nodeFrontend);
 
-    ModuleTemplate nodeBackend;
+    ProcessTemplate nodeBackend;
     nodeBackend.setName("Node.js Backend");
     nodeBackend.setCommand("npm run dev");
     nodeBackend.setPort(3001);
@@ -61,7 +64,7 @@ QVector<ModuleTemplate> ModuleTemplateSeeder::getDefaultTemplates()
     nodeBackend.setEnvironment("NODE_ENV=development\nPORT=3001");
     templates.append(nodeBackend);
 
-    ModuleTemplate vue;
+    ProcessTemplate vue;
     vue.setName("Vue.js App");
     vue.setCommand("npm run serve");
     vue.setPort(8080);
@@ -70,7 +73,7 @@ QVector<ModuleTemplate> ModuleTemplateSeeder::getDefaultTemplates()
     vue.setEnvironment("");
     templates.append(vue);
 
-    ModuleTemplate angular;
+    ProcessTemplate angular;
     angular.setName("Angular App");
     angular.setCommand("ng serve");
     angular.setPort(4200);
@@ -79,7 +82,7 @@ QVector<ModuleTemplate> ModuleTemplateSeeder::getDefaultTemplates()
     angular.setEnvironment("");
     templates.append(angular);
 
-    ModuleTemplate spring;
+    ProcessTemplate spring;
     spring.setName("Spring Boot API");
     spring.setCommand("mvn spring-boot:run");
     spring.setPort(8080);
@@ -88,7 +91,7 @@ QVector<ModuleTemplate> ModuleTemplateSeeder::getDefaultTemplates()
     spring.setEnvironment("SPRING_PROFILES_ACTIVE=dev");
     templates.append(spring);
 
-    ModuleTemplate flask;
+    ProcessTemplate flask;
     flask.setName("Python Flask");
     flask.setCommand("python app.py");
     flask.setPort(5000);
@@ -97,7 +100,7 @@ QVector<ModuleTemplate> ModuleTemplateSeeder::getDefaultTemplates()
     flask.setEnvironment("FLASK_ENV=development\nFLASK_DEBUG=1");
     templates.append(flask);
 
-    ModuleTemplate docker;
+    ProcessTemplate docker;
     docker.setName("Docker Container");
     docker.setCommand("docker run");
     docker.setPort(8080);
@@ -106,7 +109,7 @@ QVector<ModuleTemplate> ModuleTemplateSeeder::getDefaultTemplates()
     docker.setEnvironment("");
     templates.append(docker);
 
-    ModuleTemplate compose;
+    ProcessTemplate compose;
     compose.setName("Docker Compose");
     compose.setCommand("docker-compose up");
     compose.setPort(8080);

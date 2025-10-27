@@ -1,28 +1,25 @@
 #ifndef REPOSITORYPROVIDER_H
 #define REPOSITORYPROVIDER_H
 
-#include "interfaces/IModuleRepository.h"
-#include "interfaces/INoteRepository.h"
-#include "interfaces/IProjectRepository.h"
-#include "interfaces/IEditorRepository.h"
-#include "interfaces/IModuleTemplateRepository.h"
 #include "interfaces/IAppRepository.h"
+#include "interfaces/IEditorRepository.h"
+#include "interfaces/INoteRepository.h"
+#include "interfaces/IProcessRepository.h"
+#include "interfaces/IProcessTemplateRepository.h"
+#include "interfaces/IProjectRepository.h"
 
 class RepositoryProvider
 {
   public:
     RepositoryProvider(std::unique_ptr<IProjectRepository> projectRepository,
                        std::unique_ptr<INoteRepository> noteRepository,
-                       std::unique_ptr<IModuleRepository> moduleRepository,
+                       std::unique_ptr<IProcessRepository> processRepository,
                        std::unique_ptr<IEditorRepository> editorRepository,
-                       std::unique_ptr<IModuleTemplateRepository> moduleTemplateRepository,
-                       std::unique_ptr<IAppRepository> appRepository
-    )
+                       std::unique_ptr<IProcessTemplateRepository> processTemplateRepository,
+                       std::unique_ptr<IAppRepository> appRepository)
         : projectRepository(std::move(projectRepository)), noteRepository(std::move(noteRepository)),
-          moduleRepository(std::move(moduleRepository)),
-          editorRepository(std::move(editorRepository)),
-          moduleTemplateRepository(std::move(moduleTemplateRepository)),
-          appRepository(std::move(appRepository))
+          processRepository(std::move(processRepository)), editorRepository(std::move(editorRepository)),
+          processTemplateRepository(std::move(processTemplateRepository)), appRepository(std::move(appRepository))
     {
     }
 
@@ -36,9 +33,9 @@ class RepositoryProvider
         return *noteRepository;
     }
 
-    IModuleRepository& getModuleRepository() const
+    IProcessRepository& getProcessRepository() const
     {
-        return *moduleRepository;
+        return *processRepository;
     }
 
     IEditorRepository& getEditorRepository() const
@@ -46,9 +43,9 @@ class RepositoryProvider
         return *editorRepository;
     }
 
-    IModuleTemplateRepository& getModuleTemplateRepository() const
+    IProcessTemplateRepository& getProcessTemplateRepository() const
     {
-        return *moduleTemplateRepository;
+        return *processTemplateRepository;
     }
 
     IAppRepository& getAppRepository() const
@@ -59,9 +56,9 @@ class RepositoryProvider
   private:
     std::unique_ptr<IProjectRepository> projectRepository;
     std::unique_ptr<INoteRepository> noteRepository;
-    std::unique_ptr<IModuleRepository> moduleRepository;
+    std::unique_ptr<IProcessRepository> processRepository;
     std::unique_ptr<IEditorRepository> editorRepository;
-    std::unique_ptr<IModuleTemplateRepository> moduleTemplateRepository;
+    std::unique_ptr<IProcessTemplateRepository> processTemplateRepository;
     std::unique_ptr<IAppRepository> appRepository;
 };
 

@@ -1,13 +1,13 @@
 #include "core/Logger.h"
 #include "database/Database.h"
 #include "repositories/EditorRepository.h"
-#include "repositories/ModuleRepository.h"
-#include "repositories/ModuleTemplateRepository.h"
+#include "repositories/ProcessRepository.h"
+#include "repositories/ProcessTemplateRepository.h"
 #include "repositories/NoteRepository.h"
 #include "repositories/ProjectRepository.h"
 #include "repositories/AppRepository.h"
 #include "repositories/RepositoryProvider.h"
-#include "database/seeders/ModuleTemplateSeeder.h"
+#include "database/seeders/ProcessTemplateSeeder.h"
 #include "database/seeders/Seeder.h"
 #include "styles/AppStyle.h"
 #include "windows/MainWindow.h"
@@ -32,14 +32,14 @@ int main(int argc, char* argv[])
 
     auto projectRepo = std::make_unique<ProjectRepository>(db);
     auto noteRepo = std::make_unique<NoteRepository>(db);
-    auto moduleRepo = std::make_unique<ModuleRepository>(db);
+    auto processRepo = std::make_unique<ProcessRepository>(db);
     auto editorRepo = std::make_unique<EditorRepository>(db);
-    auto moduleTemplateRepo = std::make_unique<ModuleTemplateRepository>(db);
+    auto processTemplateRepo = std::make_unique<ProcessTemplateRepository>(db);
     auto appRepo = std::make_unique<AppRepository>(db);
 
     // Run seeders
     Seeder seeder;
-    seeder.addSeeder(std::make_unique<ModuleTemplateSeeder>(*moduleTemplateRepo));
+    seeder.addSeeder(std::make_unique<ProcessTemplateSeeder>(*processTemplateRepo));
 
     if (!seeder.runSeeders())
     {
@@ -48,8 +48,8 @@ int main(int argc, char* argv[])
 
     // Create repository provider with the repositories
     auto repositoryProvider = std::make_unique<RepositoryProvider>(
-        std::move(projectRepo), std::move(noteRepo), std::move(moduleRepo),
-        std::move(editorRepo), std::move(moduleTemplateRepo), std::move(appRepo));
+        std::move(projectRepo), std::move(noteRepo), std::move(processRepo),
+        std::move(editorRepo), std::move(processTemplateRepo), std::move(appRepo));
 
     MainWindow window(*repositoryProvider);
     window.setWindowTitle("DevPilot");

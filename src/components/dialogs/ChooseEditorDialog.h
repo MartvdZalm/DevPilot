@@ -1,10 +1,10 @@
 #ifndef CHOOSEEDITORDIALOG_H
 #define CHOOSEEDITORDIALOG_H
 
-#include <QDialog>
-#include <QPushButton>
-#include <QListWidget>
 #include "../../models/Editor.h"
+#include <QDialog>
+#include <QListWidget>
+#include <QPushButton>
 
 class ChooseEditorDialog : public QDialog
 {

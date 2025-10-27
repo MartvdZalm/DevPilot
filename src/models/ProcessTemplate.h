@@ -1,14 +1,14 @@
-#ifndef MODULETEMPLATE_H
-#define MODULETEMPLATE_H
+#ifndef PROCESSTEMPLATE_H
+#define PROCESSTEMPLATE_H
 
 #include "Model.h"
 #include <QJsonObject>
 #include <QString>
 
-class ModuleTemplate : public Model
+class ProcessTemplate : public Model
 {
   public:
-    ModuleTemplate() = default;
+    ProcessTemplate() = default;
 
     QString getName() const
     {
@@ -106,4 +106,4 @@ class ModuleTemplate : public Model
     bool enabled = true;
 };
 
-#endif // MODULETEMPLATE_H
+#endif // PROCESSTEMPLATE_H

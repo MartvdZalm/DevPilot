@@ -1,6 +1,7 @@
 #include "ProjectDialog.h"
 #include "../../styles/ButtonStyle.h"
 #include "../../styles/InputStyle.h"
+#include "../../styles/GroupBoxStyle.h"
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGroupBox>
@@ -12,7 +13,7 @@ ProjectDialog::ProjectDialog(RepositoryProvider& repoProvider, QWidget* parent, 
     editing = !projectToEdit.getName().isEmpty();
     setupUI();
     setupConnections();
-    loadApps();         // load app list before filling checkboxes
+    loadApps(); // load app list before filling checkboxes
     populateFields();
 }
 
@@ -52,9 +53,11 @@ void ProjectDialog::setupUI()
     mainLayout->addLayout(infoLayout);
 
     QGroupBox* appGroup = new QGroupBox("Linked Apps");
+    appGroup->setStyleSheet(GroupBoxStyle::primary());
     QVBoxLayout* appLayout = new QVBoxLayout();
 
     appListWidget = new QListWidget();
+    appListWidget->setStyleSheet("background: transparent; border: none;");
     appListWidget->setSelectionMode(QAbstractItemView::NoSelection);
     appLayout->addWidget(appListWidget);
 

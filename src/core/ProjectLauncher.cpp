@@ -1,9 +1,9 @@
 #include "ProjectLauncher.h"
 #include <QDesktopServices>
-#include <QUrl>
-#include <QProcess>
 #include <QDir>
 #include <QMessageBox>
+#include <QProcess>
+#include <QUrl>
 
 void ProjectLauncher::openFolder(const QString& path)
 {

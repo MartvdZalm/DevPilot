@@ -2,8 +2,8 @@
 #define SIDEBARWIDGET_H
 
 #include "../models/Project.h"
-#include "../repositories/interfaces/IProjectRepository.h"
 #include "../repositories/RepositoryProvider.h"
+#include "../repositories/interfaces/IProjectRepository.h"
 #include <QList>
 #include <QListWidget>
 #include <QPushButton>
@@ -20,6 +20,7 @@ class SidebarWidget : public QWidget
     void setProjects(const QList<Project>& projects);
     void setSelectedProject(int projectId);
     void clearSelection();
+    void onAddProjectClicked();
 
   signals:
     void projectSelected(int projectId);
@@ -28,7 +29,6 @@ class SidebarWidget : public QWidget
     void setupUI();
     void setupConnections();
     void onProjectItemClicked(QListWidgetItem* item);
-    void onAddProjectClicked();
     void refreshProjectList();
 
     RepositoryProvider& repoProvider;

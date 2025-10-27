@@ -1,19 +1,17 @@
 #include "NoteDialog.h"
-#include "../../styles/InputStyle.h"
 #include "../../styles/ButtonStyle.h"
-#include <QVBoxLayout>
+#include "../../styles/InputStyle.h"
 #include <QLabel>
-#include <QPushButton>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 
-NoteDialog::NoteDialog(QWidget* parent)
-    : QDialog(parent)
+NoteDialog::NoteDialog(QWidget* parent) : QDialog(parent)
 {
     setupUI();
 }
 
-NoteDialog::NoteDialog(const Note& note, QWidget* parent)
-    : QDialog(parent), currentNote(note)
+NoteDialog::NoteDialog(const Note& note, QWidget* parent) : QDialog(parent), currentNote(note)
 {
     setupUI();
     loadNote(note);

@@ -12,12 +12,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         # Components
         components/dialogs/ProjectDialog.h
         components/dialogs/ProjectDialog.cpp
-        components/dialogs/ModuleEditDialog.h
-        components/dialogs/ModuleEditDialog.cpp
+        components/dialogs/ProcessDialog.h
+        components/dialogs/ProcessDialog.cpp
         components/dialogs/NoteDialog.h
         components/dialogs/NoteDialog.cpp
-        components/ModuleListItem.h
-        components/ModuleListItem.cpp
+        components/ProcessListItem.h
+        components/ProcessListItem.cpp
         components/NoteCard.cpp
         components/NoteCard.h
         components/FlowLayout.h
@@ -39,8 +39,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         database/seeders/ISeeder.h
         database/seeders/Seeder.h
         database/seeders/Seeder.cpp
-        database/seeders/ModuleTemplateSeeder.h
-        database/seeders/ModuleTemplateSeeder.cpp
+        database/seeders/ProcessTemplateSeeder.h
+        database/seeders/ProcessTemplateSeeder.cpp
 
         # Events
         events/AppEvents.cpp
@@ -55,31 +55,31 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         # Models
         models/Model.h
         models/Project.h
-        models/Module.h
+        models/Process.h
         models/Note.h
         models/Setting.h
         models/Editor.h
-        models/ModuleTemplate.h
+        models/ProcessTemplate.h
         models/App.h
 
         # Repositories
         repositories/interfaces/IProjectRepository.h
         repositories/interfaces/INoteRepository.h
-        repositories/interfaces/IModuleRepository.h
+        repositories/interfaces/IProcessRepository.h
         repositories/interfaces/IEditorRepository.h
-        repositories/interfaces/IModuleTemplateRepository.h
+        repositories/interfaces/IProcessTemplateRepository.h
         repositories/interfaces/IAppRepository.h
         repositories/ProjectRepository.h
         repositories/ProjectRepository.cpp
-        repositories/ModuleRepository.h
-        repositories/ModuleRepository.cpp
+        repositories/ProcessRepository.h
+        repositories/ProcessRepository.cpp
         repositories/NoteRepository.h
         repositories/NoteRepository.cpp
         repositories/EditorRepository.h
         repositories/EditorRepository.cpp
         repositories/RepositoryProvider.h
-        repositories/ModuleTemplateRepository.h
-        repositories/ModuleTemplateRepository.cpp
+        repositories/ProcessTemplateRepository.h
+        repositories/ProcessTemplateRepository.cpp
         repositories/AppRepository.h
         repositories/AppRepository.cpp
 
@@ -110,8 +110,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         windows/MainWindow.cpp
         windows/SettingsWindow.h
         windows/SettingsWindow.cpp
-        windows/ModuleWindow.cpp
-        windows/ModuleWindow.h
+        windows/ProcessWindow.cpp
+        windows/ProcessWindow.h
+
+        database/seeders/README.md
+        core/AnsiHtmlConverter.h
+        core/AnsiHtmlConverter.cpp
+
     )
 else()
     add_executable(DevPilot

@@ -36,21 +36,9 @@ bool Database::initialize()
         return false;
     }
 
-    if (!applyPragmas())
+    if (!applyPragmas() || !createTables() || !verifyDatabase())
     {
-        qCritical() << "Failed to apply database optimizations";
-        return false;
-    }
-
-    if (!createTables())
-    {
-        qCritical() << "Failed to create database tables";
-        return false;
-    }
-
-    if (!verifyDatabase())
-    {
-        qCritical() << "Database verification failed";
+        qCritical() << "Database initialization failed.";
         return false;
     }
 
@@ -75,8 +63,23 @@ bool Database::createTables()
         return false;
     }
 
-    const QStringList tables = {
-        R"(
+    bool success = createProjectsTable(query) && createProcessesTable(query) && createNotesTable(query) &&
+                   createEditorsTable(query) && createProcessTemplatesTable(query) && createAppsTables(query);
+
+    if (success)
+        query.exec("COMMIT");
+    else
+    {
+        qCritical() << "Rolling back due to error.";
+        query.exec("ROLLBACK");
+    }
+
+    return success;
+}
+
+bool Database::createProjectsTable(QSqlQuery& query)
+{
+    const QString sql = R"(
         CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -86,28 +89,38 @@ bool Database::createTables()
             updated_at DATETIME NOT NULL,
             UNIQUE(name, directory_path)
         )
-        )",
-        R"(
-        CREATE TABLE IF NOT EXISTS modules (
+    )";
+
+    return query.exec(sql);
+}
+
+bool Database::createProcessesTable(QSqlQuery& query)
+{
+    const QString sql = R"(
+        CREATE TABLE IF NOT EXISTS processes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             project_id INTEGER NOT NULL,
             name TEXT NOT NULL,
+            command TEXT NOT NULL,
+            working_directory TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'stopped',
+            pid INTEGER,
             port INTEGER,
-            status INTEGER NOT NULL DEFAULT 0,
-            command TEXT,
-            working_directory TEXT,
-            logs TEXT,
-            description TEXT,
-            parameters TEXT,
-            environment TEXT,
-            service_type INTEGER NOT NULL DEFAULT 0,
-            created_at DATETIME NOT NULL,
-            updated_at DATETIME NOT NULL,
-            FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
-            UNIQUE(project_id, port)
+            log_path TEXT,
+            last_started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            uptime DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
         )
-        )",
-        R"(
+    )";
+
+    return query.exec(sql);
+}
+
+bool Database::createNotesTable(QSqlQuery& query)
+{
+    const QString sql = R"(
         CREATE TABLE IF NOT EXISTS notes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             project_id INTEGER NOT NULL,
@@ -116,9 +129,15 @@ bool Database::createTables()
             created_at DATETIME NOT NULL,
             updated_at DATETIME NOT NULL,
             FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
-        );
-        )",
-        R"(
+        )
+    )";
+
+    return query.exec(sql);
+}
+
+bool Database::createEditorsTable(QSqlQuery& query)
+{
+    const QString sql = R"(
         CREATE TABLE IF NOT EXISTS editors (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -130,13 +149,19 @@ bool Database::createTables()
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(name)
         )
-        )",
-        R"(
-        CREATE TABLE IF NOT EXISTS module_templates (
+    )";
+
+    return query.exec(sql);
+}
+
+bool Database::createProcessTemplatesTable(QSqlQuery& query)
+{
+    const QString sql = R"(
+        CREATE TABLE IF NOT EXISTS process_templates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE NOT NULL,
             command TEXT NOT NULL,
-            port INTEGER NOT NULL,
+            port INTEGER,
             description TEXT,
             parameters TEXT,
             environment TEXT,
@@ -144,8 +169,14 @@ bool Database::createTables()
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-        )",
-        R"(
+    )";
+
+    return query.exec(sql);
+}
+
+bool Database::createAppsTables(QSqlQuery& query)
+{
+    const QString appsTable = R"(
         CREATE TABLE IF NOT EXISTS apps (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -156,8 +187,9 @@ bool Database::createTables()
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(name)
         )
-        )",
-        R"(
+    )";
+
+    const QString projectAppsTable = R"(
         CREATE TABLE IF NOT EXISTS project_apps (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             project_id INTEGER NOT NULL,
@@ -166,25 +198,9 @@ bool Database::createTables()
             FOREIGN KEY (app_id) REFERENCES apps (id) ON DELETE CASCADE,
             UNIQUE(project_id, app_id)
         )
-        )"};
+    )";
 
-    for (const auto& table : tables)
-    {
-        if (!query.exec(table))
-        {
-            qCritical() << "Table creation failed:" << query.lastError();
-            query.exec("ROLLBACK");
-            return false;
-        }
-    }
-
-    if (!query.exec("COMMIT"))
-    {
-        qCritical() << "Commit failed:" << query.lastError();
-        return false;
-    }
-
-    return true;
+    return query.exec(appsTable) && query.exec(projectAppsTable);
 }
 
 bool Database::verifyDatabase()
