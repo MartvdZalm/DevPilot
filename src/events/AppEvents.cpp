@@ -15,3 +15,8 @@ void AppEvents::notifyNavigateToSnippets()
 {
     emit navigateToSnippets();
 }
+
+void AppEvents::notifyRefreshHomeSidebar()
+{
+    emit refreshHomeSidebar();
+}

@@ -30,12 +30,15 @@ class SidebarWidget : public QWidget
     void setupConnections();
     void onProjectItemClicked(QListWidgetItem* item);
     void refreshProjectList();
+    void filterProjects(const QString& text);
 
     RepositoryProvider& repoProvider;
     IProjectRepository& projectRepository;
     QListWidget* projectList = nullptr;
     QPushButton* addProjectButton = nullptr;
+    QLineEdit* searchInput = nullptr;
     QListWidgetItem* currentlySelectedItem = nullptr;
+    QString currentSortType;
 };
 
 #endif // SIDEBARWIDGET_H

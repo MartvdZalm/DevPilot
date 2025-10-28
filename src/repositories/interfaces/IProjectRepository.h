@@ -15,6 +15,8 @@ class IProjectRepository
     virtual std::optional<Project> findById(int id) = 0;
     virtual QList<Project> findAll() = 0;
     virtual std::optional<Project> save(const Project& project) = 0;
+    virtual QList<Project> findAllByRecentlyOpened() = 0;
+    virtual bool updateLastOpened(int projectId) = 0;
     virtual bool deleteById(int id) = 0;
 
     virtual std::optional<Project> findByName(const QString& name) = 0;

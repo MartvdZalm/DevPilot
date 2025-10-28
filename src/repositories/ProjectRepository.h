@@ -12,6 +12,8 @@ class ProjectRepository : public IProjectRepository
     std::optional<Project> findById(int id) override;
     QList<Project> findAll() override;
     std::optional<Project> save(const Project& project) override;
+    QList<Project> findAllByRecentlyOpened() override;
+    bool updateLastOpened(int projectId) override;
     bool deleteById(int id) override;
     std::optional<Project> findByName(const QString& name) override;
     QList<Project> findByDirectoryPath(const QString& directoryPath) override;

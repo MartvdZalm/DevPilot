@@ -13,10 +13,13 @@ class AppEvents : public QObject
     void notifyNavigateToSettings();
     void notifyNavigateToSnippets();
 
+    void notifyRefreshHomeSidebar();
+
   signals:
     void navigateToSettings();
     void navigateToSnippets();
 
+    void refreshHomeSidebar();
 };
 
 #endif // APP_EVENTS_H
