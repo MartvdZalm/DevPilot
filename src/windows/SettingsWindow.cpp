@@ -73,7 +73,7 @@ void SettingsWindow::setupSidebar()
 
     sidebar->addItem("General");
     sidebar->addItem("Editors");
-    sidebar->addItem("Module Templates");
+    sidebar->addItem("Process Templates");
     sidebar->addItem("Apps");
     sidebar->addItem("About");
 
@@ -258,12 +258,12 @@ QWidget* SettingsWindow::createTemplatesPage()
     QVBoxLayout* layout = new QVBoxLayout(page);
     layout->setContentsMargins(20, 20, 20, 20);
 
-    QLabel* titleLabel = new QLabel("Manage Module Templates");
+    QLabel* titleLabel = new QLabel("Manage Process Templates");
     titleLabel->setStyleSheet("font-size: 16px; font-weight: bold; margin-bottom: 15px;");
     layout->addWidget(titleLabel);
 
     QLabel* descriptionLabel =
-        new QLabel("Configure custom module templates that appear when creating new modules. "
+        new QLabel("Configure custom process templates that appear when creating new processes. "
                    "Templates automatically pre-fill commands, ports, and settings for common project types.");
     descriptionLabel->setWordWrap(true);
     descriptionLabel->setStyleSheet("color: #666; margin-bottom: 15px;");
@@ -729,9 +729,9 @@ void SettingsWindow::saveTemplates()
         processTemplateRepository.deleteById(existing.getId());
     }
 
-    for (ProcessTemplate& moduleTemplate : templatesToSave)
+    for (ProcessTemplate& processTemplate : templatesToSave)
     {
-        processTemplateRepository.save(moduleTemplate);
+        processTemplateRepository.save(processTemplate);
     }
 
     currentTemplates = templatesToSave;

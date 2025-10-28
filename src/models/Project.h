@@ -25,6 +25,11 @@ class Project : public Model
         return description;
     }
 
+    QDateTime getLastOpenedAt() const
+    {
+        return lastOpenedAt;
+    }
+
     void setName(const QString& name)
     {
         this->name = name;
@@ -40,6 +45,11 @@ class Project : public Model
         this->description = description;
     }
 
+    void setLastOpenedAt(const QDateTime& lastOpenedAt)
+    {
+        this->lastOpenedAt = lastOpenedAt;
+    }
+
     QJsonObject serialize() const
     {
         QJsonObject obj;
@@ -47,6 +57,7 @@ class Project : public Model
         obj["name"] = name;
         obj["directoryPath"] = directoryPath;
         obj["description"] = description;
+        obj["lastOpenedAt"] = lastOpenedAt.toString(Qt::ISODate);
         obj["createdAt"] = createdAt.toString(Qt::ISODate);
         obj["updatedAt"] = updatedAt.toString(Qt::ISODate);
         return obj;
@@ -56,6 +67,7 @@ class Project : public Model
     QString name;
     QString directoryPath;
     QString description;
+    QDateTime lastOpenedAt;
 };
 
 #endif // PROJECT_H

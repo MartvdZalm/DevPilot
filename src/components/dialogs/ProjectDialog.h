@@ -27,6 +27,7 @@ class ProjectDialog : public QDialog
 
   private slots:
     void onOkClicked();
+    void onDeleteClicked();
     void onCancelClicked();
 
   private:
@@ -45,6 +46,7 @@ class ProjectDialog : public QDialog
     QListWidget* appListWidget;
 
     QPushButton* okButton;
+    QPushButton* deleteButton = nullptr;
     QPushButton* cancelButton;
     QPushButton* browseButton;
 

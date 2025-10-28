@@ -3,10 +3,13 @@
 #include "../core/Logger.h"
 #include "../styles/ButtonStyle.h"
 #include "../styles/ListStyle.h"
+#include "../styles/InputStyle.h"
 #include "dialogs/ProjectDialog.h"
+#include "../events/AppEvents.h"
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <qmenu.h>
 
 SidebarWidget::SidebarWidget(RepositoryProvider& repoProvider, QWidget* parent)
     : QWidget(parent), repoProvider(repoProvider), projectRepository(repoProvider.getProjectRepository())
@@ -44,10 +47,16 @@ void SidebarWidget::setupUI()
     projectsHeaderLayout->addWidget(addProjectButton);
     sidebarLayout->addLayout(projectsHeaderLayout);
 
+    searchInput = new QLineEdit();
+    searchInput->setPlaceholderText("Search...");
+    searchInput->setStyleSheet(InputStyle::primary());
+    sidebarLayout->addWidget(searchInput);
+
     projectList = new QListWidget();
     projectList->setStyleSheet(ListStyle::primary());
     projectList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     projectList->setTextElideMode(Qt::ElideRight);
+    sidebarLayout->addWidget(projectList);
 
     sidebarLayout->addWidget(projectList);
 
@@ -58,6 +67,9 @@ void SidebarWidget::setupConnections()
 {
     connect(addProjectButton, &QPushButton::clicked, this, &SidebarWidget::onAddProjectClicked);
     connect(projectList, &QListWidget::itemClicked, this, &SidebarWidget::onProjectItemClicked);
+    connect(searchInput, &QLineEdit::textChanged, this, &SidebarWidget::filterProjects);
+
+    connect(&AppEvents::instance(), &AppEvents::refreshHomeSidebar, this, &SidebarWidget::refreshProjectList);
 }
 
 void SidebarWidget::setProjects(const QList<Project>& projects)
@@ -105,6 +117,9 @@ void SidebarWidget::onProjectItemClicked(QListWidgetItem* item)
     item->setIcon(QIcon(":/Images/FolderOpen"));
 
     int projectId = item->data(Qt::UserRole).toInt();
+
+    projectRepository.updateLastOpened(projectId);
+
     emit projectSelected(projectId);
 }
 
@@ -143,11 +158,27 @@ void SidebarWidget::refreshProjectList()
         currentProjectId = currentlySelectedItem->data(Qt::UserRole).toInt();
     }
 
-    auto projects = projectRepository.findAll();
+    auto projects = projectRepository.findAllByRecentlyOpened();
     setProjects(projects);
 
     if (currentProjectId != -1)
     {
         setSelectedProject(currentProjectId);
+    }
+}
+
+void SidebarWidget::filterProjects(const QString& text)
+{
+    if (text.isEmpty())
+    {
+        refreshProjectList();
+        return;
+    }
+
+    for (int i = 0; i < projectList->count(); ++i)
+    {
+        QListWidgetItem* item = projectList->item(i);
+        bool matches = item->text().contains(text, Qt::CaseInsensitive);
+        item->setHidden(!matches);
     }
 }

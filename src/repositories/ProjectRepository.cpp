@@ -103,6 +103,51 @@ QList<Project> ProjectRepository::findAll()
     return results;
 }
 
+QList<Project> ProjectRepository::findAllByRecentlyOpened()
+{
+    QList<Project> results;
+    QSqlQuery query(database);
+    query.prepare("SELECT * FROM projects ORDER BY last_opened_at DESC");
+
+    if (!query.exec())
+    {
+        LOG_ERROR("Database error when fetching recently opened projects: " + query.lastError().text());
+        return results;
+    }
+
+    while (query.next())
+    {
+        results.append(mapFromRecord(query));
+    }
+
+    LOG_INFO("Fetched " + QString::number(results.size()) + " recently opened projects");
+    return results;
+}
+
+bool ProjectRepository::updateLastOpened(int projectId)
+{
+    QSqlQuery query(database);
+    query.prepare("UPDATE projects SET last_opened_at = :now WHERE id = :id");
+    query.bindValue(":now", QDateTime::currentDateTime());
+    query.bindValue(":id", projectId);
+
+    if (!query.exec())
+    {
+        LOG_ERROR("Failed to update last_opened_at for project ID " +
+                  QString::number(projectId) + ": " + query.lastError().text());
+        return false;
+    }
+
+    if (query.numRowsAffected() == 0)
+    {
+        LOG_WARNING("No project found to update last_opened_at with ID: " + QString::number(projectId));
+        return false;
+    }
+
+    LOG_INFO("Updated last_opened_at for project ID: " + QString::number(projectId));
+    return true;
+}
+
 bool ProjectRepository::deleteById(int id)
 {
     QSqlQuery query(database);
@@ -126,6 +171,7 @@ Project ProjectRepository::mapFromRecord(const QSqlQuery& query)
     project.setName(query.value("name").toString());
     project.setDirectoryPath(query.value("directory_path").toString());
     project.setDescription(query.value("description").toString());
+    project.setLastOpenedAt(query.value("last_opened_at").toDateTime());
     project.setCreatedAt(query.value("created_at").toDateTime());
     project.setUpdatedAt(query.value("updated_at").toDateTime());
     return project;
@@ -134,14 +180,15 @@ Project ProjectRepository::mapFromRecord(const QSqlQuery& query)
 std::optional<Project> ProjectRepository::insert(const Project& project)
 {
     QSqlQuery query(database);
-    query.prepare("INSERT INTO projects (name, directory_path, description, created_at, updated_at) VALUES (:name, "
-                  ":directory_path, :description, :created_at, :updated_at)");
+    query.prepare("INSERT INTO projects (name, directory_path, description, created_at, updated_at, last_opened_at) "
+                  "VALUES (:name, :directory_path, :description, :created_at, :updated_at, :last_opened_at)");
 
     query.bindValue(":name", project.getName());
     query.bindValue(":directory_path", project.getDirectoryPath());
     query.bindValue(":description", project.getDescription());
     query.bindValue(":created_at", QDateTime::currentDateTime());
     query.bindValue(":updated_at", QDateTime::currentDateTime());
+    query.bindValue(":last_opened_at", project.getLastOpenedAt());
 
     if (!query.exec())
     {
@@ -158,11 +205,12 @@ std::optional<Project> ProjectRepository::update(const Project& project)
 {
     QSqlQuery query(database);
     query.prepare("UPDATE projects SET name = :name, directory_path = :directory_path, description = :description, "
-                  "updated_at = :updated_at WHERE id = :id");
+                  "updated_at = :updated_at, last_opened_at = :last_opened_at WHERE id = :id");
     query.bindValue(":name", project.getName());
     query.bindValue(":directory_path", project.getDirectoryPath());
     query.bindValue(":description", project.getDescription());
     query.bindValue(":updated_at", QDateTime::currentDateTime());
+    query.bindValue(":last_opened_at", project.getLastOpenedAt());
     query.bindValue(":id", project.getId());
 
     if (!query.exec())

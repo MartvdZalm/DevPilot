@@ -158,6 +158,7 @@ void SnippetsWindow::setupSnippetForm()
     QLabel* codeLabel = new QLabel("Code:");
     codeLabel->setStyleSheet("font-weight: bold; margin-top: 10px;");
     codeEditor = new QTextEdit();
+    codeEditor->setLineWrapMode(QTextEdit::NoWrap);
     codeEditor->setStyleSheet(R"(
         QTextEdit {
             background-color: #1e1e1e;

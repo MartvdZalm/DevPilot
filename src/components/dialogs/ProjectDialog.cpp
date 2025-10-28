@@ -2,6 +2,8 @@
 #include "../../styles/ButtonStyle.h"
 #include "../../styles/InputStyle.h"
 #include "../../styles/GroupBoxStyle.h"
+#include "../../core/Logger.h"
+#include "../../events/AppEvents.h"
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGroupBox>
@@ -69,7 +71,15 @@ void ProjectDialog::setupUI()
 
     cancelButton = new QPushButton("Cancel");
     cancelButton->setStyleSheet(ButtonStyle::primary());
-    okButton = new QPushButton(editing ? "Save Changes" : "Create Project");
+
+    if (editing)
+    {
+        deleteButton = new QPushButton("Delete");
+        deleteButton->setStyleSheet(ButtonStyle::danger());
+        buttonLayout->addWidget(deleteButton);
+    }
+
+    okButton = new QPushButton(editing ? "Save" : "Create");
     okButton->setStyleSheet(ButtonStyle::primary());
 
     buttonLayout->addWidget(cancelButton);
@@ -81,6 +91,12 @@ void ProjectDialog::setupUI()
 void ProjectDialog::setupConnections()
 {
     connect(okButton, &QPushButton::clicked, this, &ProjectDialog::onOkClicked);
+
+    if (deleteButton != nullptr)
+    {
+        connect(deleteButton, &QPushButton::clicked, this, &ProjectDialog::onDeleteClicked);
+    }
+
     connect(cancelButton, &QPushButton::clicked, this, &ProjectDialog::onCancelClicked);
     connect(browseButton, &QPushButton::clicked,
             [this]()
@@ -174,6 +190,23 @@ void ProjectDialog::onOkClicked()
     project.setDescription(descriptionEdit->toPlainText().trimmed());
 
     accept();
+}
+
+void ProjectDialog::onDeleteClicked()
+{
+    if (editing)
+    {
+        if (repositoryProvider.getProjectRepository().deleteById(project.getId()))
+        {
+            LOG_INFO("Deleted project: " + project.getName());
+            AppEvents::instance().notifyRefreshHomeSidebar();
+            accept();
+        }
+        else
+        {
+            QMessageBox::warning(this, "Error", "Failed to delete process.");
+        }
+    }
 }
 
 void ProjectDialog::onCancelClicked()

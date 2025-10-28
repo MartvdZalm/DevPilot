@@ -86,6 +86,7 @@ bool Database::createProjectsTable(QSqlQuery& query)
             name TEXT NOT NULL,
             directory_path TEXT NOT NULL,
             description TEXT,
+            last_opened_at DATETIME,
             created_at DATETIME NOT NULL,
             updated_at DATETIME NOT NULL,
             UNIQUE(name, directory_path)
