@@ -154,8 +154,8 @@ std::optional<Process> ProcessRepository::insert(const Process& process)
     query.bindValue(":port", process.getPort());
     query.bindValue(":log_path", process.getLogPath());
     query.bindValue(":last_started_at",
-                    process.getLastStartedAt().isValid() ? process.getLastStartedAt() : QVariant(QVariant::DateTime));
-    query.bindValue(":uptime", process.getUptime().isValid() ? process.getUptime() : QVariant(QVariant::DateTime));
+                    process.getLastStartedAt().isValid() ? process.getLastStartedAt() : QVariant());
+    query.bindValue(":uptime", process.getUptime().isValid() ? process.getUptime() : QVariant());
 
     if (!query.exec())
     {
@@ -197,8 +197,8 @@ std::optional<Process> ProcessRepository::update(const Process& process)
     query.bindValue(":port", process.getPort());
     query.bindValue(":log_path", process.getLogPath());
     query.bindValue(":last_started_at",
-                    process.getLastStartedAt().isValid() ? process.getLastStartedAt() : QVariant(QVariant::DateTime));
-    query.bindValue(":uptime", process.getUptime().isValid() ? process.getUptime() : QVariant(QVariant::DateTime));
+                    process.getLastStartedAt().isValid() ? process.getLastStartedAt() : QVariant());
+    query.bindValue(":uptime", process.getUptime().isValid() ? process.getUptime() : QVariant());
     query.bindValue(":updated_at", QDateTime::currentDateTime());
     query.bindValue(":id", process.getId());
 

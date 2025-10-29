@@ -135,79 +135,6 @@ void SettingsWindow::setupButtonArea()
 QWidget* SettingsWindow::createGeneralPage()
 {
     QWidget* page = new QWidget;
-    QVBoxLayout* layout = new QVBoxLayout(page);
-    layout->setContentsMargins(20, 20, 20, 20);
-    layout->setSpacing(20);
-
-    QGroupBox* behaviorGroup = new QGroupBox("Application Behavior");
-    behaviorGroup->setStyleSheet("QGroupBox { font-weight: bold; color: #ffffff; }");
-
-    QVBoxLayout* behaviorLayout = new QVBoxLayout(behaviorGroup);
-
-    startupCheckbox = new QCheckBox("Open last project on startup");
-    startupCheckbox->setStyleSheet("color: #ffffff;");
-    behaviorLayout->addWidget(startupCheckbox);
-
-    minimizeToTrayCheckbox = new QCheckBox("Minimize to system tray");
-    minimizeToTrayCheckbox->setStyleSheet("color: #ffffff;");
-    behaviorLayout->addWidget(minimizeToTrayCheckbox);
-
-    autoStartCheckbox = new QCheckBox("Start with Windows");
-    autoStartCheckbox->setStyleSheet("color: #ffffff;");
-    behaviorLayout->addWidget(autoStartCheckbox);
-
-    behaviorLayout->addSpacing(10);
-
-    QLabel* windowBehaviorLabel = new QLabel("Window Behavior:");
-    windowBehaviorLabel->setStyleSheet("color: #a0a0a0; font-weight: bold; margin-top: 10px;");
-    behaviorLayout->addWidget(windowBehaviorLabel);
-
-    alwaysOnTopCheckbox = new QCheckBox("Always on top");
-    alwaysOnTopCheckbox->setStyleSheet("color: #ffffff;");
-    behaviorLayout->addWidget(alwaysOnTopCheckbox);
-
-    behaviorLayout->addStretch();
-    layout->addWidget(behaviorGroup);
-
-    QGroupBox* projectGroup = new QGroupBox("Project Settings");
-    projectGroup->setStyleSheet("QGroupBox { font-weight: bold; color: #ffffff; }");
-
-    QFormLayout* projectLayout = new QFormLayout(projectGroup);
-    projectLayout->setLabelAlignment(Qt::AlignRight);
-
-    QLabel* defaultLocationLabel = new QLabel("Default project location:");
-    defaultLocationLabel->setStyleSheet("color: #ffffff;");
-    QHBoxLayout* locationLayout = new QHBoxLayout();
-    defaultLocationLineEdit = new QLineEdit();
-    defaultLocationLineEdit->setStyleSheet(ButtonStyle::primary());
-    defaultLocationLineEdit->setPlaceholderText("C:/Projects/");
-    QPushButton* browseButton = new QPushButton("Browse");
-    browseButton->setStyleSheet(ButtonStyle::primary());
-    locationLayout->addWidget(defaultLocationLineEdit);
-    locationLayout->addWidget(browseButton);
-    projectLayout->addRow(defaultLocationLabel, locationLayout);
-
-    layout->addWidget(projectGroup);
-
-    QGroupBox* uiGroup = new QGroupBox("Interface Settings");
-    uiGroup->setStyleSheet("QGroupBox { font-weight: bold; color: #ffffff; }");
-
-    QVBoxLayout* uiLayout = new QVBoxLayout(uiGroup);
-
-    QLabel* themeLabel = new QLabel("Theme:");
-    themeLabel->setStyleSheet("color: #ffffff;");
-    uiLayout->addWidget(themeLabel);
-
-    themeComboBox = new QComboBox();
-    themeComboBox->setStyleSheet(ButtonStyle::primary());
-    themeComboBox->addItems({"Dark", "Light", "System"});
-    uiLayout->addWidget(themeComboBox);
-
-    uiLayout->addStretch();
-    layout->addWidget(uiGroup);
-
-    layout->addStretch();
-
     return page;
 }
 
@@ -523,19 +450,6 @@ void SettingsWindow::addEditorRow(const Editor& editor)
 void SettingsWindow::loadSettings()
 {
     QSettings settings;
-
-    startupCheckbox->setChecked(settings.value("behavior/openLastProject", true).toBool());
-    minimizeToTrayCheckbox->setChecked(settings.value("behavior/minimizeToTray", false).toBool());
-    autoStartCheckbox->setChecked(settings.value("behavior/startWithWindows", false).toBool());
-    alwaysOnTopCheckbox->setChecked(settings.value("behavior/alwaysOnTop", false).toBool());
-
-    defaultLocationLineEdit->setText(settings.value("project/defaultLocation", "").toString());
-
-    QString theme = settings.value("interface/theme", "Dark").toString();
-    int index = themeComboBox->findText(theme);
-    if (index >= 0)
-        themeComboBox->setCurrentIndex(index);
-
     loadEditors();
     loadTemplates();
     loadApps();
@@ -545,13 +459,6 @@ void SettingsWindow::loadSettings()
 void SettingsWindow::saveSettings()
 {
     QSettings settings;
-    settings.setValue("behavior/openLastProject", startupCheckbox->isChecked());
-    settings.setValue("behavior/minimizeToTray", minimizeToTrayCheckbox->isChecked());
-    settings.setValue("behavior/startWithWindows", autoStartCheckbox->isChecked());
-    settings.setValue("behavior/alwaysOnTop", alwaysOnTopCheckbox->isChecked());
-    settings.setValue("project/defaultLocation", defaultLocationLineEdit->text());
-    settings.setValue("interface/theme", themeComboBox->currentText());
-
     saveEditors();
     saveTemplates();
     saveApps();

@@ -99,12 +99,6 @@ class SettingsWindow : public BaseWindow
 
     // General Page Widgets
     QWidget* generalPage;
-    QCheckBox* startupCheckbox;
-    QCheckBox* minimizeToTrayCheckbox;
-    QCheckBox* autoStartCheckbox;
-    QCheckBox* alwaysOnTopCheckbox;
-    QComboBox* themeComboBox;
-    QLineEdit* defaultLocationLineEdit;
 };
 
 #endif // SETTINGSWINDOW_H
