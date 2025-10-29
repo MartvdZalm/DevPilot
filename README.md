@@ -4,15 +4,14 @@ The **Local Development Dashboard** is a tool designed to simplify the process o
 ## What does the dashboard do?
 The Local Development Dashboard offers an interface where developers can:
 - Manage their projects
-- Organize and control associated modules (e.g. frontend apps, backend servers, scripts)
+- Organize and control associated processes (e.g. frontend apps, backend servers, scripts)
 - Launch and monitor multiple components from a single place
-
-A **project** represents a logical group of related modules, and a **module** is any individually executable part of the project.
+- Save code snippets
 
 ## Purpose
 The goal of this application is to increase developer productivity by making local development workflows more efficient and less error prone.
 
-## Features (in short)
+## Features
 - Create and organize software projects
 - Add executable modules to a project
 - Launch modules from the dashboard
@@ -32,8 +31,13 @@ This application is currently in active development.
 ---
 
 ## Contribute
-If you want to contribute to this project follow the following instructions.
+Even though DevPilot is maintained by a solo developer, contributions are welcome! Here are some ways you can help:
 
+- **Report Issues:** Found a bug or unexpected behavior? [Open an issue](#) so it can be addressed.  
+- **Feature Requests:** Have an idea to improve the dashboard? Share it through issues or discussions.  
+- **Code Contributions:** Feel free to fork the repository and submit a pull request. Any contributions will be reviewed carefully and may be merged if they fit the project’s goals.  
+
+Your feedback and support make DevPilot better for everyone!
 
 ---
 
