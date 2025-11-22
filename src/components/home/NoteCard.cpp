@@ -2,7 +2,7 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QVBoxLayout>
-#include "../styles/ButtonStyle.h"
+#include "../../styles/ButtonStyle.h"
 
 NoteCard::NoteCard(const Note& note, QWidget* parent) : QFrame(parent), note(note)
 {

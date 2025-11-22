@@ -1,11 +1,12 @@
 #include "SidebarWidget.h"
 
-#include "../core/Logger.h"
-#include "../styles/ButtonStyle.h"
-#include "../styles/ListStyle.h"
-#include "../styles/InputStyle.h"
-#include "dialogs/ProjectDialog.h"
-#include "../events/AppEvents.h"
+#include "../../core/Logger.h"
+#include "../../core/IconManager.h"
+#include "../../styles/ButtonStyle.h"
+#include "../../styles/ListStyle.h"
+#include "../../styles/InputStyle.h"
+#include "../dialogs/ProjectDialog.h"
+#include "../../events/AppEvents.h"
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -38,7 +39,8 @@ void SidebarWidget::setupUI()
     QLabel* projectsLabel = new QLabel("Projects");
     projectsLabel->setStyleSheet("font-size: 18px; font-weight: bold; border: none;");
 
-    addProjectButton = new QPushButton(QIcon(":/Images/Add"), "", this);
+    addProjectButton = new QPushButton("", this);
+    addProjectButton->setIcon(IconManager::instance().add());
     addProjectButton->setStyleSheet(ButtonStyle::icon());
     addProjectButton->setIconSize(QSize(25, 25));
 
@@ -181,4 +183,9 @@ void SidebarWidget::filterProjects(const QString& text)
         bool matches = item->text().contains(text, Qt::CaseInsensitive);
         item->setHidden(!matches);
     }
+}
+
+void SidebarWidget::refreshStyle()
+{
+    addProjectButton->setIcon(IconManager::instance().add());
 }

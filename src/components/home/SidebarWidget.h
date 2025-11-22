@@ -1,9 +1,9 @@
 #ifndef SIDEBARWIDGET_H
 #define SIDEBARWIDGET_H
 
-#include "../models/Project.h"
-#include "../repositories/RepositoryProvider.h"
-#include "../repositories/interfaces/IProjectRepository.h"
+#include "../../models/Project.h"
+#include "../../repositories/RepositoryProvider.h"
+#include "../../repositories/interfaces/IProjectRepository.h"
 #include <QList>
 #include <QListWidget>
 #include <QPushButton>
@@ -21,6 +21,7 @@ class SidebarWidget : public QWidget
     void setSelectedProject(int projectId);
     void clearSelection();
     void onAddProjectClicked();
+    void refreshStyle();
 
   signals:
     void projectSelected(int projectId);

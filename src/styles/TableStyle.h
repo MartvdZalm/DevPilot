@@ -1,14 +1,14 @@
-#ifndef LISTSTYLE_H
-#define LISTSTYLE_H
+#ifndef TABLESTYLE_H
+#define TABLESTYLE_H
 
 #include "ThemeManager.h"
 #include <QString>
 
-class ListStyle
+class TableStyle
 {
   public:
     static QString primary();
     static QString primary(Theme theme);
 };
 
-#endif // LISTSTYLE_H
+#endif // TABLESTYLE_H

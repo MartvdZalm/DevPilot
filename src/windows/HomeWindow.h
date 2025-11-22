@@ -1,9 +1,10 @@
 #ifndef HOMEWINDOW_H
 #define HOMEWINDOW_H
 
-#include "../components/EmptyStateWidget.h"
-#include "../components/ProjectDetailsWidget.h"
-#include "../components/SidebarWidget.h"
+#include "../components/home/EmptyStateWidget.h"
+#include "../components/home/ProjectDetailsWidget.h"
+#include "../components/home/SidebarWidget.h"
+#include "../components/home/TitleBar.h"
 #include "../repositories/interfaces/IProjectRepository.h"
 #include "../repositories/RepositoryProvider.h"
 #include "BaseWindow.h"
@@ -18,6 +19,8 @@ class HomeWindow : public BaseWindow
   private:
     void setupUI() override;
     void setupConnections() override;
+    void applyTheme() override;
+
     void onProjectSelected(int projectId);
 
   protected:
@@ -27,8 +30,7 @@ class HomeWindow : public BaseWindow
     SidebarWidget* sidebarWidget = nullptr;
     EmptyStateWidget* emptyStateWidget = nullptr;
     ProjectDetailsWidget* projectDetailsWidget = nullptr;
-
-    QHBoxLayout* mainLayout = nullptr;
+    TitleBar* titleBar = nullptr;
 };
 
 #endif // HOMEWINDOW_H

@@ -1,5 +1,5 @@
 ﻿#include "MainWindow.h"
-#include "../components/TitleBar.h"
+// #include "../components/shared/TitleBar.h"
 #include "../events/AppEvents.h"
 #include "HomeWindow.h"
 #include "SettingsWindow.h"
@@ -14,8 +14,8 @@ MainWindow::MainWindow(RepositoryProvider& repoProvider, QWidget* parent)
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
-    TitleBar* titleBar = new TitleBar(this);
-    mainLayout->addWidget(titleBar);
+    // TitleBar* titleBar = new TitleBar(this);
+    // mainLayout->addWidget(titleBar);
 
     stackedWidget = new QStackedWidget(container);
     mainLayout->addWidget(stackedWidget);

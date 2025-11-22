@@ -22,6 +22,7 @@ class SnippetsWindow : public BaseWindow
   private:
     void setupUI() override;
     void setupConnections() override;
+    void applyTheme() override;
     void setupSidebar();
     void setupSnippetForm();
 

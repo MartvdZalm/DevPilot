@@ -1,8 +1,9 @@
 #include "TitleBar.h"
 
-#include "../events/AppEvents.h"
-#include "../styles/ButtonStyle.h"
-#include "../styles/MenuStyle.h"
+#include "../../events/AppEvents.h"
+#include "../../styles/ButtonStyle.h"
+#include "../../styles/MenuStyle.h"
+#include "../../core/IconManager.h"
 #include <QApplication>
 #include <QHBoxLayout>
 #include <QIcon>
@@ -26,7 +27,7 @@ void TitleBar::setupUI()
 
     burgerButton = new QToolButton(this);
     burgerButton->setStyleSheet(ButtonStyle::icon());
-    burgerButton->setIcon(QIcon(":/Images/Menu"));
+    burgerButton->setIcon(IconManager::instance().menu());
     burgerButton->setIconSize(QSize(25, 25));
     burgerButton->setPopupMode(QToolButton::InstantPopup);
 
@@ -54,4 +55,9 @@ void TitleBar::setupConnections()
     connect(snippetsAction, &QAction::triggered, this, [this] { AppEvents::instance().notifyNavigateToSnippets(); });
     connect(settingsAction, &QAction::triggered, this, [this] { AppEvents::instance().notifyNavigateToSettings(); });
     connect(exitAction, &QAction::triggered, qApp, &QApplication::quit);
+}
+
+void TitleBar::refreshStyle()
+{
+    burgerButton->setIcon(IconManager::instance().menu());
 }

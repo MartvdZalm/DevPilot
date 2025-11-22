@@ -8,7 +8,6 @@
         <file alias="ArrowDropUp">assets/images/arrow_drop_up.png</file>
         <file alias="Edit">assets/images/edit.png</file>
         <file alias="Close">assets/images/close.png</file>
-        <file alias="Menu">assets/images/menu.png</file>
         <file alias="Minimize">assets/images/minimize.png</file>
         <file alias="Maximize">assets/images/maximize.png</file>
         <file alias="Restore">assets/images/restore.png</file>
@@ -21,5 +20,10 @@
         <file alias="SDK">assets/images/sdk.png</file>
         <file alias="Mop">assets/images/mop.png</file>
         <file alias="Snippet">assets/images/snippet.png</file>
+        <file alias="Menu">assets/images/menu.svg</file>
+    </qresource>
+    <qresource prefix="/Icons">
+        <file alias="Add">assets/icons/add.svg</file>
+        <file alias="Menu">assets/icons/menu.svg</file>
     </qresource>
 </RCC>

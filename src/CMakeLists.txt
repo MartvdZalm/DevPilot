@@ -4,20 +4,20 @@ set(PROJECT_SOURCES
 
 add_library(DevPilotLib STATIC
     # Components
-    components/EmptyStateWidget.cpp
-    components/EmptyStateWidget.h
-    components/FlowLayout.cpp
-    components/FlowLayout.h
-    components/NoteCard.cpp
-    components/NoteCard.h
-    components/ProcessListItem.cpp
-    components/ProcessListItem.h
-    components/ProjectDetailsWidget.cpp
-    components/ProjectDetailsWidget.h
-    components/SidebarWidget.cpp
-    components/SidebarWidget.h
-    components/TitleBar.cpp
-    components/TitleBar.h
+    components/home/EmptyStateWidget.cpp
+    components/home/EmptyStateWidget.h
+    components/shared/FlowLayout.cpp
+    components/shared/FlowLayout.h
+    components/home/NoteCard.cpp
+    components/home/NoteCard.h
+    components/home/ProcessListItem.cpp
+    components/home/ProcessListItem.h
+    components/home/ProjectDetailsWidget.cpp
+    components/home/ProjectDetailsWidget.h
+    components/home/SidebarWidget.cpp
+    components/home/SidebarWidget.h
+    components/home/TitleBar.cpp
+    components/home/TitleBar.h
     components/dialogs/ChooseEditorDialog.cpp
     components/dialogs/ChooseEditorDialog.h
     components/dialogs/NoteDialog.cpp
@@ -34,6 +34,8 @@ add_library(DevPilotLib STATIC
     core/Logger.h
     core/ProjectLauncher.cpp
     core/ProjectLauncher.h
+    core/ThemedIcon.h
+    core/ThemedIcon.cpp
 
     # Database Layer
     database/Database.cpp
@@ -56,7 +58,6 @@ add_library(DevPilotLib STATIC
     models/Process.h
     models/ProcessTemplate.h
     models/Project.h
-    models/Setting.h
     models/Snippet.h
 
     # Repositories
@@ -96,10 +97,19 @@ add_library(DevPilotLib STATIC
     styles/InputStyle.h
     styles/ListStyle.cpp
     styles/ListStyle.h
+    styles/ListItemStyle.cpp
+    styles/ListItemStyle.h
     styles/MenuStyle.cpp
     styles/MenuStyle.h
     styles/ModuleStyle.cpp
     styles/ModuleStyle.h
+    styles/TableStyle.cpp
+    styles/TableStyle.h
+    styles/ListItemStyle.cpp
+    styles/ListItemStyle.h
+    styles/ThemeManager.cpp
+    styles/ThemeManager.h
+    styles/Theme.h
 
     # Windows
     windows/BaseWindow.cpp
@@ -121,6 +131,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         resources.qrc
+        core/IconManager.cpp
+        core/IconManager.h
     )
 else()
     add_executable(DevPilot
@@ -132,6 +144,7 @@ target_link_libraries(DevPilotLib PUBLIC
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::Svg
 )
 
 target_include_directories(DevPilotLib PUBLIC

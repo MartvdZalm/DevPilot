@@ -1,7 +1,7 @@
 #ifndef NOTECARD_H
 #define NOTECARD_H
 
-#include "../models/Note.h"
+#include "../../models/Note.h"
 #include <QFrame>
 #include <QLabel>
 #include <QPushButton>

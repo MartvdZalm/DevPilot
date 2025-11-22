@@ -1,7 +1,13 @@
 #include "SettingsWindow.h"
 
+#include "../styles/AppStyle.h"
 #include "../styles/ButtonStyle.h"
+#include "../styles/FontStyle.h"
+#include "../styles/InputStyle.h"
 #include "../styles/ListStyle.h"
+#include "../styles/TableStyle.h"
+#include "../styles/ThemeManager.h"
+#include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
@@ -19,6 +25,7 @@ SettingsWindow::SettingsWindow(RepositoryProvider& repoProvider, QWidget* parent
     setWindowTitle("Settings");
     setupUI();
     setupConnections();
+    applyTheme();
     loadSettings();
 }
 
@@ -56,16 +63,21 @@ void SettingsWindow::setupConnections()
     connect(editorsTable, &QTableWidget::cellChanged, this, &SettingsWindow::onEditorRowChanged);
     connect(addTemplateButton, &QPushButton::clicked, this, &SettingsWindow::onAddTemplateClicked);
     connect(templatesTable, &QTableWidget::cellChanged, this, &SettingsWindow::onTemplateRowChanged);
+    if (themeComboBox)
+    {
+        connect(themeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+                [this](int index) { applyButton->setEnabled(true); });
+    }
+    connect(&ThemeManager::instance(), &ThemeManager::themeChanged, this, &SettingsWindow::onThemeChanged);
 }
 
 void SettingsWindow::setupSidebar()
 {
     sidebarFrame = new QFrame;
     sidebarFrame->setFixedWidth(200);
-    sidebarFrame->setFrameStyle(QFrame::StyledPanel);
-
+    sidebarFrame->setStyleSheet("border-right: 1px solid #3a3f46;");
     QVBoxLayout* sidebarLayout = new QVBoxLayout(sidebarFrame);
-    sidebarLayout->setContentsMargins(0, 0, 0, 0);
+    sidebarLayout->setContentsMargins(10, 10, 10, 10);
 
     sidebar = new QListWidget;
     sidebar->setFrameStyle(QFrame::NoFrame);
@@ -135,6 +147,31 @@ void SettingsWindow::setupButtonArea()
 QWidget* SettingsWindow::createGeneralPage()
 {
     QWidget* page = new QWidget;
+    QVBoxLayout* layout = new QVBoxLayout(page);
+    layout->setContentsMargins(20, 20, 20, 20);
+    layout->setSpacing(20);
+
+    QLabel* titleLabel = new QLabel("General Settings");
+    titleLabel->setProperty("role", "h2");
+    titleLabel->setStyleSheet(FontStyle::h2() + " margin-bottom: 15px;");
+    layout->addWidget(titleLabel);
+
+    QFormLayout* formLayout = new QFormLayout;
+    formLayout->setSpacing(15);
+
+    QLabel* themeLabel = new QLabel("Theme:");
+    themeLabel->setProperty("role", "text");
+    themeLabel->setStyleSheet(FontStyle::text());
+    themeComboBox = new QComboBox;
+    themeComboBox->addItem("Dark", static_cast<int>(Theme::Dark));
+    themeComboBox->addItem("Light", static_cast<int>(Theme::Light));
+    themeComboBox->setStyleSheet(InputStyle::primary());
+
+    formLayout->addRow(themeLabel, themeComboBox);
+
+    layout->addLayout(formLayout);
+    layout->addStretch();
+
     return page;
 }
 
@@ -145,12 +182,14 @@ QWidget* SettingsWindow::createEditorsPage()
     layout->setContentsMargins(20, 20, 20, 20);
 
     QLabel* titleLabel = new QLabel("Configure IDEs and Editors");
-    titleLabel->setStyleSheet("font-size: 16px; font-weight: bold; margin-bottom: 15px;");
+    titleLabel->setProperty("role", "h2");
+    titleLabel->setStyleSheet(FontStyle::h2() + " margin-bottom: 15px;");
     layout->addWidget(titleLabel);
 
     QLabel* descriptionLabel = new QLabel("Configure the editors you want to appear in the 'Open in IDE' menu.");
+    descriptionLabel->setProperty("role", "text");
     descriptionLabel->setWordWrap(true);
-    descriptionLabel->setStyleSheet("color: #666; margin-bottom: 15px;");
+    descriptionLabel->setStyleSheet(FontStyle::text() + " margin-bottom: 15px;");
     layout->addWidget(descriptionLabel);
 
     QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -164,6 +203,7 @@ QWidget* SettingsWindow::createEditorsPage()
     layout->addLayout(buttonLayout);
 
     editorsTable = new QTableWidget;
+    editorsTable->setStyleSheet(TableStyle::primary());
     editorsTable->setColumnCount(5);
     editorsTable->setHorizontalHeaderLabels({"Enabled", "Name", "Path", "Arguments", "Actions"});
     editorsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -186,14 +226,16 @@ QWidget* SettingsWindow::createTemplatesPage()
     layout->setContentsMargins(20, 20, 20, 20);
 
     QLabel* titleLabel = new QLabel("Manage Process Templates");
-    titleLabel->setStyleSheet("font-size: 16px; font-weight: bold; margin-bottom: 15px;");
+    titleLabel->setProperty("role", "h2");
+    titleLabel->setStyleSheet(FontStyle::h2() + " margin-bottom: 15px;");
     layout->addWidget(titleLabel);
 
     QLabel* descriptionLabel =
         new QLabel("Configure custom process templates that appear when creating new processes. "
                    "Templates automatically pre-fill commands, ports, and settings for common project types.");
+    descriptionLabel->setProperty("role", "text");
     descriptionLabel->setWordWrap(true);
-    descriptionLabel->setStyleSheet("color: #666; margin-bottom: 15px;");
+    descriptionLabel->setStyleSheet(FontStyle::text() + " margin-bottom: 15px;");
     layout->addWidget(descriptionLabel);
 
     QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -204,6 +246,7 @@ QWidget* SettingsWindow::createTemplatesPage()
     layout->addLayout(buttonLayout);
 
     templatesTable = new QTableWidget;
+    templatesTable->setStyleSheet(TableStyle::primary());
     templatesTable->setColumnCount(6);
     templatesTable->setHorizontalHeaderLabels({"Enabled", "Name", "Command", "Port", "Description", "Actions"});
     templatesTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -227,12 +270,14 @@ QWidget* SettingsWindow::createAppsPage()
     layout->setContentsMargins(20, 20, 20, 20);
 
     QLabel* titleLabel = new QLabel("Manage Applications");
-    titleLabel->setStyleSheet("font-size: 16px; font-weight: bold; margin-bottom: 15px;");
+    titleLabel->setProperty("role", "h2");
+    titleLabel->setStyleSheet(FontStyle::h2());
     layout->addWidget(titleLabel);
 
     QLabel* descriptionLabel = new QLabel("Configure the applications that can be linked to your projects.");
+    descriptionLabel->setProperty("role", "text");
     descriptionLabel->setWordWrap(true);
-    descriptionLabel->setStyleSheet("color: #666; margin-bottom: 15px;");
+    descriptionLabel->setStyleSheet(FontStyle::text());
     layout->addWidget(descriptionLabel);
 
     QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -251,6 +296,7 @@ QWidget* SettingsWindow::createAppsPage()
     layout->addLayout(buttonLayout);
 
     appsTable = new QTableWidget;
+    appsTable->setStyleSheet(TableStyle::primary());
     appsTable->setColumnCount(5);
     appsTable->setHorizontalHeaderLabels({"Enabled", "Name", "Path", "Arguments", "Actions"});
     appsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -374,6 +420,8 @@ QWidget* SettingsWindow::createAboutPage()
     layout->setContentsMargins(20, 20, 20, 20);
 
     QLabel* placeholder = new QLabel("About..");
+    placeholder->setProperty("role", "text");
+    placeholder->setStyleSheet(FontStyle::text());
     layout->addWidget(placeholder);
     layout->addStretch();
 
@@ -450,6 +498,18 @@ void SettingsWindow::addEditorRow(const Editor& editor)
 void SettingsWindow::loadSettings()
 {
     QSettings settings;
+
+    // Load theme
+    if (themeComboBox)
+    {
+        Theme currentTheme = ThemeManager::instance().getCurrentTheme();
+        int themeIndex = themeComboBox->findData(static_cast<int>(currentTheme));
+        if (themeIndex >= 0)
+        {
+            themeComboBox->setCurrentIndex(themeIndex);
+        }
+    }
+
     loadEditors();
     loadTemplates();
     loadApps();
@@ -459,6 +519,18 @@ void SettingsWindow::loadSettings()
 void SettingsWindow::saveSettings()
 {
     QSettings settings;
+
+    // Save theme
+    if (themeComboBox)
+    {
+        int themeIndex = themeComboBox->currentIndex();
+        if (themeIndex >= 0)
+        {
+            Theme selectedTheme = static_cast<Theme>(themeComboBox->currentData().toInt());
+            ThemeManager::instance().setTheme(selectedTheme);
+        }
+    }
+
     saveEditors();
     saveTemplates();
     saveApps();
@@ -654,4 +726,83 @@ void SettingsWindow::onAddTemplateClicked()
 void SettingsWindow::onTemplateRowChanged(int row, int column)
 {
     applyButton->setEnabled(true);
+}
+
+void SettingsWindow::onThemeChanged(Theme theme)
+{
+    if (auto app = qobject_cast<QApplication*>(QApplication::instance()))
+    {
+        app->setStyleSheet(AppStyle::styleSheet(theme));
+    }
+}
+
+void SettingsWindow::applyTheme()
+{
+    if (sidebar)
+    {
+        sidebar->setStyleSheet(ListStyle::primary());
+    }
+    if (editorsTable)
+    {
+        editorsTable->setStyleSheet(TableStyle::primary());
+    }
+    if (templatesTable)
+    {
+        templatesTable->setStyleSheet(TableStyle::primary());
+    }
+    if (appsTable)
+    {
+        appsTable->setStyleSheet(TableStyle::primary());
+    }
+    if (themeComboBox)
+    {
+        themeComboBox->setStyleSheet(InputStyle::primary());
+    }
+    if (cancelButton)
+    {
+        cancelButton->setStyleSheet(ButtonStyle::primary());
+    }
+    if (applyButton)
+    {
+        applyButton->setStyleSheet(ButtonStyle::primary());
+    }
+    if (addEditorButton)
+    {
+        addEditorButton->setStyleSheet(ButtonStyle::primary());
+    }
+    if (addTemplateButton)
+    {
+        addTemplateButton->setStyleSheet(ButtonStyle::primary());
+    }
+    if (addAppButton)
+    {
+        addAppButton->setStyleSheet(ButtonStyle::primary());
+    }
+
+    const auto labels = findChildren<QLabel*>();
+    for (QLabel* label : labels)
+    {
+        const QVariant roleVar = label->property("role");
+        if (!roleVar.isValid())
+        {
+            continue;
+        }
+        const QString role = roleVar.toString();
+        if (role == "h1")
+        {
+            label->setStyleSheet(FontStyle::h1());
+        }
+        else if (role == "h2")
+        {
+            label->setStyleSheet(FontStyle::h2());
+        }
+        else if (role == "h3")
+        {
+            label->setStyleSheet(FontStyle::h3());
+        }
+        else if (role == "text")
+        {
+            label->setStyleSheet(FontStyle::text());
+        }
+    }
 }

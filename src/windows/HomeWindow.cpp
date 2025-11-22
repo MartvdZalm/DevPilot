@@ -9,14 +9,21 @@ HomeWindow::HomeWindow(RepositoryProvider& repoProvider, QWidget* parent)
 
 void HomeWindow::setupUI()
 {
-    mainLayout = new QHBoxLayout(this);
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
+
+    QHBoxLayout* pageContentLayout = new QHBoxLayout();
+    pageContentLayout->setContentsMargins(0, 0, 0, 0);
+    pageContentLayout->setSpacing(0);
+
+    titleBar = new TitleBar(this);
+    mainLayout->addWidget(titleBar);
 
     // Sidebar shows project list
     sidebarWidget = new SidebarWidget(repositoryProvider, this);
     sidebarWidget->setProjects(projectRepository.findAll());
-    mainLayout->addWidget(sidebarWidget);
+    pageContentLayout->addWidget(sidebarWidget);
 
     // Main content area (right side)
     QWidget* mainContentWidget = new QWidget();
@@ -36,12 +43,15 @@ void HomeWindow::setupUI()
     projectDetailsWidget->hide();
     mainContentLayout->addWidget(projectDetailsWidget);
 
-    mainLayout->addWidget(mainContentWidget);
+    pageContentLayout->addWidget(mainContentWidget);
+
+    mainLayout->addLayout(pageContentLayout);
 }
 
 void HomeWindow::setupConnections()
 {
     connect(sidebarWidget, &SidebarWidget::projectSelected, this, &HomeWindow::onProjectSelected);
+    connect(&ThemeManager::instance(), &ThemeManager::themeChanged, this, &HomeWindow::applyTheme);
 }
 
 void HomeWindow::onProjectSelected(int projectId)
@@ -69,4 +79,11 @@ void HomeWindow::onProjectSelected(int projectId)
         projectDetailsWidget->show();
         emptyStateWidget->hide();
     }
+}
+
+void HomeWindow::applyTheme()
+{
+    titleBar->refreshStyle();
+    sidebarWidget->refreshStyle();
+    emptyStateWidget->refreshStyle();
 }

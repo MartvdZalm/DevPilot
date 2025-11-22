@@ -1,13 +1,13 @@
 #ifndef PROJECTDETAILSWIDGET_H
 #define PROJECTDETAILSWIDGET_H
 
-#include "../models/Note.h"
-#include "../models/Project.h"
-#include "../repositories/RepositoryProvider.h"
-#include "../repositories/interfaces/IEditorRepository.h"
-#include "../repositories/interfaces/INoteRepository.h"
-#include "../repositories/interfaces/IProcessRepository.h"
-#include "../repositories/interfaces/IProjectRepository.h"
+#include "../../models/Note.h"
+#include "../../models/Project.h"
+#include "../../repositories/RepositoryProvider.h"
+#include "../../repositories/interfaces/IEditorRepository.h"
+#include "../../repositories/interfaces/INoteRepository.h"
+#include "../../repositories/interfaces/IProcessRepository.h"
+#include "../../repositories/interfaces/IProjectRepository.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QList>

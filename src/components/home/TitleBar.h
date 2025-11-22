@@ -12,6 +12,7 @@ class TitleBar : public QWidget
 
   public:
     explicit TitleBar(QWidget* parent = nullptr);
+    void refreshStyle();
 
   private:
     void setupUI();

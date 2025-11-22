@@ -3,25 +3,25 @@
 
 #include <QPushButton>
 #include <QWidget>
+#include <QLabel>
 
 class EmptyStateWidget : public QWidget
 {
     Q_OBJECT
   public:
     explicit EmptyStateWidget(QWidget* parent = nullptr);
-
-    QPushButton* getCreateProjectButton() const
-    {
-        return createProjectButton;
-    }
+    void refreshStyle();
 
   signals:
     void createProjectClicked();
 
   private:
     void setupUI();
+    void setupConnections();
 
   private:
+    QLabel* emptyTitle = nullptr;
+    QLabel* emptySubtitle = nullptr;
     QPushButton* createProjectButton = nullptr;
 };
 ;

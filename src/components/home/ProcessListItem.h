@@ -1,8 +1,8 @@
 #ifndef PROCESSLISTITEM_H
 #define PROCESSLISTITEM_H
 
-#include "../models/Process.h"
-#include "../repositories/interfaces/IProcessRepository.h"
+#include "../../models/Process.h"
+#include "../../repositories/interfaces/IProcessRepository.h"
 #include <QGroupBox>
 #include <QLabel>
 #include <QProcess>

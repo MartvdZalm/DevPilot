@@ -1,14 +1,15 @@
-#ifndef LISTSTYLE_H
-#define LISTSTYLE_H
+#ifndef LISTITEMSTYLE_H
+#define LISTITEMSTYLE_H
 
 #include "ThemeManager.h"
 #include <QString>
 
-class ListStyle
+class ListItemStyle
 {
   public:
     static QString primary();
+
     static QString primary(Theme theme);
 };
 
-#endif // LISTSTYLE_H
+#endif // LISTITEMSTYLE_H

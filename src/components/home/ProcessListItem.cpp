@@ -1,8 +1,8 @@
 #include "ProcessListItem.h"
-#include "../styles/ButtonStyle.h"
-#include "../styles/GroupBoxStyle.h"
-#include "../windows/ProcessWindow.h"
-#include "../core/Logger.h"
+#include "../../styles/ButtonStyle.h"
+#include "../../styles/GroupBoxStyle.h"
+#include "../../windows/ProcessWindow.h"
+#include "../../core/Logger.h"
 #include <QDir>
 #include <QHBoxLayout>
 #include <QTimer>

@@ -1,6 +1,12 @@
 #include "MenuStyle.h"
+#include "ThemeManager.h"
 
 QString MenuStyle::primary()
+{
+    return primary(ThemeManager::instance().getCurrentTheme());
+}
+
+QString MenuStyle::primary(Theme theme)
 {
     return QString(R"(
         QMenu {

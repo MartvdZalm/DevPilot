@@ -2,6 +2,7 @@
 #define SETTINGSWINDOW_H
 
 #include "../repositories/RepositoryProvider.h"
+#include "../styles/ThemeManager.h"
 #include "BaseWindow.h"
 #include <QCheckBox>
 #include <QComboBox>
@@ -30,10 +31,12 @@ class SettingsWindow : public BaseWindow
     void onEditorRowChanged(int row, int column);
     void onAddTemplateClicked();
     void onTemplateRowChanged(int row, int column);
+    void onThemeChanged(Theme theme);
 
   private:
     void setupUI() override;
     void setupConnections() override;
+    void applyTheme() override;
     void setupSidebar();
     void setupContentArea();
     void setupButtonArea();
@@ -99,6 +102,7 @@ class SettingsWindow : public BaseWindow
 
     // General Page Widgets
     QWidget* generalPage;
+    QComboBox* themeComboBox;
 };
 
 #endif // SETTINGSWINDOW_H

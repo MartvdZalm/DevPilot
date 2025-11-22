@@ -1,16 +1,16 @@
 #include "ProjectDetailsWidget.h"
 
-#include "../core/Logger.h"
-#include "../core/ProjectLauncher.h"
-#include "../styles/ButtonStyle.h"
-#include "../styles/FontStyle.h"
-#include "FlowLayout.h"
+#include "../../core/Logger.h"
+#include "../../core/ProjectLauncher.h"
+#include "../../styles/ButtonStyle.h"
+#include "../../styles/FontStyle.h"
+#include "../shared/FlowLayout.h"
 #include "NoteCard.h"
 #include "ProcessListItem.h"
-#include "dialogs/ChooseEditorDialog.h"
-#include "dialogs/NoteDialog.h"
-#include "dialogs/ProcessDialog.h"
-#include "dialogs/ProjectDialog.h"
+#include "../dialogs/ChooseEditorDialog.h"
+#include "../dialogs/NoteDialog.h"
+#include "../dialogs/ProcessDialog.h"
+#include "../dialogs/ProjectDialog.h"
 #include <QDesktopServices>
 #include <QDir>
 #include <QListWidget>

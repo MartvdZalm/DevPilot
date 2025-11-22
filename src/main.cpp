@@ -1,22 +1,26 @@
 #include "core/Logger.h"
 #include "database/Database.h"
-#include "repositories/EditorRepository.h"
-#include "repositories/ProcessRepository.h"
-#include "repositories/ProcessTemplateRepository.h"
-#include "repositories/NoteRepository.h"
-#include "repositories/ProjectRepository.h"
-#include "repositories/AppRepository.h"
-#include "repositories/SnippetRepository.h"
-#include "repositories/RepositoryProvider.h"
 #include "database/seeders/ProcessTemplateSeeder.h"
 #include "database/seeders/Seeder.h"
+#include "repositories/AppRepository.h"
+#include "repositories/EditorRepository.h"
+#include "repositories/NoteRepository.h"
+#include "repositories/ProcessRepository.h"
+#include "repositories/ProcessTemplateRepository.h"
+#include "repositories/ProjectRepository.h"
+#include "repositories/RepositoryProvider.h"
+#include "repositories/SnippetRepository.h"
 #include "styles/AppStyle.h"
+#include "styles/ThemeManager.h"
 #include "windows/MainWindow.h"
 #include <QApplication>
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
+
+    ThemeManager::instance();
+
     app.setStyleSheet(AppStyle::styleSheet());
     app.setWindowIcon(QIcon(":/Images/AppIcon"));
 
@@ -50,12 +54,16 @@ int main(int argc, char* argv[])
 
     // Create repository provider with the repositories
     auto repositoryProvider = std::make_unique<RepositoryProvider>(
-        std::move(projectRepo), std::move(noteRepo), std::move(processRepo),
-        std::move(editorRepo), std::move(processTemplateRepo), std::move(appRepo), std::move(snippetRepo));
+        std::move(projectRepo), std::move(noteRepo), std::move(processRepo), std::move(editorRepo),
+        std::move(processTemplateRepo), std::move(appRepo), std::move(snippetRepo));
 
     MainWindow window(*repositoryProvider);
     window.setWindowTitle("DevPilot");
     window.showMaximized();
+
+    // Connect theme changes to update application stylesheet
+    QObject::connect(&ThemeManager::instance(), &ThemeManager::themeChanged, &app,
+                     [&app](Theme theme) { app.setStyleSheet(AppStyle::styleSheet(theme)); });
 
     return app.exec();
 }
